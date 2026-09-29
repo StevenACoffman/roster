@@ -3,11 +3,11 @@ syntax = "proto3";
 package oneroster.v1p2.v1;
 
 import "buf/validate/validate.proto";
-import "oneroster/v1p2/v1/academic_session.proto";
+import "oneroster/v1p2/v1/academic_session_write.proto";
 
 option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
 
 message CreateAcademicSessionRequest {
   // The academic session to create.
-  AcademicSession academic_session = 1 [(buf.validate.field) = { required: true }];
+  AcademicSessionWrite academic_session = 1 [(buf.validate.field) = { required: true }];
 }

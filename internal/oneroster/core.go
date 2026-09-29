@@ -162,17 +162,26 @@ func protoDate(d pgtype.Date) *date.Date {
 	if !d.Valid {
 		return nil
 	}
-	year, rawMonth, day := d.Time.Date()
-	month := int(rawMonth)
+	year, month, day := d.Time.Date()
 	// Range-checked rather than converted blindly. PostgreSQL's DATE spans a far
 	// wider range than google.type.Date's int32 fields, so an out-of-range value
 	// means the row is corrupt — returning nil surfaces that, where a silent
 	// truncation would serve a plausible wrong date.
-	if year < minProtoYear || year > maxProtoYear ||
-		month < 1 || month > 12 ||
-		day < 1 || day > 31 {
+	//
+	// The year is the only component worth checking. time.Time.Date() reports a
+	// month in 1..12 and a day in 1..31 for every instant it can hold, the zero
+	// value and both ends of the DATE range included, so the month and day
+	// guards this function used to carry were unreachable. Mutation testing is
+	// what found them: no test could tell their bounds apart, because no input
+	// could reach them.
+	if year < minProtoYear || year > maxProtoYear {
 		return nil
 	}
+	// G115 is satisfied for the year by the guard above. It cannot see that
+	// time.Month and the day are already bounded, because that bound comes from
+	// the time package's contract rather than from a comparison here. Adding one
+	// would be unreachable code, which is what was just removed.
+	//nolint:gosec // time.Time.Date() reports a month in 1..12 and a day in 1..31 for every representable instant, so neither conversion can overflow int32.
 	return &date.Date{Year: int32(year), Month: int32(month), Day: int32(day)}
 }
 

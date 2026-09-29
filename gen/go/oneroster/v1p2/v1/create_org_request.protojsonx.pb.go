@@ -91,7 +91,7 @@ func (x *CreateOrgRequest) unmarshalProtoJSONXFast(d *protojsonxgen.Decoder, dis
 		if d.ReadNull() {
 			x.Org = nil
 		} else {
-			x.Org = &Org{}
+			x.Org = &OrgWrite{}
 			if fast, ok := any(x.Org).(interface {
 				unmarshalProtoJSONXFast(*protojsonxgen.Decoder, bool) (bool, error)
 			}); ok {
@@ -140,7 +140,7 @@ func (x *CreateOrgRequest) unmarshalProtoJSONXFrom(d *protojsonxgen.Decoder, dis
 			if d.ReadNull() {
 				x.Org = nil
 			} else {
-				x.Org = &Org{}
+				x.Org = &OrgWrite{}
 				if slow, ok := any(x.Org).(interface {
 					unmarshalProtoJSONXFrom(*protojsonxgen.Decoder, bool) error
 				}); ok {

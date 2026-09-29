@@ -91,7 +91,7 @@ func (x *CreateUserRequest) unmarshalProtoJSONXFast(d *protojsonxgen.Decoder, di
 		if d.ReadNull() {
 			x.User = nil
 		} else {
-			x.User = &User{}
+			x.User = &UserWrite{}
 			if fast, ok := any(x.User).(interface {
 				unmarshalProtoJSONXFast(*protojsonxgen.Decoder, bool) (bool, error)
 			}); ok {
@@ -140,7 +140,7 @@ func (x *CreateUserRequest) unmarshalProtoJSONXFrom(d *protojsonxgen.Decoder, di
 			if d.ReadNull() {
 				x.User = nil
 			} else {
-				x.User = &User{}
+				x.User = &UserWrite{}
 				if slow, ok := any(x.User).(interface {
 					unmarshalProtoJSONXFrom(*protojsonxgen.Decoder, bool) error
 				}); ok {

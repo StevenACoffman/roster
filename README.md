@@ -18,9 +18,9 @@ ______________________________________________________________________
 | **Validation**            | [protovalidate](https://buf.build/bufbuild/protovalidate)                                            | Schema-level validation rules compiled into Protobuf definitions                       |
 | **OpenAPI Generation**    | [protoc-gen-connect-openapi](https://github.com/sudorandom/protoc-gen-connect-openapi)               | Generates OpenAPI 3.1 specifications directly from Connect Protobuf definitions        |
 | **Testing & Mocking**     | [FauxRPC](https://github.com/sudorandom/fauxrpc)                                                     | Fake Connect/gRPC/REST server with CEL-driven stubs and failure simulation             |
-| **Integration Testing**   | [Testcontainers for Go](https://golang.testcontainers.org)                                           | Ephemeral PostgreSQL containers with automated Goose migrations and TRUNCATE isolation |
+| **Integration Testing**   | [Testcontainers for Go](https://golang.testcontainers.org)                                           | Ephemeral PostgreSQL containers with automated goose migrations and TRUNCATE isolation |
 | **Database & ORM**        | [sqlc](https://sqlc.dev) + [pgx/v5](https://github.com/jackc/pgx/v5)                                 | Compile-time type-safe Go code generated from raw SQL queries                          |
-| **Local Database**        | Docker Compose                                                                                       | Local PostgreSQL container with automated schema migrations via Goose                  |
+| **Local Database**        | Docker Compose                                                                                       | Local PostgreSQL container with automated schema migrations via goose                  |
 | **Linter & Security**     | [golangci-lint](https://golangci-lint.run) + [gosec](https://github.com/securego/gosec)              | Static analysis and security vulnerability scanner                                     |
 | **Vulnerability Scanner** | [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck)                                  | Official Go vulnerability scanner for known CVEs                                       |
 | **Frontend**              | [React](https://react.dev) + [Vite](https://vite.dev) + [TanStack Query](https://tanstack.com/query) | Responsive SPA with Connect-Web, black/white dark mode toggle, and photo URLs          |
@@ -46,13 +46,13 @@ ______________________________________________________________________
 │   ├── db/                 # SQLC generated database code & pgxpool with otelpgx
 │   ├── pet/                # OneRosterService: pure core (core.go) + I/O shell (handler.go)
 │   ├── telemetry/          # OpenTelemetry TracerProvider & Connect interceptor setup
-│   └── testutil/           # PostgreSQL Testcontainers helper with Goose migrations & TRUNCATE
+│   └── testutil/           # PostgreSQL Testcontainers helper with goose migrations & TRUNCATE
 ├── proto/
 │   ├── pet/v2/pet.proto    # Protobuf schema with validation rules
 │   └── pet/v1/pet.proto    # withdrawn; retained for buf compatibility
 ├── gen/                    # Generated Go stubs, OpenAPI specs, and binary descriptor images
 ├── sql/
-│   ├── schema/             # Versioned Goose migrations
+│   ├── schema/             # Versioned goose migrations
 │   └── queries/            # SQLC queries for pets
 ├── stubs/
 │   ├── normal/             # FauxRPC stubs with CEL dynamic responses
@@ -294,14 +294,14 @@ ______________________________________________________________________
 
 Tests that touch the database run against real PostgreSQL (`postgres:17-alpine`) using **[Testcontainers for Go](https://golang.testcontainers.org)** instead of mocks or SQLite. This even includes top-level handler code, so those tests exercise every layer beneath it without any mocking code. Unit tests built on interfaces and mocks tend to end up asserting against the mocks rather than the real behaviour.
 
-- **Automated migrations**: containers start with the full suite of Goose migrations applied via [`db.Migrate`](internal/db/migrate.go).
+- **Automated migrations**: containers start with the full suite of goose migrations applied via [`postgres.Migrate`](internal/postgres/migrate.go).
 - **Fast isolation via `TRUNCATE`**: to keep test suites fast (<3s), suites reuse the container and run `TRUNCATE TABLE pets RESTART IDENTITY CASCADE;` between tests instead of recreating containers.
 - **Docker & Colima**: automatically detects Colima on macOS (`~/.colima/default/docker.sock`). Set `DATABASE_URL` to point tests at an existing database instead.
 - **Pure unit tests**: logic without database dependencies (config, CORS, auth headers, validation helpers) runs in-memory.
 - **Build-tagged separation**: container suites sit behind `//go:build integration`,
   so `just test` stays fast and Docker-free; `just test-integration` runs everything.
   Both run `-race`.
-- **Fuzzing** over the pure core ([`fuzz_test.go`](internal/pet/fuzz_test.go)),
+- **Fuzzing** over the pure core ([`fuzz_test.go`](internal/oneroster/fuzz_test.go)),
   asserting invariants rather than fixed outputs: an accepted pet always has
   trimmed, non-blank fields and non-nil slices, whatever arrived on the wire.
 - **Mutation testing** with [mutago](https://github.com/quality-gates/mutago) over
@@ -310,11 +310,11 @@ Tests that touch the database run against real PostgreSQL (`postgres:17-alpine`)
   behaved differently?". Scoped to the pure core, because `handler.go` is proven by the
   container suites a mutation run does not execute. See [`.mutago.yml`](.mutago.yml);
   CI also reports surviving mutants on the lines a PR changed.
-- **Golden schema snapshot** ([`schema.golden`](internal/db/testdata/schema.golden)):
+- **Golden schema snapshot** ([`schema_tables.golden`](internal/postgres/testdata/schema_tables.golden)):
   a migration that drops a column or loosens a constraint shows up as a reviewable
   diff. Refresh with
   `go test -tags=integration -run TestSchemaGolden ./internal/db/ -update`.
-- **End-to-end in-process**: [`integration_test.go`](cmd/server/integration_test.go)
+- **End-to-end in-process**: [`serve_integration_test.go`](cmd/serve/serve_integration_test.go)
   drives the wired `run()` on an OS-assigned port as a real HTTP client.
 - **Frontend mocks**: web tests in `web/` use [FauxRPC](https://github.com/sudorandom/fauxrpc) stubs to test UI states without a running backend.
 
@@ -439,4 +439,4 @@ In production, user login is handled by an upstream reverse proxy (like Google C
 - **Proxy headers**: reads identity from IAP (`X-Goog-Authenticated-User-*`) or OAuth2 Proxy (`X-Forwarded-*`) when `TRUST_PROXY_HEADERS=true`. Only enable this behind a proxy that strips untrusted client headers.
 - **Bearer tokens**: set `AUTH_TOKENS=token1,token2` for service-to-service or CLI access (`Authorization: Bearer <token>`).
 - **Local dev**: with `DEV_MODE=true` (the default) a request without credentials gets a developer identity (`developer@local.test`, roles `user,admin`). The middleware simulates oauth2-proxy rather than IAP, because IAP carries no group membership and so could never exercise a role. Set `DEV_ROLES=user` to test as a non-admin.
-- **Context**: parsed claims are accessible in Go handlers via [`auth.FromContext(ctx)`](internal/auth/auth.go).
+- **Context**: parsed claims are accessible in Go handlers via [`oneroster.SubjectFromContext(ctx)`](internal/oneroster/context.go).

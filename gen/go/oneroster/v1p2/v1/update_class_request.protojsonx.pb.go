@@ -113,7 +113,7 @@ func (x *UpdateClassRequest) unmarshalProtoJSONXFast(d *protojsonxgen.Decoder, d
 		if d.ReadNull() {
 			x.Class = nil
 		} else {
-			x.Class = &Class{}
+			x.Class = &ClassWrite{}
 			if fast, ok := any(x.Class).(interface {
 				unmarshalProtoJSONXFast(*protojsonxgen.Decoder, bool) (bool, error)
 			}); ok {
@@ -213,7 +213,7 @@ func (x *UpdateClassRequest) unmarshalProtoJSONXFrom(d *protojsonxgen.Decoder, d
 			if d.ReadNull() {
 				x.Class = nil
 			} else {
-				x.Class = &Class{}
+				x.Class = &ClassWrite{}
 				if slow, ok := any(x.Class).(interface {
 					unmarshalProtoJSONXFrom(*protojsonxgen.Decoder, bool) error
 				}); ok {

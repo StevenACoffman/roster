@@ -91,7 +91,7 @@ func (x *CreateCourseRequest) unmarshalProtoJSONXFast(d *protojsonxgen.Decoder, 
 		if d.ReadNull() {
 			x.Course = nil
 		} else {
-			x.Course = &Course{}
+			x.Course = &CourseWrite{}
 			if fast, ok := any(x.Course).(interface {
 				unmarshalProtoJSONXFast(*protojsonxgen.Decoder, bool) (bool, error)
 			}); ok {
@@ -140,7 +140,7 @@ func (x *CreateCourseRequest) unmarshalProtoJSONXFrom(d *protojsonxgen.Decoder, 
 			if d.ReadNull() {
 				x.Course = nil
 			} else {
-				x.Course = &Course{}
+				x.Course = &CourseWrite{}
 				if slow, ok := any(x.Course).(interface {
 					unmarshalProtoJSONXFrom(*protojsonxgen.Decoder, bool) error
 				}); ok {

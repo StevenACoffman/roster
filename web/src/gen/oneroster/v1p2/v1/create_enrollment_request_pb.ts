@@ -5,15 +5,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Enrollment } from "./enrollment_pb";
-import { file_oneroster_v1p2_v1_enrollment } from "./enrollment_pb";
+import type { EnrollmentWrite } from "./enrollment_write_pb";
+import { file_oneroster_v1p2_v1_enrollment_write } from "./enrollment_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/create_enrollment_request.proto.
  */
 export const file_oneroster_v1p2_v1_create_enrollment_request: GenFile = /*@__PURE__*/
-  fileDesc("CjFvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfZW5yb2xsbWVudF9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSJUChdDcmVhdGVFbnJvbGxtZW50UmVxdWVzdBI5CgplbnJvbGxtZW50GAEgASgLMh0ub25lcm9zdGVyLnYxcDIudjEuRW5yb2xsbWVudEIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_oneroster_v1p2_v1_enrollment]);
+  fileDesc("CjFvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfZW5yb2xsbWVudF9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSJZChdDcmVhdGVFbnJvbGxtZW50UmVxdWVzdBI+CgplbnJvbGxtZW50GAEgASgLMiIub25lcm9zdGVyLnYxcDIudjEuRW5yb2xsbWVudFdyaXRlQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_oneroster_v1p2_v1_enrollment_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.CreateEnrollmentRequest
@@ -24,9 +24,9 @@ export type CreateEnrollmentRequest = Message<"oneroster.v1p2.v1.CreateEnrollmen
    * existing enrollment is refused rather than merged, so a curator is told when they
    * are about to change something they thought was new.
    *
-   * @generated from field: oneroster.v1p2.v1.Enrollment enrollment = 1;
+   * @generated from field: oneroster.v1p2.v1.EnrollmentWrite enrollment = 1;
    */
-  enrollment?: Enrollment;
+  enrollment?: EnrollmentWrite;
 };
 
 /**

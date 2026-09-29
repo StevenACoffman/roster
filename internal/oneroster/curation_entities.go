@@ -80,7 +80,12 @@ func (h *Handler) UpdateOrg(
 		return nil, translate(ctx, op, err)
 	}
 
-	fields := toStorageOrg(applyMask(toProtoOrg(stored), incoming, paths), h.now())
+	merged, err := mergeWrite(toProtoOrg(stored), incoming, paths)
+	if err != nil {
+		return nil, mergeFault(ctx, op, err)
+	}
+
+	fields := toStorageOrg(merged, h.now())
 	row, err := resilience.Write(ctx, h.resilientDB, func(c context.Context) (db.Org, error) {
 		return h.queries.UpdateOrgGuarded(c, db.UpdateOrgGuardedParams{
 			SourcedID:                id,
@@ -193,7 +198,12 @@ func (h *Handler) UpdateCourse(
 		return nil, translate(ctx, op, err)
 	}
 
-	fields := toStorageCourse(applyMask(toProtoCourse(stored), incoming, paths), h.now())
+	merged, err := mergeWrite(toProtoCourse(stored), incoming, paths)
+	if err != nil {
+		return nil, mergeFault(ctx, op, err)
+	}
+
+	fields := toStorageCourse(merged, h.now())
 	row, err := resilience.Write(ctx, h.resilientDB, func(c context.Context) (db.Course, error) {
 		return h.queries.UpdateCourseGuarded(c, db.UpdateCourseGuardedParams{
 			SourcedID:                id,
@@ -336,7 +346,12 @@ func (h *Handler) UpdateClass(
 		return nil, translate(ctx, op, err)
 	}
 
-	fields := toStorageClass(applyMask(toProtoClass(stored), incoming, paths), h.now())
+	merged, err := mergeWrite(toProtoClass(stored), incoming, paths)
+	if err != nil {
+		return nil, mergeFault(ctx, op, err)
+	}
+
+	fields := toStorageClass(merged, h.now())
 	row, err := resilience.Write(ctx, h.resilientDB, func(c context.Context) (db.Class, error) {
 		return h.queries.UpdateClassGuarded(c, db.UpdateClassGuardedParams{
 			SourcedID:                id,
@@ -457,7 +472,12 @@ func (h *Handler) UpdateEnrollment(
 		return nil, translate(ctx, op, err)
 	}
 
-	fields := toStorageEnrollment(applyMask(toProtoEnrollment(stored), incoming, paths), h.now())
+	merged, err := mergeWrite(toProtoEnrollment(stored), incoming, paths)
+	if err != nil {
+		return nil, mergeFault(ctx, op, err)
+	}
+
+	fields := toStorageEnrollment(merged, h.now())
 	row, err := resilience.Write(ctx, h.resilientDB, func(c context.Context) (db.Enrollment, error) {
 		return h.queries.UpdateEnrollmentGuarded(c, db.UpdateEnrollmentGuardedParams{
 			SourcedID:                id,
@@ -621,7 +641,12 @@ func (h *Handler) UpdateUser(
 		return nil, translate(ctx, op, err)
 	}
 
-	fields := toStorageUser(applyMask(toProtoUser(stored), incoming, paths), h.now())
+	merged, err := mergeWrite(toProtoUser(stored), incoming, paths)
+	if err != nil {
+		return nil, mergeFault(ctx, op, err)
+	}
+
+	fields := toStorageUser(merged, h.now())
 	row, err := resilience.Write(ctx, h.resilientDB, func(c context.Context) (db.OnerosterUser, error) {
 		return h.queries.UpdateUserGuarded(c, db.UpdateUserGuardedParams{
 			SourcedID:                id,

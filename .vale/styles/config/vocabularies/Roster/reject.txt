@@ -1,0 +1,7 @@
+# Spellings this repository has settled on the other form of, so a review does
+# not have to relitigate them.
+Postgres
+PostgresSQL
+One-Roster
+Oneroster
+connect-rpc

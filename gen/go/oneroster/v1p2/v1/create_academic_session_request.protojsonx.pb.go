@@ -91,7 +91,7 @@ func (x *CreateAcademicSessionRequest) unmarshalProtoJSONXFast(d *protojsonxgen.
 		if d.ReadNull() {
 			x.AcademicSession = nil
 		} else {
-			x.AcademicSession = &AcademicSession{}
+			x.AcademicSession = &AcademicSessionWrite{}
 			if fast, ok := any(x.AcademicSession).(interface {
 				unmarshalProtoJSONXFast(*protojsonxgen.Decoder, bool) (bool, error)
 			}); ok {
@@ -140,7 +140,7 @@ func (x *CreateAcademicSessionRequest) unmarshalProtoJSONXFrom(d *protojsonxgen.
 			if d.ReadNull() {
 				x.AcademicSession = nil
 			} else {
-				x.AcademicSession = &AcademicSession{}
+				x.AcademicSession = &AcademicSessionWrite{}
 				if slow, ok := any(x.AcademicSession).(interface {
 					unmarshalProtoJSONXFrom(*protojsonxgen.Decoder, bool) error
 				}); ok {

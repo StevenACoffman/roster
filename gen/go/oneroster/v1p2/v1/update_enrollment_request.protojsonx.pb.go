@@ -113,7 +113,7 @@ func (x *UpdateEnrollmentRequest) unmarshalProtoJSONXFast(d *protojsonxgen.Decod
 		if d.ReadNull() {
 			x.Enrollment = nil
 		} else {
-			x.Enrollment = &Enrollment{}
+			x.Enrollment = &EnrollmentWrite{}
 			if fast, ok := any(x.Enrollment).(interface {
 				unmarshalProtoJSONXFast(*protojsonxgen.Decoder, bool) (bool, error)
 			}); ok {
@@ -213,7 +213,7 @@ func (x *UpdateEnrollmentRequest) unmarshalProtoJSONXFrom(d *protojsonxgen.Decod
 			if d.ReadNull() {
 				x.Enrollment = nil
 			} else {
-				x.Enrollment = &Enrollment{}
+				x.Enrollment = &EnrollmentWrite{}
 				if slow, ok := any(x.Enrollment).(interface {
 					unmarshalProtoJSONXFrom(*protojsonxgen.Decoder, bool) error
 				}); ok {

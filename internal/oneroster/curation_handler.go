@@ -3,6 +3,7 @@ package oneroster
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5"
@@ -75,6 +76,22 @@ func (h *Handler) planWrite(
 		return "", "", translate(ctx, op, err)
 	}
 	return subject, id, nil
+}
+
+// mergeFault reports a failure to merge an update into the write type.
+//
+// Nothing a caller sends can cause one: requireMask has already checked the
+// paths, so the only remaining causes are a field added to an entity and not to
+// its write twin, or a kind changed on one side only. Both are our bugs, so the
+// caller gets an opaque Internal and the detail goes to the log.
+//
+// Separate from translate because that function's fallback reports a database
+// failure, which this is not; a log line blaming the database for a descriptor
+// mismatch would send someone to the wrong place entirely.
+func mergeFault(ctx context.Context, op string, err error) error {
+	slog.ErrorContext(ctx, "an update could not be merged into its write type",
+		"op", op, "error", err)
+	return connect.NewError(connect.CodeInternal, errInternal)
 }
 
 // refusedWrite maps the zero-row result of a guarded insert or soft delete.

@@ -141,7 +141,10 @@ func (h *Handler) UpdateAcademicSession(
 		return nil, translate(ctx, op, err)
 	}
 
-	merged := applyMask(toProtoAcademicSession(stored), incoming, paths)
+	merged, err := mergeWrite(toProtoAcademicSession(stored), incoming, paths)
+	if err != nil {
+		return nil, mergeFault(ctx, op, err)
+	}
 	// Checked after the merge, not before: the mask may change only one of the
 	// two dates, so the pair has to be validated as it will actually be stored.
 	if err = requireSessionDates(merged); err != nil {

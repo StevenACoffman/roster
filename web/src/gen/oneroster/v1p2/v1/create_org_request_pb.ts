@@ -5,15 +5,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Org } from "./org_pb";
-import { file_oneroster_v1p2_v1_org } from "./org_pb";
+import type { OrgWrite } from "./org_write_pb";
+import { file_oneroster_v1p2_v1_org_write } from "./org_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/create_org_request.proto.
  */
 export const file_oneroster_v1p2_v1_create_org_request: GenFile = /*@__PURE__*/
-  fileDesc("CipvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfb3JnX3JlcXVlc3QucHJvdG8SEW9uZXJvc3Rlci52MXAyLnYxIj8KEENyZWF0ZU9yZ1JlcXVlc3QSKwoDb3JnGAEgASgLMhYub25lcm9zdGVyLnYxcDIudjEuT3JnQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_oneroster_v1p2_v1_org]);
+  fileDesc("CipvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfb3JnX3JlcXVlc3QucHJvdG8SEW9uZXJvc3Rlci52MXAyLnYxIkQKEENyZWF0ZU9yZ1JlcXVlc3QSMAoDb3JnGAEgASgLMhsub25lcm9zdGVyLnYxcDIudjEuT3JnV3JpdGVCBrpIA8gBAUJLWklnaXRodWIuY29tL1N0ZXZlbkFDb2ZmbWFuL3Jvc3Rlci9nZW4vZ28vb25lcm9zdGVyL3YxcDIvdjE7b25lcm9zdGVydjFwMnYxYgZwcm90bzM", [file_buf_validate_validate, file_oneroster_v1p2_v1_org_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.CreateOrgRequest
@@ -24,9 +24,9 @@ export type CreateOrgRequest = Message<"oneroster.v1p2.v1.CreateOrgRequest"> & {
    * existing org is refused rather than merged, so a curator is told when they
    * are about to change something they thought was new.
    *
-   * @generated from field: oneroster.v1p2.v1.Org org = 1;
+   * @generated from field: oneroster.v1p2.v1.OrgWrite org = 1;
    */
-  org?: Org;
+  org?: OrgWrite;
 };
 
 /**

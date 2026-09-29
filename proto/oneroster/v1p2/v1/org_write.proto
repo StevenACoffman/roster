@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "oneroster/v1p2/v1/org_guid_ref.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+// OrgWrite is the Org fields a caller may supply on a create or an update.
+//
+// It is Org without date_last_modified. That field is owned by the server,
+// which sets it from its own clock on every write, so requiring a caller to
+// send one would be requiring a value that is then discarded. The response
+// carries the stored Org, date_last_modified included, because a caller needs
+// it back as the concurrency token for their next update.
+//
+// Field numbers match Org's, so the two can be compared by eye. A test
+// asserts the pair has not drifted apart; see TestWriteTypesMatchTheirEntities.
+message OrgWrite {
+  // date_last_modified. Server-owned: set from the service clock on every
+  // write, never read from the request.
+  reserved 2;
+
+  // The 'sourcedIds' for the set of child organizations.
+  repeated OrgGUIDRef children = 1;
+  // Model Primitive Datatype = String. Human readable identifier for this org e.g. NCES ID.
+  string identifier = 3 [(buf.validate.field) = { required: true }];
+  // All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+  google.protobuf.Struct metadata = 4;
+  // Model Primitive Datatype = NormalizedString. The name of the organization.
+  string name = 5 [(buf.validate.field) = { required: true }];
+  // The 'sourcedId' of the parent organization.
+  OrgGUIDRef parent = 6;
+  // Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+  string sourced_id = 7 [(buf.validate.field) = { required: true }];
+  // All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+  string status = 8 [
+    (buf.validate.field).string = { in: ["active", "tobedeleted"] },
+    (gnostic.openapi.v3.property) = {
+      enum: [
+        { yaml: "\"active\"" },
+        { yaml: "\"tobedeleted\"" }
+      ],
+      type: "string"
+    }
+  ];
+  // The type of organization. This uses a predefined vocabulary.
+  string type = 9 [
+    (buf.validate.field) = { required: true },
+    (gnostic.openapi.v3.property) = {
+      type: "string",
+      any_of: [
+        {
+          schema: {
+            enum: [
+              { yaml: "\"department\"" },
+              { yaml: "\"district\"" },
+              { yaml: "\"local\"" },
+              { yaml: "\"national\"" },
+              { yaml: "\"school\"" },
+              { yaml: "\"state\"" }
+            ],
+            type: "string"
+          }
+        },
+        {
+          schema: { pattern: "(ext:)[a-zA-Z0-9\\.\\-_]+", type: "string" }
+        }
+      ]
+    }
+  ];
+}

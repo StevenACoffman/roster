@@ -45,23 +45,50 @@ func optBool(b *bool) pgtype.Bool {
 
 // storageDate converts google.type.Date to a DATE column.
 //
-// Returns NULL for a nil date and for one whose components are out of range,
-// rather than letting time.Date normalise month 13 into January of the next
-// year — a silent date shift is worse than an absent one.
+// Returns NULL for a nil date and for one that is not a real calendar date,
+// rather than letting time.Date normalise it — a plausible wrong date is worse
+// than an absent one, because nobody notices it.
 func storageDate(d *date.Date) pgtype.Date {
 	if d == nil {
 		return pgtype.Date{}
 	}
-	year, month, day := int(d.GetYear()), int(d.GetMonth()), int(d.GetDay())
-	if year < minProtoYear || year > maxProtoYear ||
-		month < 1 || month > 12 ||
-		day < 1 || day > 31 {
+
+	year, month, day, valid := calendarDate(d)
+	if !valid {
 		return pgtype.Date{}
 	}
 	return pgtype.Date{
 		Time:  time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC),
 		Valid: true,
 	}
+}
+
+// calendarDate reports whether d names a real date, returning its components.
+//
+// A range check on each component is not enough: 31 is a legal day and 2 is a
+// legal month, but 2026-02-31 is not a date. time.Date would normalise it to
+// 2026-03-03 and return no error, so the only reliable test is to construct the
+// value and see whether it came back unchanged. That also gets leap years right
+// without a table.
+//
+// A fuzz target found the missing check here, having been given exactly that
+// seed — see FuzzStorageDateNeverShiftsADate.
+func calendarDate(d *date.Date) (year, month, day int, valid bool) {
+	year, month, day = int(d.GetYear()), int(d.GetMonth()), int(d.GetDay())
+
+	if year < minProtoYear || year > maxProtoYear ||
+		month < 1 || month > 12 ||
+		day < 1 || day > 31 {
+		return 0, 0, 0, false
+	}
+
+	normalised := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	if normalised.Year() != year ||
+		int(normalised.Month()) != month ||
+		normalised.Day() != day {
+		return 0, 0, 0, false
+	}
+	return year, month, day, true
 }
 
 // storageMetadata encodes the extension bag for a JSONB column.
@@ -105,7 +132,7 @@ type orgStorage struct {
 	ParentHref       pgtype.Text
 }
 
-func toStorageOrg(org *v1.Org, now time.Time) orgStorage {
+func toStorageOrg(org *v1.OrgWrite, now time.Time) orgStorage {
 	parent := org.GetParent()
 	return orgStorage{
 		Status:           checkedStatus(org.GetStatus()),
@@ -135,7 +162,7 @@ type courseStorage struct {
 	SchoolYearHref      pgtype.Text
 }
 
-func toStorageCourse(course *v1.Course, now time.Time) courseStorage {
+func toStorageCourse(course *v1.CourseWrite, now time.Time) courseStorage {
 	org, year := course.GetOrg(), course.GetSchoolYear()
 	return courseStorage{
 		Status:              checkedStatus(course.GetStatus()),
@@ -172,7 +199,7 @@ type classStorage struct {
 	SchoolHref       pgtype.Text
 }
 
-func toStorageClass(class *v1.Class, now time.Time) classStorage {
+func toStorageClass(class *v1.ClassWrite, now time.Time) classStorage {
 	course, school := class.GetCourse(), class.GetSchool()
 	return classStorage{
 		Status:           checkedStatus(class.GetStatus()),
@@ -210,7 +237,7 @@ type enrollmentStorage struct {
 	EndDate          pgtype.Date
 }
 
-func toStorageEnrollment(enrollment *v1.Enrollment, now time.Time) enrollmentStorage {
+func toStorageEnrollment(enrollment *v1.EnrollmentWrite, now time.Time) enrollmentStorage {
 	user, class, school := enrollment.GetUser(), enrollment.GetClass(), enrollment.GetSchool()
 	return enrollmentStorage{
 		Status:           checkedStatus(enrollment.GetStatus()),
@@ -257,7 +284,7 @@ type userStorage struct {
 	PrimaryOrgHref       pgtype.Text
 }
 
-func toStorageUser(user *v1.User, now time.Time) userStorage {
+func toStorageUser(user *v1.UserWrite, now time.Time) userStorage {
 	org := user.GetPrimaryOrg()
 	return userStorage{
 		Status:               checkedStatus(user.GetStatus()),
@@ -297,7 +324,7 @@ type academicSessionStorage struct {
 	ParentHref       pgtype.Text
 }
 
-func toStorageAcademicSession(session *v1.AcademicSession, now time.Time) academicSessionStorage {
+func toStorageAcademicSession(session *v1.AcademicSessionWrite, now time.Time) academicSessionStorage {
 	parent := session.GetParent()
 	return academicSessionStorage{
 		Status:           checkedStatus(session.GetStatus()),

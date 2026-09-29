@@ -1,0 +1,245 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    google.protobuf.ListValue:
+      type: array
+      items:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON array whose elements may be any JSON value.
+    google.protobuf.NullValue:
+      type: string
+      title: NullValue
+      enum:
+        - NULL_VALUE
+      description: |-
+        `NullValue` is a singleton enumeration to represent the null value for the
+         `Value` type union.
+
+         The JSON representation for `NullValue` is JSON `null`.
+    google.protobuf.Struct:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON object whose property values may be any JSON value.
+    google.protobuf.Value:
+      oneOf:
+        - type: "null"
+        - type: number
+        - type: string
+        - type: boolean
+        - type: array
+        - type: object
+          additionalProperties: true
+      description: 'Any JSON value: `null`, number, string, boolean, array, or object.'
+    google.type.Date:
+      type: object
+      properties:
+        year:
+          type: integer
+          title: year
+          format: int32
+          description: |-
+            Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+             a year.
+        month:
+          type: integer
+          title: month
+          format: int32
+          description: |-
+            Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+             month and day.
+        day:
+          type: integer
+          title: day
+          format: int32
+          description: |-
+            Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+             to specify a year by itself or a year and month where the day isn't
+             significant.
+      title: Date
+      additionalProperties: false
+      description: |-
+        Represents a whole or partial calendar date, such as a birthday. The time of
+         day and time zone are either specified elsewhere or are insignificant. The
+         date is relative to the Gregorian Calendar. This can represent one of the
+         following:
+
+         * A full date, with non-zero year, month, and day values.
+         * A month and day, with a zero year (for example, an anniversary).
+         * A year on its own, with a zero month and a zero day.
+         * A year and month, with a zero day (for example, a credit card expiration
+           date).
+
+         Related types:
+
+         * [google.type.TimeOfDay][google.type.TimeOfDay]
+         * [google.type.DateTime][google.type.DateTime]
+         * [google.protobuf.Timestamp][google.protobuf.Timestamp]
+    oneroster.v1p2.v1.ClassGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "class"
+          description: The type of object being referenced i.e. a 'class'.
+          const: class
+      title: ClassGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Class' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.EnrollmentWrite:
+      type: object
+      properties:
+        beginDate:
+          type: string
+          title: begin_date
+          format: date
+          description: Model Primitive Datatype = Date. The start date for the enrollment (inclusive). This date must be within the period of the associated Academic Session for the class (Term/Semester/SchoolYear). Use the [ISO 8601] format of 'YYYY-MM-DD'.
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.ClassGUIDRef'
+          title: class
+          description: The link to the class on which the user is enrolled i.e. the Class 'sourcedId'.
+        endDate:
+          type: string
+          title: end_date
+          format: date
+          description: Model Primitive Datatype = Date. The end date for the enrollment (exclusive). This date must be within the period of the associated Academic Session for the class (Term/Semester/SchoolYear). Use the [ISO 8601] format of 'YYYY-MM-DD'.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        primary:
+          type:
+            - string
+            - "null"
+          title: primary
+          enum:
+            - "true"
+            - "false"
+          description: Applicable only to teachers. Only one teacher should be designated as the primary teacher for a class (this value set as 'true') in the period defined by the begin/end dates.
+        role:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "administrator"
+                - "proctor"
+                - "student"
+                - "teacher"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: role
+          description: The role of the user for this class in the school e.g teacher, student, etc. This is from an enumerated vocabulary.
+        school:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: school
+          description: The link to the school at which the class is being provided i.e. an Org 'sourcedId'.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.UserGUIDRef'
+          title: user
+          description: The link to the enrolled User i.e. the User 'sourcedId'.
+      title: EnrollmentWrite
+      required:
+        - class
+        - role
+        - school
+        - sourcedId
+        - user
+      additionalProperties: false
+      description: |-
+        EnrollmentWrite is the Enrollment fields a caller may supply on a create or an update.
+
+         It is Enrollment without date_last_modified. That field is owned by the server,
+         which sets it from its own clock on every write, so requiring a caller to
+         send one would be requiring a value that is then discarded. The response
+         carries the stored Enrollment, date_last_modified included, because a caller needs
+         it back as the concurrency token for their next update.
+
+         Field numbers match Enrollment's, so the two can be compared by eye. A test
+         asserts the pair has not drifted apart; see TestWriteTypesMatchTheirEntities.
+    oneroster.v1p2.v1.OrgGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "org"
+          description: The type of object being referenced i.e. an 'org'.
+          const: org
+      title: OrgGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.UserGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "user"
+          description: The type of object being referenced i.e. a 'user'.
+          const: user
+      title: UserGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'User' object that has an allocated sourcedId (GUID).
+security: []

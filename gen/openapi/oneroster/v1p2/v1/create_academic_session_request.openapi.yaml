@@ -31,13 +31,6 @@ components:
       additionalProperties:
         $ref: '#/components/schemas/google.protobuf.Value'
       description: A JSON object whose property values may be any JSON value.
-    google.protobuf.Timestamp:
-      type: string
-      examples:
-        - "2023-01-15T01:30:15.01Z"
-        - "2024-12-25T12:00:00Z"
-      format: date-time
-      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
     google.protobuf.Value:
       oneOf:
         - type: "null"
@@ -116,7 +109,7 @@ components:
         - sourcedId
       additionalProperties: false
       description: This is the container for reference to a OneRoster 'Academic Session' object that has an allocated sourcedId (GUID).
-    oneroster.v1p2.v1.AcademicSession:
+    oneroster.v1p2.v1.AcademicSessionWrite:
       type: object
       properties:
         children:
@@ -125,11 +118,6 @@ components:
             $ref: '#/components/schemas/oneroster.v1p2.v1.AcadSessionGUIDRef'
           title: children
           description: The set of links to the child AcademicSessions i.e. a set of AcademicSession 'sourcedIds'.
-        dateLastModified:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
-          title: date_last_modified
-          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
         endDate:
           type: string
           title: end_date
@@ -182,9 +170,8 @@ components:
               pattern: (ext:)[a-zA-Z0-9\.\-_]+
           title: type
           description: The type of academic session. This is based upon an enumerated vocabulary.
-      title: AcademicSession
+      title: AcademicSessionWrite
       required:
-        - dateLastModified
         - endDate
         - schoolYear
         - sourcedId
@@ -192,13 +179,23 @@ components:
         - title
         - type
       additionalProperties: false
-      description: The container for an academicSession. An academicSession represents a duration of time. Typically they are used to describe terms, grading periods, and other durations e.g. school years. Term is used to describe a period of time during which learning will take place. Other words for term could be in common use around the world e.g. Semester. The important thing is that Term is a unit of time, often many weeks long, into which classes are scheduled. Grading Period is used to represent another unit of time, that within which line items are assessed. A term may have many grading periods, a grading period belongs to a single term. A class may be assessed over several grade periods (represented by a line item being connected to a grading period). The parent / child attributes of academic sessions allow terms to be connected to their grading periods and vice-versa.
+      description: |-
+        AcademicSessionWrite is the AcademicSession fields a caller may supply on a create or an update.
+
+         It is AcademicSession without date_last_modified. That field is owned by the server,
+         which sets it from its own clock on every write, so requiring a caller to
+         send one would be requiring a value that is then discarded. The response
+         carries the stored AcademicSession, date_last_modified included, because a caller needs
+         it back as the concurrency token for their next update.
+
+         Field numbers match AcademicSession's, so the two can be compared by eye. A test
+         asserts the pair has not drifted apart; see TestWriteTypesMatchTheirEntities.
     oneroster.v1p2.v1.CreateAcademicSessionRequest:
       type: object
       properties:
         academicSession:
           allOf:
-            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSessionWrite'
           title: academic_session
           description: The academic session to create.
       title: CreateAcademicSessionRequest

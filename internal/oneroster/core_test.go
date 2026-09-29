@@ -27,19 +27,33 @@ func TestPageBounds(t *testing.T) {
 		wantErr   bool
 	}{
 		{
-			name:      "zero page size takes the default",
+			// Written as literals rather than as defaultPageSize + 1: these are
+			// the page sizes a client observes, so a change to either constant
+			// is a change to the API and has to fail a test rather than be
+			// tracked by one.
+			name:      "zero page size takes the default of 100",
 			pageSize:  0,
-			wantLimit: defaultPageSize + 1,
+			wantLimit: 101,
 		},
 		{
-			name:      "negative page size takes the default",
+			name:      "negative page size takes the default of 100",
 			pageSize:  -5,
-			wantLimit: defaultPageSize + 1,
+			wantLimit: 101,
 		},
 		{
-			name:      "oversized page size is clamped, not refused",
-			pageSize:  maxPageSize * 10,
-			wantLimit: maxPageSize + 1,
+			name:      "oversized page size is clamped to 1000, not refused",
+			pageSize:  100_000,
+			wantLimit: 1001,
+		},
+		{
+			name:      "the largest size below the cap is honoured as asked",
+			pageSize:  999,
+			wantLimit: 1000,
+		},
+		{
+			name:      "the cap itself is honoured as asked",
+			pageSize:  1000,
+			wantLimit: 1001,
 		},
 		{
 			name:      "requested size is honoured with one sentinel row added",
@@ -361,6 +375,17 @@ func TestRefHref(t *testing.T) {
 			want:       "/ims/oneroster/rostering/v1p2/classes/cl-9",
 		},
 		{
+			// Valid is the authority on whether there is an href, not String.
+			// A scan into a NULL column leaves String at its zero value, but
+			// reusing a pgtype.Text can leave a stale one behind, and reading
+			// that would emit a link to a record the row does not point at.
+			name:       "a NULL href is synthesized even with a residual string",
+			href:       pgtype.Text{String: "/stale/path", Valid: false},
+			collection: collectionOrgs,
+			sourcedID:  "sch-7",
+			want:       "/ims/oneroster/rostering/v1p2/orgs/sch-7",
+		},
+		{
 			// "class" does not pluralise by appending "s"; an earlier version
 			// derived the path from the type name and emitted "classs".
 			name:       "class pluralises to classes, not classs",
@@ -412,6 +437,70 @@ func TestProtoDate(t *testing.T) {
 	got := protoDate(d)
 	if got.GetYear() != 2026 || got.GetMonth() != 3 || got.GetDay() != 9 {
 		t.Errorf("protoDate = %d-%d-%d, want 2026-3-9", got.GetYear(), got.GetMonth(), got.GetDay())
+	}
+}
+
+// TestProtoDateGuardsTheEdgeOfTheProtoRange walks the year bound from both
+// sides.
+//
+// The bounds are written as literals, not as minProtoYear and maxProtoYear. A
+// test that referred to the constants would move with them and assert only that
+// the code agrees with itself; these are the years google.type.Date actually
+// documents, so changing a constant has to fail here.
+//
+// A bound one year too tight silently drops a date the wire format can carry,
+// and one year too loose serves a truncated int32 as though it were the stored
+// value. Both look like real dates to a consumer. PostgreSQL's DATE reaches
+// 4713 BC and 5874897 AD, so out-of-range rows are a thing this conversion
+// actually meets.
+//
+// Only the year is checked here, because only the year is checkable:
+// time.Time.Date() cannot report a month outside 1..12 or a day outside 1..31.
+func TestProtoDateGuardsTheEdgeOfTheProtoRange(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		year int
+		want bool
+	}{
+		{name: "year 1, the first google.type.Date year, is kept", year: 1, want: true},
+		{name: "year 0 is dropped", year: 0},
+		{name: "a negative year is dropped", year: -4713},
+		{name: "year 9999, the last one, is kept", year: 9999, want: true},
+		{name: "year 10000 is dropped", year: 10000},
+		{name: "the far end of PostgreSQL's DATE range is dropped", year: 5874897},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			stored := pgtype.Date{
+				Time:  time.Date(tt.year, time.June, 15, 0, 0, 0, 0, time.UTC),
+				Valid: true,
+			}
+			got := protoDate(stored)
+
+			if !tt.want {
+				if got != nil {
+					t.Errorf("protoDate(year %d) = %d-%02d-%02d, want nil: the row is out of range",
+						tt.year, got.GetYear(), got.GetMonth(), got.GetDay())
+				}
+
+				return
+			}
+
+			if got == nil {
+				t.Fatalf("protoDate(year %d) = nil, want the date kept", tt.year)
+			}
+			// The components must survive unchanged. A conversion that kept the
+			// row but shifted it would be worse than dropping it.
+			if int(got.GetYear()) != tt.year || got.GetMonth() != 6 || got.GetDay() != 15 {
+				t.Errorf("protoDate(year %d) = %d-%02d-%02d, want %d-06-15; the date was shifted",
+					tt.year, got.GetYear(), got.GetMonth(), got.GetDay(), tt.year)
+			}
+		})
 	}
 }
 

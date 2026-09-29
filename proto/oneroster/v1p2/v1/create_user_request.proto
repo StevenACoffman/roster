@@ -3,7 +3,7 @@ syntax = "proto3";
 package oneroster.v1p2.v1;
 
 import "buf/validate/validate.proto";
-import "oneroster/v1p2/v1/user.proto";
+import "oneroster/v1p2/v1/user_write.proto";
 
 option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
 
@@ -11,5 +11,5 @@ message CreateUserRequest {
   // The user to create. Its sourced_id must not already exist; creating over an
   // existing user is refused rather than merged, so a curator is told when they
   // are about to change something they thought was new.
-  User user = 1 [(buf.validate.field) = { required: true }];
+  UserWrite user = 1 [(buf.validate.field) = { required: true }];
 }

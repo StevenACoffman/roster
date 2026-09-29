@@ -84,7 +84,7 @@ func TestCreateOrgBootstrapsAndThenScopes(t *testing.T) {
 
 	// A school curator may create beneath their own school.
 	_, err := h.CreateOrg(callerCtx(t, "ana"), connect.NewRequest(&v1.CreateOrgRequest{
-		Org: &v1.Org{
+		Org: &v1.OrgWrite{
 			SourcedId: "dept-1", Status: "active", Name: "Maths Department",
 			Type: "department", Identifier: "M1",
 			Parent: &v1.OrgGUIDRef{SourcedId: "sch-2", Href: "/x", Type: "org"},
@@ -94,7 +94,7 @@ func TestCreateOrgBootstrapsAndThenScopes(t *testing.T) {
 
 	// But not beneath a school they do not hold.
 	_, err = h.CreateOrg(callerCtx(t, "ana"), connect.NewRequest(&v1.CreateOrgRequest{
-		Org: &v1.Org{
+		Org: &v1.OrgWrite{
 			SourcedId: "dept-2", Status: "active", Name: "Elsewhere",
 			Type: "department", Identifier: "M2",
 			Parent: &v1.OrgGUIDRef{SourcedId: "sch-1", Href: "/x", Type: "org"},
@@ -120,7 +120,7 @@ func TestReadOnlyGrantCannotCurate(t *testing.T) {
 
 	// And must not write, on any of the three verbs.
 	_, err = h.CreateOrg(ctx, connect.NewRequest(&v1.CreateOrgRequest{
-		Org: &v1.Org{
+		Org: &v1.OrgWrite{
 			SourcedId: "nope", Status: "active", Name: "Nope", Type: "school",
 			Identifier: "N", Parent: &v1.OrgGUIDRef{SourcedId: "d-1", Href: "/x", Type: "org"},
 		},
@@ -128,7 +128,7 @@ func TestReadOnlyGrantCannotCurate(t *testing.T) {
 	wantCode(t, err, connect.CodeNotFound)
 
 	_, err = h.UpdateOrg(ctx, connect.NewRequest(&v1.UpdateOrgRequest{
-		Org:                      &v1.Org{SourcedId: "sch-2", Name: "Renamed"},
+		Org:                      &v1.OrgWrite{SourcedId: "sch-2", Name: "Renamed"},
 		UpdateMask:               &fieldmaskpb.FieldMask{Paths: []string{"name"}},
 		ExpectedDateLastModified: timestamppb.Now(),
 	}))
@@ -152,7 +152,7 @@ func TestUpdateAppliesOnlyTheMaskedFields(t *testing.T) {
 	stored := before.Msg.GetOrg()
 
 	updated, err := h.UpdateOrg(ctx, connect.NewRequest(&v1.UpdateOrgRequest{
-		Org: &v1.Org{
+		Org: &v1.OrgWrite{
 			SourcedId:  "sch-2",
 			Name:       "Shelbyville High",
 			Identifier: "SHOULD-NOT-APPLY",
@@ -199,7 +199,7 @@ func TestUpdateRejectsAnAbsentOrUnusableMask(t *testing.T) {
 			t.Parallel()
 
 			_, err := h.UpdateOrg(ctx, connect.NewRequest(&v1.UpdateOrgRequest{
-				Org:                      &v1.Org{SourcedId: "sch-2", Name: "X"},
+				Org:                      &v1.OrgWrite{SourcedId: "sch-2", Name: "X"},
 				UpdateMask:               tt.mask,
 				ExpectedDateLastModified: version,
 			}))
@@ -228,7 +228,7 @@ func TestStaleUpdateIsAbortedNotNotFound(t *testing.T) {
 	// Someone else writes first, moving date_last_modified.
 	h.now = func() time.Time { return first.Add(time.Minute) }
 	_, err = h.UpdateOrg(ctx, connect.NewRequest(&v1.UpdateOrgRequest{
-		Org:                      &v1.Org{SourcedId: "sch-2", Name: "Winner"},
+		Org:                      &v1.OrgWrite{SourcedId: "sch-2", Name: "Winner"},
 		UpdateMask:               &fieldmaskpb.FieldMask{Paths: []string{"name"}},
 		ExpectedDateLastModified: staleVersion,
 	}))
@@ -236,7 +236,7 @@ func TestStaleUpdateIsAbortedNotNotFound(t *testing.T) {
 
 	// Our curator now writes with the version they read before that.
 	_, err = h.UpdateOrg(ctx, connect.NewRequest(&v1.UpdateOrgRequest{
-		Org:                      &v1.Org{SourcedId: "sch-2", Name: "Loser"},
+		Org:                      &v1.OrgWrite{SourcedId: "sch-2", Name: "Loser"},
 		UpdateMask:               &fieldmaskpb.FieldMask{Paths: []string{"name"}},
 		ExpectedDateLastModified: staleVersion,
 	}))
@@ -256,7 +256,7 @@ func TestCreateTwiceIsAlreadyExists(t *testing.T) {
 	h := curatingHandler(t, pool, time.Now())
 	ctx := callerCtx(t, "global")
 
-	org := &v1.Org{
+	org := &v1.OrgWrite{
 		SourcedId: "sch-3", Status: "active", Name: "New School", Type: "school",
 		Identifier: "S3", Parent: &v1.OrgGUIDRef{SourcedId: "d-1", Href: "/x", Type: "org"},
 	}
@@ -313,7 +313,7 @@ func TestCurateAClassAndEnrollment(t *testing.T) {
 	ctx := callerCtx(t, "ana")
 
 	_, err := h.CreateClass(ctx, connect.NewRequest(&v1.CreateClassRequest{
-		Class: &v1.Class{
+		Class: &v1.ClassWrite{
 			SourcedId: "cl-1", Status: "active", Title: "Algebra I - P3",
 			Course: &v1.CourseGUIDRef{SourcedId: "c-1", Href: "/x", Type: "course"},
 			School: &v1.OrgGUIDRef{SourcedId: "sch-2", Href: "/x", Type: "org"},
@@ -325,7 +325,7 @@ func TestCurateAClassAndEnrollment(t *testing.T) {
 	ok(t, err)
 
 	_, err = h.CreateUser(ctx, connect.NewRequest(&v1.CreateUserRequest{
-		User: &v1.User{
+		User: &v1.UserWrite{
 			SourcedId: "u-1", Status: "active", EnabledUser: true,
 			GivenName: "Bo", FamilyName: "Chen",
 			PrimaryOrg: &v1.OrgGUIDRef{SourcedId: "sch-2", Href: "/x", Type: "org"},
@@ -338,7 +338,7 @@ func TestCurateAClassAndEnrollment(t *testing.T) {
 	ok(t, err)
 
 	_, err = h.CreateEnrollment(ctx, connect.NewRequest(&v1.CreateEnrollmentRequest{
-		Enrollment: &v1.Enrollment{
+		Enrollment: &v1.EnrollmentWrite{
 			SourcedId: "e-1", Status: "active", Role: "student",
 			User:   &v1.UserGUIDRef{SourcedId: "u-1", Href: "/x", Type: "user"},
 			Class:  &v1.ClassGUIDRef{SourcedId: "cl-1", Href: "/x", Type: "class"},
@@ -382,7 +382,7 @@ func TestCreateClassRequiresTerms(t *testing.T) {
 
 	// No terms: refused.
 	_, err := h.CreateClass(ctx, connect.NewRequest(&v1.CreateClassRequest{
-		Class: &v1.Class{
+		Class: &v1.ClassWrite{
 			SourcedId: "cl-none", Status: "active", Title: "No Terms",
 			Course: &v1.CourseGUIDRef{SourcedId: "c-1", Href: "/x", Type: "course"},
 			School: &v1.OrgGUIDRef{SourcedId: "sch-2", Href: "/x", Type: "org"},
@@ -392,7 +392,7 @@ func TestCreateClassRequiresTerms(t *testing.T) {
 
 	// With a term: stored, and the term comes back on a subsequent read.
 	_, err = h.CreateClass(ctx, connect.NewRequest(&v1.CreateClassRequest{
-		Class: &v1.Class{
+		Class: &v1.ClassWrite{
 			SourcedId: "cl-ok", Status: "active", Title: "With Terms",
 			Course: &v1.CourseGUIDRef{SourcedId: "c-1", Href: "/x", Type: "course"},
 			School: &v1.OrgGUIDRef{SourcedId: "sch-2", Href: "/x", Type: "org"},
@@ -423,7 +423,7 @@ func TestCreateUserRequiresRolesAndIsThenReachable(t *testing.T) {
 
 	// No roles: refused rather than stored into an unreachable state.
 	_, err := h.CreateUser(ctx, connect.NewRequest(&v1.CreateUserRequest{
-		User: &v1.User{
+		User: &v1.UserWrite{
 			SourcedId: "u-noroles", Status: "active", EnabledUser: true,
 			GivenName: "Nina", FamilyName: "Novak",
 		},
@@ -436,7 +436,7 @@ func TestCreateUserRequiresRolesAndIsThenReachable(t *testing.T) {
 		{RoleType: "primary", Role: "aide", Org: &v1.OrgGUIDRef{SourcedId: "sch-2", Href: "/x", Type: "org"}},
 	}
 	_, err = h.CreateUser(ctx, connect.NewRequest(&v1.CreateUserRequest{
-		User: &v1.User{
+		User: &v1.UserWrite{
 			SourcedId: "u-twoprimary", Status: "active", EnabledUser: true,
 			GivenName: "Two", FamilyName: "Primary", Roles: twice,
 		},
@@ -445,7 +445,7 @@ func TestCreateUserRequiresRolesAndIsThenReachable(t *testing.T) {
 
 	// With one primary role: stored AND reachable.
 	_, err = h.CreateUser(ctx, connect.NewRequest(&v1.CreateUserRequest{
-		User: &v1.User{
+		User: &v1.UserWrite{
 			SourcedId: "u-ok", Status: "active", EnabledUser: true,
 			GivenName: "Nina", FamilyName: "Novak",
 			Roles: []*v1.Role{{
@@ -487,7 +487,7 @@ func TestCreateUserRollsBackWhenARoleFails(t *testing.T) {
 	// The second role names an org that does not exist, so its insert violates
 	// the foreign key after the user row has already been written.
 	_, err := h.CreateUser(ctx, connect.NewRequest(&v1.CreateUserRequest{
-		User: &v1.User{
+		User: &v1.UserWrite{
 			SourcedId: "u-rollback", Status: "active", EnabledUser: true,
 			GivenName: "Roll", FamilyName: "Back",
 			Roles: []*v1.Role{
@@ -517,7 +517,7 @@ func TestAcademicSessionCurationRequiresGlobalRosterAdmin(t *testing.T) {
 	seedCurators(t, pool)
 	h := curatingHandler(t, pool, time.Now())
 
-	session := &v1.AcademicSession{
+	session := &v1.AcademicSessionWrite{
 		SourcedId: "ay-2027", Status: "active", Title: "2026-2027",
 		Type: "schoolYear", SchoolYear: "2027",
 		StartDate: &date.Date{Year: 2026, Month: 8, Day: 1},
@@ -559,7 +559,7 @@ func TestAcademicSessionUpdateAndDelete(t *testing.T) {
 	ctx := callerCtx(t, "global")
 
 	created, err := h.CreateAcademicSession(ctx, connect.NewRequest(&v1.CreateAcademicSessionRequest{
-		AcademicSession: &v1.AcademicSession{
+		AcademicSession: &v1.AcademicSessionWrite{
 			SourcedId: "term-x", Status: "active", Title: "Autumn",
 			Type: "term", SchoolYear: "2027",
 			StartDate: &date.Date{Year: 2026, Month: 9, Day: 1},
@@ -571,7 +571,7 @@ func TestAcademicSessionUpdateAndDelete(t *testing.T) {
 
 	// A scoped curator cannot update it either.
 	_, err = h.UpdateAcademicSession(callerCtx(t, "ana"), connect.NewRequest(&v1.UpdateAcademicSessionRequest{
-		AcademicSession:          &v1.AcademicSession{SourcedId: "term-x", Title: "Hijacked"},
+		AcademicSession:          &v1.AcademicSessionWrite{SourcedId: "term-x", Title: "Hijacked"},
 		UpdateMask:               &fieldmaskpb.FieldMask{Paths: []string{"title"}},
 		ExpectedDateLastModified: version,
 	}))
@@ -579,7 +579,7 @@ func TestAcademicSessionUpdateAndDelete(t *testing.T) {
 
 	h.now = func() time.Time { return at.Add(time.Minute) }
 	updated, err := h.UpdateAcademicSession(ctx, connect.NewRequest(&v1.UpdateAcademicSessionRequest{
-		AcademicSession:          &v1.AcademicSession{SourcedId: "term-x", Title: "Fall Term"},
+		AcademicSession:          &v1.AcademicSessionWrite{SourcedId: "term-x", Title: "Fall Term"},
 		UpdateMask:               &fieldmaskpb.FieldMask{Paths: []string{"title"}},
 		ExpectedDateLastModified: version,
 	}))
@@ -590,7 +590,7 @@ func TestAcademicSessionUpdateAndDelete(t *testing.T) {
 
 	// A stale version is aborted, not not_found.
 	_, err = h.UpdateAcademicSession(ctx, connect.NewRequest(&v1.UpdateAcademicSessionRequest{
-		AcademicSession:          &v1.AcademicSession{SourcedId: "term-x", Title: "Loser"},
+		AcademicSession:          &v1.AcademicSessionWrite{SourcedId: "term-x", Title: "Loser"},
 		UpdateMask:               &fieldmaskpb.FieldMask{Paths: []string{"title"}},
 		ExpectedDateLastModified: version,
 	}))
@@ -612,7 +612,7 @@ func TestAcademicSessionRejectsInvertedDates(t *testing.T) {
 
 	_, err := h.CreateAcademicSession(callerCtx(t, "global"),
 		connect.NewRequest(&v1.CreateAcademicSessionRequest{
-			AcademicSession: &v1.AcademicSession{
+			AcademicSession: &v1.AcademicSessionWrite{
 				SourcedId: "bad-dates", Status: "active", Title: "Backwards",
 				Type: "term", SchoolYear: "2027",
 				StartDate: &date.Date{Year: 2027, Month: 6, Day: 15},

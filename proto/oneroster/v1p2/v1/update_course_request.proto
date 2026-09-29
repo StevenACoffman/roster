@@ -5,14 +5,14 @@ package oneroster.v1p2.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "oneroster/v1p2/v1/course.proto";
+import "oneroster/v1p2/v1/course_write.proto";
 
 option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
 
 message UpdateCourseRequest {
   // The course carrying the new values, identified by its sourced_id. Only the
   // fields named in update_mask are read from it.
-  Course course = 1 [(buf.validate.field) = { required: true }];
+  CourseWrite course = 1 [(buf.validate.field) = { required: true }];
 
   // Which fields to change. Required and non-empty: an absent mask is refused
   // rather than treated as "replace everything", because a client bug that

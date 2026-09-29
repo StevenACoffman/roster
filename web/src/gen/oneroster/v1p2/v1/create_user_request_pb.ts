@@ -5,15 +5,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { User } from "./user_pb";
-import { file_oneroster_v1p2_v1_user } from "./user_pb";
+import type { UserWrite } from "./user_write_pb";
+import { file_oneroster_v1p2_v1_user_write } from "./user_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/create_user_request.proto.
  */
 export const file_oneroster_v1p2_v1_create_user_request: GenFile = /*@__PURE__*/
-  fileDesc("CitvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfdXNlcl9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSJCChFDcmVhdGVVc2VyUmVxdWVzdBItCgR1c2VyGAEgASgLMhcub25lcm9zdGVyLnYxcDIudjEuVXNlckIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_oneroster_v1p2_v1_user]);
+  fileDesc("CitvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfdXNlcl9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSJHChFDcmVhdGVVc2VyUmVxdWVzdBIyCgR1c2VyGAEgASgLMhwub25lcm9zdGVyLnYxcDIudjEuVXNlcldyaXRlQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_oneroster_v1p2_v1_user_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.CreateUserRequest
@@ -24,9 +24,9 @@ export type CreateUserRequest = Message<"oneroster.v1p2.v1.CreateUserRequest"> &
    * existing user is refused rather than merged, so a curator is told when they
    * are about to change something they thought was new.
    *
-   * @generated from field: oneroster.v1p2.v1.User user = 1;
+   * @generated from field: oneroster.v1p2.v1.UserWrite user = 1;
    */
-  user?: User;
+  user?: UserWrite;
 };
 
 /**

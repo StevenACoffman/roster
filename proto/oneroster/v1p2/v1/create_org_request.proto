@@ -3,7 +3,7 @@ syntax = "proto3";
 package oneroster.v1p2.v1;
 
 import "buf/validate/validate.proto";
-import "oneroster/v1p2/v1/org.proto";
+import "oneroster/v1p2/v1/org_write.proto";
 
 option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
 
@@ -11,5 +11,5 @@ message CreateOrgRequest {
   // The org to create. Its sourced_id must not already exist; creating over an
   // existing org is refused rather than merged, so a curator is told when they
   // are about to change something they thought was new.
-  Org org = 1 [(buf.validate.field) = { required: true }];
+  OrgWrite org = 1 [(buf.validate.field) = { required: true }];
 }

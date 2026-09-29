@@ -5,15 +5,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Class } from "./class_pb";
-import { file_oneroster_v1p2_v1_class } from "./class_pb";
+import type { ClassWrite } from "./class_write_pb";
+import { file_oneroster_v1p2_v1_class_write } from "./class_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/create_class_request.proto.
  */
 export const file_oneroster_v1p2_v1_create_class_request: GenFile = /*@__PURE__*/
-  fileDesc("CixvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfY2xhc3NfcmVxdWVzdC5wcm90bxIRb25lcm9zdGVyLnYxcDIudjEiRQoSQ3JlYXRlQ2xhc3NSZXF1ZXN0Ei8KBWNsYXNzGAEgASgLMhgub25lcm9zdGVyLnYxcDIudjEuQ2xhc3NCBrpIA8gBAUJLWklnaXRodWIuY29tL1N0ZXZlbkFDb2ZmbWFuL3Jvc3Rlci9nZW4vZ28vb25lcm9zdGVyL3YxcDIvdjE7b25lcm9zdGVydjFwMnYxYgZwcm90bzM", [file_buf_validate_validate, file_oneroster_v1p2_v1_class]);
+  fileDesc("CixvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfY2xhc3NfcmVxdWVzdC5wcm90bxIRb25lcm9zdGVyLnYxcDIudjEiSgoSQ3JlYXRlQ2xhc3NSZXF1ZXN0EjQKBWNsYXNzGAEgASgLMh0ub25lcm9zdGVyLnYxcDIudjEuQ2xhc3NXcml0ZUIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_oneroster_v1p2_v1_class_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.CreateClassRequest
@@ -24,9 +24,9 @@ export type CreateClassRequest = Message<"oneroster.v1p2.v1.CreateClassRequest">
    * existing class is refused rather than merged, so a curator is told when they
    * are about to change something they thought was new.
    *
-   * @generated from field: oneroster.v1p2.v1.Class class = 1;
+   * @generated from field: oneroster.v1p2.v1.ClassWrite class = 1;
    */
-  class?: Class;
+  class?: ClassWrite;
 };
 
 /**

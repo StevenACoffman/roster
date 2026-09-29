@@ -5,15 +5,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { AcademicSession } from "./academic_session_pb";
-import { file_oneroster_v1p2_v1_academic_session } from "./academic_session_pb";
+import type { AcademicSessionWrite } from "./academic_session_write_pb";
+import { file_oneroster_v1p2_v1_academic_session_write } from "./academic_session_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/create_academic_session_request.proto.
  */
 export const file_oneroster_v1p2_v1_create_academic_session_request: GenFile = /*@__PURE__*/
-  fileDesc("CjdvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfYWNhZGVtaWNfc2Vzc2lvbl9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSJkChxDcmVhdGVBY2FkZW1pY1Nlc3Npb25SZXF1ZXN0EkQKEGFjYWRlbWljX3Nlc3Npb24YASABKAsyIi5vbmVyb3N0ZXIudjFwMi52MS5BY2FkZW1pY1Nlc3Npb25CBrpIA8gBAUJLWklnaXRodWIuY29tL1N0ZXZlbkFDb2ZmbWFuL3Jvc3Rlci9nZW4vZ28vb25lcm9zdGVyL3YxcDIvdjE7b25lcm9zdGVydjFwMnYxYgZwcm90bzM", [file_buf_validate_validate, file_oneroster_v1p2_v1_academic_session]);
+  fileDesc("CjdvbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfYWNhZGVtaWNfc2Vzc2lvbl9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSJpChxDcmVhdGVBY2FkZW1pY1Nlc3Npb25SZXF1ZXN0EkkKEGFjYWRlbWljX3Nlc3Npb24YASABKAsyJy5vbmVyb3N0ZXIudjFwMi52MS5BY2FkZW1pY1Nlc3Npb25Xcml0ZUIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_oneroster_v1p2_v1_academic_session_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.CreateAcademicSessionRequest
@@ -22,9 +22,9 @@ export type CreateAcademicSessionRequest = Message<"oneroster.v1p2.v1.CreateAcad
   /**
    * The academic session to create.
    *
-   * @generated from field: oneroster.v1p2.v1.AcademicSession academic_session = 1;
+   * @generated from field: oneroster.v1p2.v1.AcademicSessionWrite academic_session = 1;
    */
-  academicSession?: AcademicSession;
+  academicSession?: AcademicSessionWrite;
 };
 
 /**

@@ -31,13 +31,6 @@ components:
       additionalProperties:
         $ref: '#/components/schemas/google.protobuf.Value'
       description: A JSON object whose property values may be any JSON value.
-    google.protobuf.Timestamp:
-      type: string
-      examples:
-        - "2023-01-15T01:30:15.01Z"
-        - "2024-12-25T12:00:00Z"
-      format: date-time
-      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
     google.protobuf.Value:
       oneOf:
         - type: "null"
@@ -53,7 +46,7 @@ components:
       properties:
         org:
           allOf:
-            - $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgWrite'
           title: org
           description: |-
             The org to create. Its sourced_id must not already exist; creating over an
@@ -63,7 +56,31 @@ components:
       required:
         - org
       additionalProperties: false
-    oneroster.v1p2.v1.Org:
+    oneroster.v1p2.v1.OrgGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "org"
+          description: The type of object being referenced i.e. an 'org'.
+          const: org
+      title: OrgGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.OrgWrite:
       type: object
       properties:
         children:
@@ -72,11 +89,6 @@ components:
             $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
           title: children
           description: The 'sourcedIds' for the set of child organizations.
-        dateLastModified:
-          allOf:
-            - $ref: '#/components/schemas/google.protobuf.Timestamp'
-          title: date_last_modified
-          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
         identifier:
           type: string
           title: identifier
@@ -121,37 +133,22 @@ components:
               pattern: (ext:)[a-zA-Z0-9\.\-_]+
           title: type
           description: The type of organization. This uses a predefined vocabulary.
-      title: Org
+      title: OrgWrite
       required:
-        - dateLastModified
         - identifier
         - name
         - sourcedId
         - type
       additionalProperties: false
-      description: ORG is defined here as a structure for holding organizational information. An ORG might be a school, or it might be a local, statewide, or national entity. ORGs will typically have a parent ORG (up to the national level), and children, allowing a hierarchy to be established. School is defined here as the place where the learning happens. Most commonly this is the data that describes a bricks and mortar building, or, in the case of a virtual school, the virtual school organization. For enrollment and result reporting purposes, little information about this organization is required. A common example of a local organization is a school district.
-    oneroster.v1p2.v1.OrgGUIDRef:
-      type: object
-      properties:
-        href:
-          type: string
-          title: href
-          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
-        sourcedId:
-          type: string
-          title: sourced_id
-          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
-        type:
-          type: string
-          title: type
-          enum:
-            - "org"
-          description: The type of object being referenced i.e. an 'org'.
-          const: org
-      title: OrgGUIDRef
-      required:
-        - href
-        - sourcedId
-      additionalProperties: false
-      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+      description: |-
+        OrgWrite is the Org fields a caller may supply on a create or an update.
+
+         It is Org without date_last_modified. That field is owned by the server,
+         which sets it from its own clock on every write, so requiring a caller to
+         send one would be requiring a value that is then discarded. The response
+         carries the stored Org, date_last_modified included, because a caller needs
+         it back as the concurrency token for their next update.
+
+         Field numbers match Org's, so the two can be compared by eye. A test
+         asserts the pair has not drifted apart; see TestWriteTypesMatchTheirEntities.
 security: []

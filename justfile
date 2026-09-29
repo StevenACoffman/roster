@@ -1,3 +1,9 @@
+# The functional core of internal/oneroster: no database, no clock. These are the
+# files a mutation run can judge, because unit tests reach all of their
+# behaviour. Kept in one place so the mutate recipes cannot disagree about what
+# "the pure core" means.
+pure_core := "./internal/oneroster/core.go ./internal/oneroster/cursor.go ./internal/oneroster/curation.go ./internal/oneroster/tostorage.go"
+
 default:
     @just --list
 
@@ -44,6 +50,15 @@ test-cover:
     go tool cover -func=coverage.out | tail -1
     @echo "HTML report: go tool cover -html=coverage.out"
 
+# Lint the prose in Markdown and the SQL schema comments.
+#
+# `vale sync` first: the style packages are gitignored as disposable, so a fresh
+# checkout has none and vale would otherwise report every rule as missing rather
+# than saying why.
+vale:
+    vale sync
+    vale README.md AGENTS.md sql/schema/ stubs/
+
 # Run golangci-lint over both build configurations
 lint:
     golangci-lint run ./...
@@ -69,17 +84,24 @@ lint-fix:
     golangci-lint run --build-tags=integration ./...
 
 # Mutation testing asks what coverage cannot: not "did a test execute this line?"
-# but "would any test have noticed if it behaved differently?". Scoped to core.go
-# because that is the pure half of internal/oneroster — the shell's behaviour is proven
-# by the container-backed suites, which a mutation run does not execute.
+# but "would any test have noticed if it behaved differently?". Scoped to the
+# pure half of internal/oneroster — the shell's behaviour is proven by the
+# container-backed suites, which a mutation run does not execute.
+#
+# The gate is on COVERED MSI, not MSI, and that distinction is the whole point.
+# core.go also holds the toProto* row builders, which only the integration suite
+# reaches; counting their mutants as survivors put the raw MSI at 30% and made a
+# 90% gate unreachable by any amount of unit testing. --coverage marks that code
+# not-covered instead, so the score answers the question actually worth gating:
+# of the code these tests do reach, how much would they notice breaking?
 #
 # Mutation-test the pure core; fails below the threshold (exit code 4)
-mutate threshold="90":
-    mutago --min-msi={{threshold}} --quiet --no-diffs ./internal/oneroster/core.go
+mutate threshold="95":
+    mutago --coverage --per-test --min-covered-msi={{threshold}} --quiet --no-diffs {{pure_core}}
 
 # Mutation-test the core and show the diff for every surviving mutant.
 mutate-report:
-    mutago --html-output ./internal/oneroster/core.go
+    mutago --coverage --per-test --html-output {{pure_core}}
     @echo "wrote mutago-report.html"
 
 # This is what makes the technique affordable on a large codebase: seconds per
@@ -94,7 +116,14 @@ mutate-diff base="main":
 #
 # Whole-package mutation run, informational only; read it per-file
 mutate-all:
-    mutago --quiet --no-diffs ./internal/oneroster/
+    mutago --coverage --per-test --quiet --no-diffs ./internal/oneroster/
+
+# Surviving mutants with the enriched JSON report, for working through them one
+# at a time. Read mutago-agentic.json, then target a single survivor with
+# `mutago --run-mutant-id=<id> <file>`.
+mutate-survivors:
+    mutago --coverage --per-test --quiet --no-diffs --logger-agentic-json {{pure_core}}
+    @echo "wrote mutago-agentic.json"
 
 # Verify go.mod/go.sum are tidy (CI runs this; a dirty tree fails the build)
 tidy-check:

@@ -1,0 +1,253 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    google.protobuf.ListValue:
+      type: array
+      items:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON array whose elements may be any JSON value.
+    google.protobuf.NullValue:
+      type: string
+      title: NullValue
+      enum:
+        - NULL_VALUE
+      description: |-
+        `NullValue` is a singleton enumeration to represent the null value for the
+         `Value` type union.
+
+         The JSON representation for `NullValue` is JSON `null`.
+    google.protobuf.Struct:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON object whose property values may be any JSON value.
+    google.protobuf.Value:
+      oneOf:
+        - type: "null"
+        - type: number
+        - type: string
+        - type: boolean
+        - type: array
+        - type: object
+          additionalProperties: true
+      description: 'Any JSON value: `null`, number, string, boolean, array, or object.'
+    oneroster.v1p2.v1.AcadSessionGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "academicSession"
+          description: The type of object being referenced i.e. an 'academicSession'.
+          const: academicSession
+      title: AcadSessionGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Academic Session' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.ClassWrite:
+      type: object
+      properties:
+        classCode:
+          type:
+            - string
+            - "null"
+          title: class_code
+          description: Model Primitive Datatype = NormalizedString. The class code.
+        classType:
+          type:
+            - string
+            - "null"
+          anyOf:
+            - type: string
+              enum:
+                - "homeroom"
+                - "scheduled"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: class_type
+          description: The type of class. This is based upon an enumerated vocabulary.
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.CourseGUIDRef'
+          title: course
+          description: The link to the associated course i.e. the Course 'sourcedId'.
+        grades:
+          type: array
+          items:
+            type: string
+          title: grades
+          description: Model Primitive Datatype = NormalizedString. The grade(s) who attend the class. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        location:
+          type:
+            - string
+            - "null"
+          title: location
+          description: Model Primitive Datatype = NormalizedString. The location for the class e.g. 'Room 19'.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        periods:
+          type: array
+          items:
+            type: string
+          title: periods
+          description: Model Primitive Datatype = NormalizedString. The time slots in the day that the class will be given. Examples are 1 or a list of 1, 3, 5, etc.
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.ResourceGUIDRef'
+          title: resources
+          description: The links to the set of associated resources i.e. the Resource 'sourcedIds'.
+        school:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: school
+          description: The link to the associated school i.e. the School 'sourcedId'.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          title: subject_codes
+          description: Model Primitive Datatype = NormalizedString. This is a machine readable set of codes and the number should match the associated 'subjects' attribute. The vocabulary for this characteristic should be defined as part of the local addition of this specification (see the Implementation Guide [OR-IMPL-12] for more details).
+        subjects:
+          type: array
+          items:
+            type: string
+          title: subjects
+          description: Model Primitive Datatype = NormalizedString. The set of subjects addressed by this class e.g. 'chemistry'.
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcadSessionGUIDRef'
+          title: terms
+          description: The links to the set of terms or semesters (academicSession) i.e. the set of 'sourcedIds' for the terms within the associated school year.
+        title:
+          type: string
+          title: title
+          description: Model Primitive Datatype = NormalizedString. The tile/label for the class.
+      title: ClassWrite
+      required:
+        - course
+        - school
+        - sourcedId
+        - terms
+        - title
+      additionalProperties: false
+      description: |-
+        ClassWrite is the Class fields a caller may supply on a create or an update.
+
+         It is Class without date_last_modified. That field is owned by the server,
+         which sets it from its own clock on every write, so requiring a caller to
+         send one would be requiring a value that is then discarded. The response
+         carries the stored Class, date_last_modified included, because a caller needs
+         it back as the concurrency token for their next update.
+
+         Field numbers match Class's, so the two can be compared by eye. A test
+         asserts the pair has not drifted apart; see TestWriteTypesMatchTheirEntities.
+    oneroster.v1p2.v1.CourseGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "course"
+          description: The type of object being referenced i.e. a 'course'.
+          const: course
+      title: CourseGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Course' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.OrgGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "org"
+          description: The type of object being referenced i.e. an 'org'.
+          const: org
+      title: OrgGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.ResourceGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "resource"
+          description: The type of object being referenced i.e. a 'resource'.
+          const: resource
+      title: ResourceGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Resourse' object that has an allocated sourcedId (GUID).
+security: []

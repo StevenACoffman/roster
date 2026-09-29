@@ -88,42 +88,109 @@ func requireMask(mask *fieldmaskpb.FieldMask, msg proto.Message) ([]string, erro
 	return paths, nil
 }
 
-// applyMask returns a copy of stored with the named fields taken from incoming.
+// mergeWrite returns the write payload describing stored after the named fields
+// have been replaced by the ones incoming carries.
 //
-// One function for every entity rather than one per entity: the field mask is a
-// protobuf concept, so protoreflect can honour it generically. Five hand-written
-// merges would be the same logic five times, each able to drift from the others
+// stored and incoming are deliberately different message types: the stored
+// record (Org) against the write payload (OrgWrite), which omits the
+// server-owned date_last_modified. The merge runs in the write type, so what
+// comes back is exactly what a caller could have sent to replace the record
+// wholesale, and one toStorage function per entity serves both creates and
+// updates.
+//
+// Two phases, and only the first crosses the type boundary:
+//
+//  1. project every field of stored onto the write type, matched by name. This
+//     is total: a field of the entity that the write type does not declare is an
+//     error unless the write type reserves its number, which is how the
+//     deliberate omission of date_last_modified is distinguished from a field
+//     someone forgot to add to the pair.
+//  2. overwrite the masked paths from incoming, which is the same type as the
+//     result, so there is no cross-type question left to get wrong.
+//
+// One function for every entity rather than one per entity: a field mask is a
+// protobuf concept, so protoreflect can honour it generically. Six hand-written
+// merges would be the same logic six times, each able to drift from the others
 // and each needing its own copy of these tests.
 //
 // A field named in paths but unset on incoming is cleared on the result, not
 // skipped. That is what makes a mask able to erase an optional value — without
 // it there would be no way to remove a class's location, only to change it.
 //
-// Requires: paths came from requireMask against a message of the same type as
-// stored and incoming.
-// Ensures:  stored is not modified; the returned message is a distinct value.
-func applyMask[T proto.Message](stored, incoming T, paths []string) T {
-	merged, _ := proto.Clone(stored).(T)
+// Requires: paths came from requireMask against incoming.
+// Ensures:  stored and incoming are not modified, and the result shares no
+//
+//	list, map or sub-message with either.
+func mergeWrite[W proto.Message](stored proto.Message, incoming W, paths []string) (W, error) {
+	var zero W
 
-	target := merged.ProtoReflect()
-	source := incoming.ProtoReflect()
-	fields := target.Descriptor().Fields()
+	draft := incoming.ProtoReflect().New()
+	writeDesc := draft.Descriptor()
+	writeFields := writeDesc.Fields()
 
-	for _, path := range paths {
-		field := fields.ByName(protoreflect.Name(path))
-		if field == nil {
-			// requireMask already rejected this; reaching here would mean the
-			// caller bypassed it.
+	record := stored.ProtoReflect()
+	recordFields := record.Descriptor().Fields()
+
+	for i := range recordFields.Len() {
+		recordField := recordFields.Get(i)
+		writeField := writeFields.ByName(recordField.Name())
+
+		switch {
+		case writeField == nil && reservesNumber(writeDesc, recordField.Number()):
+			// The intended asymmetry: a server-owned field, absent from the write
+			// type and its number reserved there to say so.
 			continue
+		case writeField == nil:
+			return zero, fmt.Errorf(
+				"mergeWrite: %s has no field %q and does not reserve %d, so the pair has drifted",
+				writeDesc.Name(), recordField.Name(), recordField.Number())
+		case writeField.Kind() != recordField.Kind():
+			return zero, fmt.Errorf(
+				"mergeWrite: field %q is %s on %s and %s on %s",
+				recordField.Name(), recordField.Kind(), record.Descriptor().Name(),
+				writeField.Kind(), writeDesc.Name())
 		}
-		if source.Has(field) {
-			target.Set(field, source.Get(field))
-		} else {
-			target.Clear(field)
+
+		if record.Has(recordField) {
+			draft.Set(writeField, record.Get(recordField))
 		}
 	}
 
-	return merged
+	edit := incoming.ProtoReflect()
+	for _, path := range paths {
+		field := writeFields.ByName(protoreflect.Name(path))
+		if field == nil {
+			// requireMask validated these paths against this same descriptor, so
+			// reaching here means a caller bypassed it.
+			return zero, fmt.Errorf(
+				"mergeWrite: %q is not a field of %s", path, writeDesc.Name())
+		}
+		if edit.Has(field) {
+			draft.Set(field, edit.Get(field))
+		} else {
+			draft.Clear(field)
+		}
+	}
+
+	// Set stores composite values by reference, so the draft still shares lists
+	// and sub-messages with stored and incoming. Cloning once severs all of it,
+	// which is cheaper to verify than a per-kind deep copy in the loops above.
+	merged, _ := proto.Clone(draft.Interface()).(W)
+
+	return merged, nil
+}
+
+// reservesNumber reports whether desc reserves the given field number.
+//
+// Reserved ranges are half-open, as in "reserved 2;" giving [2, 3).
+func reservesNumber(desc protoreflect.MessageDescriptor, number protoreflect.FieldNumber) bool {
+	ranges := desc.ReservedRanges()
+	for i := range ranges.Len() {
+		if bounds := ranges.Get(i); number >= bounds[0] && number < bounds[1] {
+			return true
+		}
+	}
+	return false
 }
 
 // storageTimestamp converts a wire timestamp for comparison against a stored
@@ -271,7 +338,7 @@ func primaryRoleOrg(roles []*v1.Role) string {
 // carries a CHECK that end_date >= start_date. Checking here names the field
 // that is wrong, where the constraint violation would surface only as
 // failed_precondition with a constraint name the caller cannot act on.
-func requireSessionDates(session *v1.AcademicSession) error {
+func requireSessionDates(session *v1.AcademicSessionWrite) error {
 	start, end := session.GetStartDate(), session.GetEndDate()
 	if start == nil {
 		return fmt.Errorf("%w: start_date is required", errInvalid)
@@ -280,9 +347,21 @@ func requireSessionDates(session *v1.AcademicSession) error {
 		return fmt.Errorf("%w: end_date is required", errInvalid)
 	}
 
-	// Compared as a (year, month, day) tuple rather than by building time.Time,
-	// which would normalise an impossible date such as month 13 into the next
-	// year and silently accept it.
+	// Both must be real calendar dates before they can be ordered. Without this
+	// a start of 2026-02-31 would pass the comparison, then be dropped by
+	// storageDate, then fail the NOT NULL constraint — surfacing as a constraint
+	// name rather than as the field the caller got wrong.
+	if _, _, _, valid := calendarDate(start); !valid {
+		return fmt.Errorf("%w: start_date %d-%02d-%02d is not a calendar date",
+			errInvalid, start.GetYear(), start.GetMonth(), start.GetDay())
+	}
+	if _, _, _, valid := calendarDate(end); !valid {
+		return fmt.Errorf("%w: end_date %d-%02d-%02d is not a calendar date",
+			errInvalid, end.GetYear(), end.GetMonth(), end.GetDay())
+	}
+
+	// Compared as a (year, month, day) tuple, which is now safe because both are
+	// known to be real dates.
 	startKey := [3]int32{start.GetYear(), start.GetMonth(), start.GetDay()}
 	endKey := [3]int32{end.GetYear(), end.GetMonth(), end.GetDay()}
 	if endKey[0] < startKey[0] ||

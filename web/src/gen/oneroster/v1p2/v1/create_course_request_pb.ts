@@ -5,15 +5,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv1";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
-import type { Course } from "./course_pb";
-import { file_oneroster_v1p2_v1_course } from "./course_pb";
+import type { CourseWrite } from "./course_write_pb";
+import { file_oneroster_v1p2_v1_course_write } from "./course_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/create_course_request.proto.
  */
 export const file_oneroster_v1p2_v1_create_course_request: GenFile = /*@__PURE__*/
-  fileDesc("Ci1vbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfY291cnNlX3JlcXVlc3QucHJvdG8SEW9uZXJvc3Rlci52MXAyLnYxIkgKE0NyZWF0ZUNvdXJzZVJlcXVlc3QSMQoGY291cnNlGAEgASgLMhkub25lcm9zdGVyLnYxcDIudjEuQ291cnNlQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_oneroster_v1p2_v1_course]);
+  fileDesc("Ci1vbmVyb3N0ZXIvdjFwMi92MS9jcmVhdGVfY291cnNlX3JlcXVlc3QucHJvdG8SEW9uZXJvc3Rlci52MXAyLnYxIk0KE0NyZWF0ZUNvdXJzZVJlcXVlc3QSNgoGY291cnNlGAEgASgLMh4ub25lcm9zdGVyLnYxcDIudjEuQ291cnNlV3JpdGVCBrpIA8gBAUJLWklnaXRodWIuY29tL1N0ZXZlbkFDb2ZmbWFuL3Jvc3Rlci9nZW4vZ28vb25lcm9zdGVyL3YxcDIvdjE7b25lcm9zdGVydjFwMnYxYgZwcm90bzM", [file_buf_validate_validate, file_oneroster_v1p2_v1_course_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.CreateCourseRequest
@@ -24,9 +24,9 @@ export type CreateCourseRequest = Message<"oneroster.v1p2.v1.CreateCourseRequest
    * existing course is refused rather than merged, so a curator is told when they
    * are about to change something they thought was new.
    *
-   * @generated from field: oneroster.v1p2.v1.Course course = 1;
+   * @generated from field: oneroster.v1p2.v1.CourseWrite course = 1;
    */
-  course?: Course;
+  course?: CourseWrite;
 };
 
 /**

@@ -7,15 +7,15 @@ import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Org } from "./org_pb";
-import { file_oneroster_v1p2_v1_org } from "./org_pb";
+import type { OrgWrite } from "./org_write_pb";
+import { file_oneroster_v1p2_v1_org_write } from "./org_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/update_org_request.proto.
  */
 export const file_oneroster_v1p2_v1_update_org_request: GenFile = /*@__PURE__*/
-  fileDesc("CipvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfb3JnX3JlcXVlc3QucHJvdG8SEW9uZXJvc3Rlci52MXAyLnYxIsEBChBVcGRhdGVPcmdSZXF1ZXN0EisKA29yZxgBIAEoCzIWLm9uZXJvc3Rlci52MXAyLnYxLk9yZ0IGukgDyAEBEjcKC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0IGukgDyAEBEkcKG2V4cGVjdGVkX2RhdGVfbGFzdF9tb2RpZmllZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBrpIA8gBAUJLWklnaXRodWIuY29tL1N0ZXZlbkFDb2ZmbWFuL3Jvc3Rlci9nZW4vZ28vb25lcm9zdGVyL3YxcDIvdjE7b25lcm9zdGVydjFwMnYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_org]);
+  fileDesc("CipvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfb3JnX3JlcXVlc3QucHJvdG8SEW9uZXJvc3Rlci52MXAyLnYxIsYBChBVcGRhdGVPcmdSZXF1ZXN0EjAKA29yZxgBIAEoCzIbLm9uZXJvc3Rlci52MXAyLnYxLk9yZ1dyaXRlQga6SAPIAQESNwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQga6SAPIAQESRwobZXhwZWN0ZWRfZGF0ZV9sYXN0X21vZGlmaWVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_org_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.UpdateOrgRequest
@@ -25,9 +25,9 @@ export type UpdateOrgRequest = Message<"oneroster.v1p2.v1.UpdateOrgRequest"> & {
    * The org carrying the new values, identified by its sourced_id. Only the
    * fields named in update_mask are read from it.
    *
-   * @generated from field: oneroster.v1p2.v1.Org org = 1;
+   * @generated from field: oneroster.v1p2.v1.OrgWrite org = 1;
    */
-  org?: Org;
+  org?: OrgWrite;
 
   /**
    * Which fields to change. Required and non-empty: an absent mask is refused

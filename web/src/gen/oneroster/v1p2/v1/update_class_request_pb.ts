@@ -7,15 +7,15 @@ import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Class } from "./class_pb";
-import { file_oneroster_v1p2_v1_class } from "./class_pb";
+import type { ClassWrite } from "./class_write_pb";
+import { file_oneroster_v1p2_v1_class_write } from "./class_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/update_class_request.proto.
  */
 export const file_oneroster_v1p2_v1_update_class_request: GenFile = /*@__PURE__*/
-  fileDesc("CixvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfY2xhc3NfcmVxdWVzdC5wcm90bxIRb25lcm9zdGVyLnYxcDIudjEixwEKElVwZGF0ZUNsYXNzUmVxdWVzdBIvCgVjbGFzcxgBIAEoCzIYLm9uZXJvc3Rlci52MXAyLnYxLkNsYXNzQga6SAPIAQESNwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQga6SAPIAQESRwobZXhwZWN0ZWRfZGF0ZV9sYXN0X21vZGlmaWVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_class]);
+  fileDesc("CixvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfY2xhc3NfcmVxdWVzdC5wcm90bxIRb25lcm9zdGVyLnYxcDIudjEizAEKElVwZGF0ZUNsYXNzUmVxdWVzdBI0CgVjbGFzcxgBIAEoCzIdLm9uZXJvc3Rlci52MXAyLnYxLkNsYXNzV3JpdGVCBrpIA8gBARI3Cgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCBrpIA8gBARJHChtleHBlY3RlZF9kYXRlX2xhc3RfbW9kaWZpZWQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_class_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.UpdateClassRequest
@@ -25,9 +25,9 @@ export type UpdateClassRequest = Message<"oneroster.v1p2.v1.UpdateClassRequest">
    * The class carrying the new values, identified by its sourced_id. Only the
    * fields named in update_mask are read from it.
    *
-   * @generated from field: oneroster.v1p2.v1.Class class = 1;
+   * @generated from field: oneroster.v1p2.v1.ClassWrite class = 1;
    */
-  class?: Class;
+  class?: ClassWrite;
 
   /**
    * Which fields to change. Required and non-empty: an absent mask is refused

@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/type/date.proto";
+import "oneroster/v1p2/v1/class_guid_ref.proto";
+import "oneroster/v1p2/v1/org_guid_ref.proto";
+import "oneroster/v1p2/v1/user_guid_ref.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+// EnrollmentWrite is the Enrollment fields a caller may supply on a create or an update.
+//
+// It is Enrollment without date_last_modified. That field is owned by the server,
+// which sets it from its own clock on every write, so requiring a caller to
+// send one would be requiring a value that is then discarded. The response
+// carries the stored Enrollment, date_last_modified included, because a caller needs
+// it back as the concurrency token for their next update.
+//
+// Field numbers match Enrollment's, so the two can be compared by eye. A test
+// asserts the pair has not drifted apart; see TestWriteTypesMatchTheirEntities.
+message EnrollmentWrite {
+  // date_last_modified. Server-owned: set from the service clock on every
+  // write, never read from the request.
+  reserved 3;
+
+  // Model Primitive Datatype = Date. The start date for the enrollment (inclusive). This date must be within the period of the associated Academic Session for the class (Term/Semester/SchoolYear). Use the [ISO 8601] format of 'YYYY-MM-DD'.
+  google.type.Date begin_date = 1 [
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // The link to the class on which the user is enrolled i.e. the Class 'sourcedId'.
+  ClassGUIDRef class = 2 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = Date. The end date for the enrollment (exclusive). This date must be within the period of the associated Academic Session for the class (Term/Semester/SchoolYear). Use the [ISO 8601] format of 'YYYY-MM-DD'.
+  google.type.Date end_date = 4 [
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+  google.protobuf.Struct metadata = 5;
+  // Applicable only to teachers. Only one teacher should be designated as the primary teacher for a class (this value set as 'true') in the period defined by the begin/end dates.
+  optional bool primary = 6 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // The role of the user for this class in the school e.g teacher, student, etc. This is from an enumerated vocabulary.
+  string role = 7 [
+    (buf.validate.field) = { required: true },
+    (gnostic.openapi.v3.property) = {
+      type: "string",
+      any_of: [
+        {
+          schema: {
+            enum: [
+              { yaml: "\"administrator\"" },
+              { yaml: "\"proctor\"" },
+              { yaml: "\"student\"" },
+              { yaml: "\"teacher\"" }
+            ],
+            type: "string"
+          }
+        },
+        {
+          schema: { pattern: "(ext:)[a-zA-Z0-9\\.\\-_]+", type: "string" }
+        }
+      ]
+    }
+  ];
+  // The link to the school at which the class is being provided i.e. an Org 'sourcedId'.
+  OrgGUIDRef school = 8 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+  string sourced_id = 9 [(buf.validate.field) = { required: true }];
+  // All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+  string status = 10 [
+    (buf.validate.field).string = { in: ["active", "tobedeleted"] },
+    (gnostic.openapi.v3.property) = {
+      enum: [
+        { yaml: "\"active\"" },
+        { yaml: "\"tobedeleted\"" }
+      ],
+      type: "string"
+    }
+  ];
+  // The link to the enrolled User i.e. the User 'sourcedId'.
+  UserGUIDRef user = 11 [(buf.validate.field) = { required: true }];
+}

@@ -7,15 +7,15 @@ import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Enrollment } from "./enrollment_pb";
-import { file_oneroster_v1p2_v1_enrollment } from "./enrollment_pb";
+import type { EnrollmentWrite } from "./enrollment_write_pb";
+import { file_oneroster_v1p2_v1_enrollment_write } from "./enrollment_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/update_enrollment_request.proto.
  */
 export const file_oneroster_v1p2_v1_update_enrollment_request: GenFile = /*@__PURE__*/
-  fileDesc("CjFvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfZW5yb2xsbWVudF9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSLWAQoXVXBkYXRlRW5yb2xsbWVudFJlcXVlc3QSOQoKZW5yb2xsbWVudBgBIAEoCzIdLm9uZXJvc3Rlci52MXAyLnYxLkVucm9sbG1lbnRCBrpIA8gBARI3Cgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCBrpIA8gBARJHChtleHBlY3RlZF9kYXRlX2xhc3RfbW9kaWZpZWQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_enrollment]);
+  fileDesc("CjFvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfZW5yb2xsbWVudF9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSLbAQoXVXBkYXRlRW5yb2xsbWVudFJlcXVlc3QSPgoKZW5yb2xsbWVudBgBIAEoCzIiLm9uZXJvc3Rlci52MXAyLnYxLkVucm9sbG1lbnRXcml0ZUIGukgDyAEBEjcKC3VwZGF0ZV9tYXNrGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLkZpZWxkTWFza0IGukgDyAEBEkcKG2V4cGVjdGVkX2RhdGVfbGFzdF9tb2RpZmllZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBrpIA8gBAUJLWklnaXRodWIuY29tL1N0ZXZlbkFDb2ZmbWFuL3Jvc3Rlci9nZW4vZ28vb25lcm9zdGVyL3YxcDIvdjE7b25lcm9zdGVydjFwMnYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_enrollment_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.UpdateEnrollmentRequest
@@ -25,9 +25,9 @@ export type UpdateEnrollmentRequest = Message<"oneroster.v1p2.v1.UpdateEnrollmen
    * The enrollment carrying the new values, identified by its sourced_id. Only the
    * fields named in update_mask are read from it.
    *
-   * @generated from field: oneroster.v1p2.v1.Enrollment enrollment = 1;
+   * @generated from field: oneroster.v1p2.v1.EnrollmentWrite enrollment = 1;
    */
-  enrollment?: Enrollment;
+  enrollment?: EnrollmentWrite;
 
   /**
    * Which fields to change. Required and non-empty: an absent mask is refused

@@ -7,15 +7,15 @@ import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv1";
 import { file_buf_validate_validate } from "../../../buf/validate/validate_pb";
 import type { FieldMask, Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_field_mask, file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { AcademicSession } from "./academic_session_pb";
-import { file_oneroster_v1p2_v1_academic_session } from "./academic_session_pb";
+import type { AcademicSessionWrite } from "./academic_session_write_pb";
+import { file_oneroster_v1p2_v1_academic_session_write } from "./academic_session_write_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file oneroster/v1p2/v1/update_academic_session_request.proto.
  */
 export const file_oneroster_v1p2_v1_update_academic_session_request: GenFile = /*@__PURE__*/
-  fileDesc("CjdvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfYWNhZGVtaWNfc2Vzc2lvbl9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSLmAQocVXBkYXRlQWNhZGVtaWNTZXNzaW9uUmVxdWVzdBJEChBhY2FkZW1pY19zZXNzaW9uGAEgASgLMiIub25lcm9zdGVyLnYxcDIudjEuQWNhZGVtaWNTZXNzaW9uQga6SAPIAQESNwoLdXBkYXRlX21hc2sYAiABKAsyGi5nb29nbGUucHJvdG9idWYuRmllbGRNYXNrQga6SAPIAQESRwobZXhwZWN0ZWRfZGF0ZV9sYXN0X21vZGlmaWVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIGukgDyAEBQktaSWdpdGh1Yi5jb20vU3RldmVuQUNvZmZtYW4vcm9zdGVyL2dlbi9nby9vbmVyb3N0ZXIvdjFwMi92MTtvbmVyb3N0ZXJ2MXAydjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_academic_session]);
+  fileDesc("CjdvbmVyb3N0ZXIvdjFwMi92MS91cGRhdGVfYWNhZGVtaWNfc2Vzc2lvbl9yZXF1ZXN0LnByb3RvEhFvbmVyb3N0ZXIudjFwMi52MSLrAQocVXBkYXRlQWNhZGVtaWNTZXNzaW9uUmVxdWVzdBJJChBhY2FkZW1pY19zZXNzaW9uGAEgASgLMicub25lcm9zdGVyLnYxcDIudjEuQWNhZGVtaWNTZXNzaW9uV3JpdGVCBrpIA8gBARI3Cgt1cGRhdGVfbWFzaxgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5GaWVsZE1hc2tCBrpIA8gBARJHChtleHBlY3RlZF9kYXRlX2xhc3RfbW9kaWZpZWQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQga6SAPIAQFCS1pJZ2l0aHViLmNvbS9TdGV2ZW5BQ29mZm1hbi9yb3N0ZXIvZ2VuL2dvL29uZXJvc3Rlci92MXAyL3YxO29uZXJvc3RlcnYxcDJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_field_mask, file_google_protobuf_timestamp, file_oneroster_v1p2_v1_academic_session_write]);
 
 /**
  * @generated from message oneroster.v1p2.v1.UpdateAcademicSessionRequest
@@ -24,9 +24,9 @@ export type UpdateAcademicSessionRequest = Message<"oneroster.v1p2.v1.UpdateAcad
   /**
    * The session carrying the new values, identified by its sourced_id.
    *
-   * @generated from field: oneroster.v1p2.v1.AcademicSession academic_session = 1;
+   * @generated from field: oneroster.v1p2.v1.AcademicSessionWrite academic_session = 1;
    */
-  academicSession?: AcademicSession;
+  academicSession?: AcademicSessionWrite;
 
   /**
    * Which fields to change. Required and non-empty; sourced_id may not appear.
