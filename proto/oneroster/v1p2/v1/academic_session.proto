@@ -1,0 +1,71 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+import "oneroster/v1p2/v1/acad_session_guid_ref.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// The container for an academicSession. An academicSession represents a duration of time. Typically they are used to describe terms, grading periods, and other durations e.g. school years. Term is used to describe a period of time during which learning will take place. Other words for term could be in common use around the world e.g. Semester. The important thing is that Term is a unit of time, often many weeks long, into which classes are scheduled. Grading Period is used to represent another unit of time, that within which line items are assessed. A term may have many grading periods, a grading period belongs to a single term. A class may be assessed over several grade periods (represented by a line item being connected to a grading period). The parent / child attributes of academic sessions allow terms to be connected to their grading periods and vice-versa.
+message AcademicSession {
+  // The set of links to the child AcademicSessions i.e. a set of AcademicSession 'sourcedIds'.
+  repeated AcadSessionGUIDRef children = 1;
+  // Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+  google.protobuf.Timestamp date_last_modified = 2 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = Date. The end date for the academic session. The end date is excluded from the academic session. This is in [ISO 8601] format of 'YYYY-MM-DD'.
+  google.type.Date end_date = 3 [
+    (buf.validate.field) = { required: true },
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+  google.protobuf.Struct metadata = 4;
+  // The link to parent AcademicSession i.e. an AcademicSession 'sourcedId'.
+  AcadSessionGUIDRef parent = 5;
+  // Model Primitive Datatype = NormalizedString. The school year for the academic session. This year should include the school year end e.g. 2014. This is in the [ISO 8601] format of 'YYYY'.
+  string school_year = 6 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+  string sourced_id = 7 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = Date. The start date for the academic session. The start date is included in the academic session. This is in [ISO 8601] format of 'YYYY-MM-DD'.
+  google.type.Date start_date = 8 [
+    (buf.validate.field) = { required: true },
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+  string status = 9 [
+    (buf.validate.field).string = { in: ["active", "tobedeleted"] },
+    (gnostic.openapi.v3.property) = {
+      enum: [
+        { yaml: "\"active\"" },
+        { yaml: "\"tobedeleted\"" }
+      ],
+      type: "string"
+    }
+  ];
+  // Model Primitive Datatype = NormalizedString. The title/label for the academic session.
+  string title = 10 [(buf.validate.field) = { required: true }];
+  // The type of academic session. This is based upon an enumerated vocabulary.
+  string type = 11 [
+    (buf.validate.field) = { required: true },
+    (gnostic.openapi.v3.property) = {
+      type: "string",
+      any_of: [
+        {
+          schema: {
+            enum: [
+              { yaml: "\"gradingPeriod\"" },
+              { yaml: "\"semester\"" },
+              { yaml: "\"schoolYear\"" },
+              { yaml: "\"term\"" }
+            ],
+            type: "string"
+          }
+        },
+        {
+          schema: { pattern: "(ext:)[a-zA-Z0-9\\.\\-_]+", type: "string" }
+        }
+      ]
+    }
+  ];
+}

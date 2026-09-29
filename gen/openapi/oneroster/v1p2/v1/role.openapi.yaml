@@ -1,0 +1,140 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    google.type.Date:
+      type: object
+      properties:
+        year:
+          type: integer
+          title: year
+          format: int32
+          description: |-
+            Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+             a year.
+        month:
+          type: integer
+          title: month
+          format: int32
+          description: |-
+            Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+             month and day.
+        day:
+          type: integer
+          title: day
+          format: int32
+          description: |-
+            Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+             to specify a year by itself or a year and month where the day isn't
+             significant.
+      title: Date
+      additionalProperties: false
+      description: |-
+        Represents a whole or partial calendar date, such as a birthday. The time of
+         day and time zone are either specified elsewhere or are insignificant. The
+         date is relative to the Gregorian Calendar. This can represent one of the
+         following:
+
+         * A full date, with non-zero year, month, and day values.
+         * A month and day, with a zero year (for example, an anniversary).
+         * A year on its own, with a zero month and a zero day.
+         * A year and month, with a zero day (for example, a credit card expiration
+           date).
+
+         Related types:
+
+         * [google.type.TimeOfDay][google.type.TimeOfDay]
+         * [google.type.DateTime][google.type.DateTime]
+         * [google.protobuf.Timestamp][google.protobuf.Timestamp]
+    oneroster.v1p2.v1.OrgGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "org"
+          description: The type of object being referenced i.e. an 'org'.
+          const: org
+      title: OrgGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.Role:
+      type: object
+      properties:
+        beginDate:
+          type: string
+          title: begin_date
+          format: date
+          description: Model Primitive Datatype = Date. The start date on which the role becomes active (inclusive).
+        endDate:
+          type: string
+          title: end_date
+          format: date
+          description: Model Primitive Datatype = Date. The end date on which the role becomes inactive (exclusive).
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: org
+          description: The link to the associated org i.e. the 'sourcedId' for the org.
+        role:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "aide"
+                - "counselor"
+                - "districtAdministrator"
+                - "guardian"
+                - "parent"
+                - "principal"
+                - "proctor"
+                - "relative"
+                - "siteAdministrator"
+                - "student"
+                - "systemAdministrator"
+                - "teacher"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: role
+          description: The role of the user in the org. The permitted values are from an enumerated list.
+        roleType:
+          type: string
+          title: role_type
+          enum:
+            - "primary"
+            - "secondary"
+          description: Indicates if this role is the primary or secondary role for that org. There MUST be one, and only one, primary role for each org.
+        userProfile:
+          type:
+            - string
+            - "null"
+          title: user_profile
+          description: Model Primitive Datatype = AnyURI. The identifier for the system/tool/app access account that is relevant to this role in the org. The equivalent UserProfile should exist with a 'profileId' equal to this identifier value.
+      title: Role
+      required:
+        - org
+        - role
+      additionalProperties: false
+      description: The container for one mapping between a role and an org for the user.
+security: []

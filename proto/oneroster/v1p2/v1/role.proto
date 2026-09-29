@@ -1,0 +1,65 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/type/date.proto";
+import "oneroster/v1p2/v1/org_guid_ref.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// The container for one mapping between a role and an org for the user.
+message Role {
+  // Model Primitive Datatype = Date. The start date on which the role becomes active (inclusive).
+  google.type.Date begin_date = 1 [
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // Model Primitive Datatype = Date. The end date on which the role becomes inactive (exclusive).
+  google.type.Date end_date = 2 [
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // The link to the associated org i.e. the 'sourcedId' for the org.
+  OrgGUIDRef org = 3 [(buf.validate.field) = { required: true }];
+  // The role of the user in the org. The permitted values are from an enumerated list.
+  string role = 4 [
+    (buf.validate.field) = { required: true },
+    (gnostic.openapi.v3.property) = {
+      type: "string",
+      any_of: [
+        {
+          schema: {
+            enum: [
+              { yaml: "\"aide\"" },
+              { yaml: "\"counselor\"" },
+              { yaml: "\"districtAdministrator\"" },
+              { yaml: "\"guardian\"" },
+              { yaml: "\"parent\"" },
+              { yaml: "\"principal\"" },
+              { yaml: "\"proctor\"" },
+              { yaml: "\"relative\"" },
+              { yaml: "\"siteAdministrator\"" },
+              { yaml: "\"student\"" },
+              { yaml: "\"systemAdministrator\"" },
+              { yaml: "\"teacher\"" }
+            ],
+            type: "string"
+          }
+        },
+        {
+          schema: { pattern: "(ext:)[a-zA-Z0-9\\.\\-_]+", type: "string" }
+        }
+      ]
+    }
+  ];
+  // Indicates if this role is the primary or secondary role for that org. There MUST be one, and only one, primary role for each org.
+  string role_type = 5 [
+    (buf.validate.field).string = { in: ["primary", "secondary"] },
+    (gnostic.openapi.v3.property) = {
+      enum: [
+        { yaml: "\"primary\"" },
+        { yaml: "\"secondary\"" }
+      ],
+      type: "string"
+    }
+  ];
+  // Model Primitive Datatype = AnyURI. The identifier for the system/tool/app access account that is relevant to this role in the org. The equivalent UserProfile should exist with a 'profileId' equal to this identifier value.
+  optional string user_profile = 6;
+}

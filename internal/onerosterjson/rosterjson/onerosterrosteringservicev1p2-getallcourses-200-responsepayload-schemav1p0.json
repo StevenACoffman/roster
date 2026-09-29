@@ -1,0 +1,217 @@
+{
+  "$id": "getAllCourses-200-responsepayload-schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "AcadSessionGUIDRefDType": {
+      "additionalProperties": false,
+      "description": "This is the container for reference to a OneRoster 'Academic Session' object that has an allocated sourcedId (GUID).",
+      "properties": {
+        "href": {
+          "description": "Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.",
+          "format": "uri",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The globally unique identifier of the object being referenced.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of object being referenced i.e. an 'academicSession'.",
+          "enum": [
+            "academicSession"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "sourcedId",
+        "type"
+      ],
+      "type": "object"
+    },
+    "CourseDType": {
+      "additionalProperties": false,
+      "description": "The information about a course. A Course is a course of study that, typically, has a shared curriculum although it may be taught to different students by different teachers. It is likely that several classes of a single course may be taught in a term. For example, a school runs Grade 9 English in the spring term. There are four classes, each with a different 30 students, taught by 4 different teachers. However the curriculum for each of those four classes is the same i.e. the course curriculum.",
+      "properties": {
+        "courseCode": {
+          "description": "Model Primitive Datatype = NormalizedString. The assigned course code.",
+          "type": "string"
+        },
+        "dateLastModified": {
+          "description": "Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "grades": {
+          "description": "Model Primitive Datatype = NormalizedString. Grade(s) for which the class is attended. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "metadata": {
+          "$ref": "#/definitions/MetadataDType",
+          "description": "All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used."
+        },
+        "org": {
+          "$ref": "#/definitions/OrgGUIDRefDType",
+          "description": "The link to org i.e. the 'sourcedId' of the org."
+        },
+        "resources": {
+          "description": "The links to the associated resources if applicable i.e. the resource 'sourcedIds'.",
+          "items": {
+            "$ref": "#/definitions/ResourceGUIDRefDType"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "schoolYear": {
+          "$ref": "#/definitions/AcadSessionGUIDRefDType",
+          "description": "The link to academicSession i.e. the AcademicSession 'sourcedId'."
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID  System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId.  The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products.  Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.",
+          "type": "string"
+        },
+        "status": {
+          "description": "All objects MUST BE either 'active' or 'tobedeleted'.  Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.",
+          "enum": [
+            "active",
+            "tobedeleted"
+          ],
+          "type": "string"
+        },
+        "subjectCodes": {
+          "description": "Model Primitive Datatype = NormalizedString. This is a machine readable set of codes and the number should match the associated 'subjects' attribute. The vocabulary for this characteristic should be defined as part of the local addition of this specification (see the Implementation Guide [OR-IMPL-12] for more details).",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "subjects": {
+          "description": "Model Primitive Datatype = NormalizedString. The set of subjects addresse by this course. This is a set of human readable strings.  ",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "title": {
+          "description": "Model Primitive Datatype = NormalizedString. The title of the course.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourcedId",
+        "status",
+        "dateLastModified",
+        "title",
+        "courseCode"
+      ],
+      "type": "object"
+    },
+    "MetadataDType": {
+      "additionalProperties": true,
+      "description": "The container for the proprietary extensions.",
+      "patternProperties": {
+        "^[^:][^:]*:[^:][^:]*$": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "properties": {},
+      "type": "object"
+    },
+    "OrgGUIDRefDType": {
+      "additionalProperties": false,
+      "description": "This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).",
+      "properties": {
+        "href": {
+          "description": "Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.",
+          "format": "uri",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The globally unique identifier of the object being referenced.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of object being referenced i.e. an 'org'.",
+          "enum": [
+            "org"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "sourcedId",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ResourceGUIDRefDType": {
+      "additionalProperties": false,
+      "description": "This is the container for reference to a OneRoster 'Resourse' object that has an allocated sourcedId (GUID).",
+      "properties": {
+        "href": {
+          "description": "Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.",
+          "format": "uri",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The globally unique identifier of the object being referenced.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of object being referenced i.e. a 'resource'.",
+          "enum": [
+            "resource"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "sourcedId",
+        "type"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "Author-Colin Smythe (1EdTech);  Version-1.2;  Release Date-19th September 2022. ",
+  "properties": {
+    "courses": {
+      "description": "The collection of course instances. The order is not significant. The corresponding query constraints may result in no instances being returned.",
+      "items": {
+        "$ref": "#/definitions/CourseDType"
+      },
+      "minItems": 0,
+      "type": "array"
+    }
+  },
+  "title": " Version  IMS Final Release JSON Schema Binding (getAllCourses-200-responsepayload-schema)",
+  "type": "object"
+}

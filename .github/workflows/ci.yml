@@ -1,0 +1,201 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+# Cancel superseded runs on the same ref; only the newest commit matters.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - name: golangci-lint (default build)
+      run: golangci-lint run --timeout=5m ./...
+    - name: golangci-lint (integration build)
+      run: golangci-lint run --timeout=5m --build-tags=integration ./...
+  tidy:
+    name: go mod tidy is committed
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - run: go mod tidy
+    - name: Fail if go.mod or go.sum changed
+      run: |
+        if ! git diff --exit-code go.mod go.sum; then
+          echo "::error::go.mod/go.sum are not tidy. Run 'go mod tidy' and commit the result."
+          exit 1
+        fi
+  generate:
+    name: Generated code is committed
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - name: Regenerate protobuf, Connect, OpenAPI and sqlc output
+      run: just generate
+    - name: Fail if regeneration produced a diff
+      run: |
+        if ! git diff --exit-code; then
+          echo "::error::Generated code is stale. Run 'just generate' and commit the result."
+          exit 1
+        fi
+  buf:
+    name: Protobuf lint and breaking-change check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - run: buf lint
+    - name: Breaking-change check against the base branch
+      if: github.event_name == 'pull_request'
+      env:
+        BASE_REF: ${{ github.base_ref }}
+      run: buf breaking --against ".git#branch=origin/$BASE_REF"
+  test:
+    name: Unit tests (race)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - name: Run the fast suite with the race detector
+      run: go test -race -count=1 ./...
+    - name: Coverage report
+      run: |
+        go test -race -coverprofile=coverage.out -covermode=atomic ./...
+        go tool cover -func=coverage.out | tail -1
+    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      if: always()
+      with:
+        name: coverage
+        path: coverage.out
+        retention-days: 7
+  integration:
+    name: Integration tests (Postgres)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    # Testcontainers talks to the runner's own Docker daemon, which is already
+    # present on ubuntu-latest. No service container is declared here because the
+    # suites provision and tear down their own Postgres.
+    - name: Run the container-backed suites
+      run: go test -race -tags=integration -count=1 ./...
+  fuzz:
+    name: Fuzz the pure core
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    # A short burst per target on every PR. This is a smoke test, not a campaign:
+    # it catches a newly introduced crasher quickly. Any input that fails is written
+    # to testdata/fuzz and uploaded so it can be committed as a regression seed.
+    - name: Fuzz each target briefly
+      run: just fuzz-all 20s
+    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      if: failure()
+      with:
+        name: fuzz-failures
+        path: internal/oneroster/testdata/fuzz/
+        retention-days: 30
+  mutation:
+    name: Mutation testing (pure core)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    # Scoped to the pure core and gated at a threshold the suite already clears.
+    # A gate that is red on arrival teaches people to ignore it; raise it as
+    # surviving mutants get killed.
+    - name: Mutation-test internal/oneroster/core.go
+      run: mutago --min-msi=90 --quiet --no-diffs --logger-github ./internal/oneroster/core.go
+    # Informational: surviving mutants on the lines this PR actually changed,
+    # anywhere in internal/. Never fails the build — it is a review aid, and
+    # newly written code has not had a chance to earn a threshold yet.
+    - name: Surviving mutants on changed lines
+      if: github.event_name == 'pull_request'
+      continue-on-error: true
+      env:
+        BASE_REF: ${{ github.base_ref }}
+      run: |
+        mutago --git-diff-lines --git-diff-base="origin/$BASE_REF" \
+               --quiet --no-diffs --logger-github ./internal/...
+  vulncheck:
+    name: Vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - run: govulncheck ./...
+  web:
+    name: Frontend build and tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    # The curation UI is not built yet, so these steps are conditional rather
+    # than failing the job on an absent directory. Delete the conditions once
+    # web/package.json is committed.
+    - id: web
+      run: test -f web/package.json && echo "present=true" >> "$GITHUB_OUTPUT" || echo "present=false" >> "$GITHUB_OUTPUT"
+    - if: steps.web.outputs.present == 'true'
+      run: pnpm install --frozen-lockfile
+      working-directory: web
+    - if: steps.web.outputs.present == 'true'
+      run: pnpm build
+      working-directory: web
+    # The suite spawns its own FauxRPC mock server against the committed descriptor
+    # image, so it needs the fauxrpc binary that mise installs but no live backend.
+    - if: steps.web.outputs.present == 'true'
+      run: pnpm test
+      working-directory: web

@@ -1,0 +1,67 @@
+stubs:
+  - id: get-all-users
+    target: oneroster.v1p2.v1.RosterService/GetAllUsers
+    cel_content: |
+      {
+        'users': [
+          {
+            'sourced_id': 'u-teach',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'enabled_user': true,
+            'given_name': 'Ana',
+            'family_name': 'Rivera',
+            'username': 'arivera',
+            'email': 'arivera@example.edu',
+            'roles': [
+              {
+                'role_type': 'primary',
+                'role': 'teacher',
+                'org': {
+                  'sourced_id': 'sch-2',
+                  'href': '/ims/oneroster/rostering/v1p2/orgs/sch-2',
+                  'type': 'org'
+                }
+              }
+            ]
+          },
+          {
+            'sourced_id': 'u-stud',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'enabled_user': true,
+            'given_name': 'Bo',
+            'family_name': 'Chen',
+            'username': 'bchen',
+            'email': 'bchen@example.edu',
+            'roles': [
+              {
+                'role_type': 'primary',
+                'role': 'student',
+                'org': {
+                  'sourced_id': 'sch-2',
+                  'href': '/ims/oneroster/rostering/v1p2/orgs/sch-2',
+                  'type': 'org'
+                }
+              }
+            ]
+          }
+        ],
+        'next_page_token': ''
+      }
+  - id: get-all-students
+    target: oneroster.v1p2.v1.RosterService/GetAllStudents
+    cel_content: |
+      {
+        'users': [
+          {
+            'sourced_id': 'u-stud',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'enabled_user': true,
+            'given_name': 'Bo',
+            'family_name': 'Chen'
+          }
+        ],
+        'next_page_token': ''
+      }

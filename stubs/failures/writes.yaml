@@ -1,0 +1,23 @@
+# Curation failure stubs. The interesting one is Aborted: it is what a curator
+# sees when their edit lost a race with another writer, and a UI has to respond
+# by reloading rather than by reporting a generic error.
+stubs:
+  - id: update-org-stale
+    target: oneroster.v1p2.v1.RosterService/UpdateOrg
+    error_code: 10
+    error_message: "the record changed since you read it; reload it and reapply your edit"
+
+  - id: create-org-conflict
+    target: oneroster.v1p2.v1.RosterService/CreateOrg
+    error_code: 6
+    error_message: "already exists"
+
+  - id: delete-class-forbidden
+    target: oneroster.v1p2.v1.RosterService/DeleteClass
+    error_code: 5
+    error_message: "not found"
+
+  - id: create-enrollment-invalid
+    target: oneroster.v1p2.v1.RosterService/CreateEnrollment
+    error_code: 3
+    error_message: "validation error: sourced_id: must be at least 1 characters"

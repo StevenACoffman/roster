@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "oneroster/v1p2/v1/course.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message CreateCourseResponse {
+  // The stored course, including the date_last_modified the server assigned.
+  // Send that value back as expected_date_last_modified on the next update.
+  Course course = 1 [(buf.validate.field) = { required: true }];
+}

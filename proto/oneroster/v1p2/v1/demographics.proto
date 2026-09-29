@@ -1,0 +1,112 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/type/date.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// Demographics information is taken from the Common Educational Data Standards (CEDS) from the US government. (http://ceds.ed.gov). Note that demographics data is held in its own service, and that access to this service is considered privileged. Not all consumer keys will be able to request demographics data.
+message Demographics {
+  // Identification of whether or not the user is an American Indian or Alaska Native ethnicity.
+  optional bool american_indian_or_alaska_native = 1 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // Identification of whether or not the user is of Asian ethnicity.
+  optional bool asian = 2 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // Model Primitive Datatype = Date. the date of birth. The format is [ISO 8601] of 'YYYY-MM-DD'.
+  google.type.Date birth_date = 3 [
+    (gnostic.openapi.v3.property) = { type: "string", format: "date" }
+  ];
+  // Identification of whether or not the user is black or African American ethnicity.
+  optional bool black_or_african_american = 4 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // Model Primitive Datatype = NormalizedString. The name of the city in which the user was born.
+  optional string city_of_birth = 5;
+  // Model Primitive Datatype = NormalizedString. The country of birth code. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+  optional string country_of_birth_code = 6;
+  // Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+  google.protobuf.Timestamp date_last_modified = 7 [(buf.validate.field) = { required: true }];
+  // Identification of whether or not the user has a demographic of two or more race ethnicities.
+  optional bool demographic_race_two_or_more_races = 8 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // Identification of whether or not the user is Hispanic or of Latino ethnicity.
+  optional bool hispanic_or_latino_ethnicity = 9 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+  google.protobuf.Struct metadata = 10;
+  // Identification of whether or not the user is Native Hawaiian or Other Pacific Islander ethnicity.
+  optional bool native_hawaiian_or_other_pacific_islander = 11 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+  // Model Primitive Datatype = NormalizedString. An indication of the location of a person's legal residence relative to (within or outside) the boundaries of the public school attended and its administrative unit. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+  optional string public_school_residence_status = 12;
+  // The sex of the individual. The permitted values are from an enumerated list.
+  optional string sex = 13 [
+    (gnostic.openapi.v3.property) = {
+      type: "string",
+      any_of: [
+        {
+          schema: {
+            enum: [
+              { yaml: "\"male\"" },
+              { yaml: "\"female\"" },
+              { yaml: "\"unspecified\"" },
+              { yaml: "\"other\"" }
+            ],
+            type: "string"
+          }
+        },
+        {
+          schema: { pattern: "(ext:)[a-zA-Z0-9\\.\\-_]+", type: "string" }
+        }
+      ]
+    }
+  ];
+  // Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+  string sourced_id = 14 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = NormalizedString. The abbreviation for the name of the state (within the United States) or extra-state jurisdiction in which a person was born. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+  optional string state_of_birth_abbreviation = 15;
+  // All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+  string status = 16 [
+    (buf.validate.field).string = { in: ["active", "tobedeleted"] },
+    (gnostic.openapi.v3.property) = {
+      enum: [
+        { yaml: "\"active\"" },
+        { yaml: "\"tobedeleted\"" }
+      ],
+      type: "string"
+    }
+  ];
+  // Identification of whether or not the user is of white ethnicity.
+  optional bool white = 17 [
+    (gnostic.openapi.v3.property) = {
+      enum: [ { yaml: "\"true\"" }, { yaml: "\"false\"" } ],
+      type: "string"
+    }
+  ];
+}

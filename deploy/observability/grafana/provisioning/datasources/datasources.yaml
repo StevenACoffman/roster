@@ -1,0 +1,35 @@
+# Provisioned so the stack is useful on first boot rather than after ten
+# minutes of clicking.
+apiVersion: 1
+datasources:
+- name: Tempo
+  type: tempo
+  uid: tempo
+  access: proxy
+  url: http://tempo:3200
+  jsonData:
+    # This block is the reason the stack exists: profile samples already carry
+    # a trace_id, so a slow span here opens as the flame graph recorded while
+    # it ran.
+    tracesToProfiles:
+      datasourceUid: pyroscope
+      profileTypeId: process_cpu:cpu:nanoseconds:cpu:nanoseconds
+      tags:
+      - key: service.name
+        value: service_name
+    tracesToMetrics:
+      datasourceUid: prometheus
+      tags:
+      - key: service.name
+        value: service
+- name: Pyroscope
+  type: grafana-pyroscope-datasource
+  uid: pyroscope
+  access: proxy
+  url: http://pyroscope:4040
+- name: Prometheus
+  type: prometheus
+  uid: prometheus
+  access: proxy
+  url: http://prometheus:9090
+  isDefault: true

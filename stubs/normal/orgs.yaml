@@ -1,0 +1,59 @@
+stubs:
+  - id: get-all-orgs
+    target: oneroster.v1p2.v1.RosterService/GetAllOrgs
+    cel_content: |
+      {
+        'orgs': [
+          {
+            'sourced_id': 'd-1',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'name': 'Springfield District',
+            'type': 'district',
+            'identifier': 'D1'
+          },
+          {
+            'sourced_id': 'sch-1',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'name': 'Springfield Elementary',
+            'type': 'school',
+            'identifier': 'S1',
+            'parent': {
+              'sourced_id': 'd-1',
+              'href': '/ims/oneroster/rostering/v1p2/orgs/d-1',
+              'type': 'org'
+            }
+          },
+          {
+            'sourced_id': 'sch-2',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'name': 'Shelbyville High',
+            'type': 'school',
+            'identifier': 'S2',
+            'parent': {
+              'sourced_id': 'd-1',
+              'href': '/ims/oneroster/rostering/v1p2/orgs/d-1',
+              'type': 'org'
+            }
+          }
+        ],
+        'next_page_token': ''
+      }
+  - id: get-all-schools
+    target: oneroster.v1p2.v1.RosterService/GetAllSchools
+    cel_content: |
+      {
+        'orgs': [
+          {
+            'sourced_id': 'sch-2',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'name': 'Shelbyville High',
+            'type': 'school',
+            'identifier': 'S2'
+          }
+        ],
+        'next_page_token': ''
+      }

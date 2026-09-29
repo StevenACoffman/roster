@@ -1,0 +1,13 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "oneroster/v1p2/v1/class.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+message GetAllClassesResponse {
+  // The collection of class instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+  repeated Class classes = 1;
+
+  // Page token for the next page, empty when this is the last page.
+  string next_page_token = 2;
+}

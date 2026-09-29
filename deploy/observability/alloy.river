@@ -1,0 +1,51 @@
+// Alloy receives OTLP from the service and fans it out.
+//
+// The service could send traces straight to Tempo and let Prometheus scrape it
+// directly — fewer moving parts for a laptop. A collector is here because that
+// is the shape a deployment has: one place to add sampling, redaction or a
+// second destination without redeploying the service.
+
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+otelcol.receiver.otlp "default" {
+  grpc { endpoint = "0.0.0.0:4317" }
+  http { endpoint = "0.0.0.0:4318" }
+
+  output {
+    traces = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+    tls { insecure = true }
+  }
+}
+
+// The service runs on the host, so its admin listener is reached through the
+// Docker host gateway. It must bind beyond loopback for this to work; see the
+// README, which explains why that is a deliberate loosening.
+prometheus.scrape "roster_admin" {
+  targets = [
+    { __address__ = "host.docker.internal:9090", service = "roster-service" },
+  ]
+  metrics_path    = "/metrics"
+  scrape_interval = "15s"
+  forward_to      = [prometheus.remote_write.local.receiver]
+}
+
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}

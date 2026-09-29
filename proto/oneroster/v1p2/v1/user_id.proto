@@ -1,0 +1,12 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// This is the set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.
+message UserId {
+  // Model Primitive Datatype = String. The user identifier.
+  string identifier = 1 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = NormalizedString. The type of identifier. This is no predefined vocabuary.
+  string type = 2 [(buf.validate.field) = { required: true }];
+}

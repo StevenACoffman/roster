@@ -1,0 +1,28 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "oneroster/v1p2/v1/academic_session.proto";
+import "oneroster/v1p2/v1/class.proto";
+import "oneroster/v1p2/v1/course.proto";
+import "oneroster/v1p2/v1/demographics.proto";
+import "oneroster/v1p2/v1/enrollment.proto";
+import "oneroster/v1p2/v1/org.proto";
+import "oneroster/v1p2/v1/user.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// A composite container for all OneRoster v1.2 rostering collections returned in a single response.
+message Roster {
+  // The collection of academicSession instances (includes terms, grading periods, and school years). The order is not significant.
+  repeated AcademicSession academic_sessions = 1;
+  // The collection of class instances. The order is not significant.
+  repeated Class classes = 2;
+  // The collection of course instances. The order is not significant.
+  repeated Course courses = 3;
+  // The collection of demographics instances. The order is not significant.
+  repeated Demographics demographics = 4;
+  // The collection of enrollment instances. The order is not significant.
+  repeated Enrollment enrollments = 5;
+  // The collection of org instances (includes schools and other organizations). The order is not significant.
+  repeated Org orgs = 6;
+  // The collection of user instances (includes students, teachers, and all other user roles). The order is not significant.
+  repeated User users = 7;
+}

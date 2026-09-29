@@ -1,0 +1,31 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    oneroster.v1p2.v1.UserId:
+      type: object
+      properties:
+        identifier:
+          type: string
+          title: identifier
+          description: Model Primitive Datatype = String. The user identifier.
+        type:
+          type: string
+          title: type
+          description: Model Primitive Datatype = NormalizedString. The type of identifier. This is no predefined vocabuary.
+      title: UserId
+      required:
+        - identifier
+        - type
+      additionalProperties: false
+      description: This is the set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.
+security: []

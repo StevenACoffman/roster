@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "oneroster/v1p2/v1/enrollment.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message UpdateEnrollmentResponse {
+  // The stored enrollment after the update, carrying the new date_last_modified to
+  // send with the next one.
+  Enrollment enrollment = 1 [(buf.validate.field) = { required: true }];
+}

@@ -1,0 +1,11 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "oneroster/v1p2/v1/roster.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// Composite roster response containing the full set of OneRoster v1.2 rostering collections.
+message GetRosterResponse {
+  // An imaginary complete roster payload containing all OneRoster rostering collections.
+  Roster roster = 1 [(buf.validate.field) = { required: true }];
+}

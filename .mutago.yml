@@ -1,0 +1,34 @@
+# Mutation testing configuration.
+#
+# Mutation testing answers a question coverage cannot: not "was this line
+# executed?" but "would any test have noticed if it behaved differently?".
+# A surviving mutant is a line your tests run but do not actually check.
+#
+# Scope: internal/pet. That package is deliberately split into a pure core
+# (core.go) and an I/O shell (handler.go), and the core is where invariants live,
+# so it is the part where a strong mutation score is both achievable and meaningful.
+# The shell's behaviour is proven by the container-backed suites, which a mutation
+# run does not execute — scoring it here would measure the wrong thing.
+# Never mutate generated or vendored code; a surviving mutant there says nothing
+# about our tests.
+exclude_dirs:
+- gen
+- web
+- internal/db
+- sql
+- stubs
+ignore_source_lines:
+- "// Code generated"
+disable_mutators:
+# Replaces a context argument with nil. On this codebase every such mutant
+# survives (0/25 killed) because contexts are plumbing, not behaviour: no
+# assertion distinguishes them, and adding assertions that do would be testing
+# the compiler rather than the domain. summary_rules §4 warns against exactly
+# that kind of test.
+- expression/context-nil
+
+# Thresholds are NOT set here, because the right number depends on what is being
+# mutated. The pure core sustains a high bar (see `just mutate`); the I/O shell
+# cannot, because the tests that prove it are the container-backed ones a mutation
+# run does not execute. Each justfile recipe therefore carries the threshold that
+# fits its scope.

@@ -1,0 +1,24 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    oneroster.v1p2.v1.DeleteOrgRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the org to mark deleted.
+      title: DeleteOrgRequest
+      additionalProperties: false
+security: []

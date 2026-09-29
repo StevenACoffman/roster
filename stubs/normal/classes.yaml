@@ -1,0 +1,34 @@
+stubs:
+  - id: get-all-classes
+    target: oneroster.v1p2.v1.RosterService/GetAllClasses
+    cel_content: |
+      {
+        'classes': [
+          {
+            'sourced_id': 'cl-1',
+            'status': 'active',
+            'date_last_modified': '2026-01-15T09:00:00Z',
+            'title': 'Algebra I - Period 3',
+            'class_type': 'scheduled',
+            'grades': ['09'],
+            'course': {
+              'sourced_id': 'c-1',
+              'href': '/ims/oneroster/rostering/v1p2/courses/c-1',
+              'type': 'course'
+            },
+            'school': {
+              'sourced_id': 'sch-2',
+              'href': '/ims/oneroster/rostering/v1p2/orgs/sch-2',
+              'type': 'org'
+            },
+            'terms': [
+              {
+                'sourced_id': 'term-1',
+                'href': '/ims/oneroster/rostering/v1p2/academicSessions/term-1',
+                'type': 'academicSession'
+              }
+            ]
+          }
+        ],
+        'next_page_token': ''
+      }

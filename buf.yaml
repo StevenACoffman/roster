@@ -1,0 +1,13 @@
+version: v2
+modules:
+- path: proto
+lint:
+  use:
+  - STANDARD
+breaking:
+  use:
+  - FILE
+deps:
+- buf.build/bufbuild/protovalidate
+- buf.build/gnostic/gnostic
+- buf.build/googleapis/googleapis

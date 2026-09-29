@@ -1,0 +1,179 @@
+{
+  "$id": "getAllDemographics-200-responsepayload-schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "DemographicsDType": {
+      "additionalProperties": false,
+      "description": "Demographics information is taken from the Common Educational Data Standards (CEDS) from the US government. (http://ceds.ed.gov). Note that demographics data is held in its own service, and that access to this service is considered privileged. Not all consumer keys will be able to request demographics data.",
+      "properties": {
+        "americanIndianOrAlaskaNative": {
+          "description": "Identification of whether or not the user is an American Indian or Alaska Native ethnicity.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "asian": {
+          "description": "Identification of whether or not the user is of Asian ethnicity.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "birthDate": {
+          "description": "Model Primitive Datatype = Date. the date of birth. The format is [ISO 8601] of 'YYYY-MM-DD'.",
+          "format": "date",
+          "type": "string"
+        },
+        "blackOrAfricanAmerican": {
+          "description": "Identification of whether or not the user is black or African American ethnicity.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "cityOfBirth": {
+          "description": "Model Primitive Datatype = NormalizedString. The name of the city in which the user was born.",
+          "type": "string"
+        },
+        "countryOfBirthCode": {
+          "description": "Model Primitive Datatype = NormalizedString. The country of birth code. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.",
+          "type": "string"
+        },
+        "dateLastModified": {
+          "description": "Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "demographicRaceTwoOrMoreRaces": {
+          "description": "Identification of whether or not the user has a demographic of two or more race ethnicities.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "hispanicOrLatinoEthnicity": {
+          "description": "Identification of whether or not the user is Hispanic or of Latino ethnicity.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/MetadataDType",
+          "description": "All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used."
+        },
+        "nativeHawaiianOrOtherPacificIslander": {
+          "description": "Identification of whether or not the user is Native Hawaiian or Other Pacific Islander ethnicity.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "publicSchoolResidenceStatus": {
+          "description": "Model Primitive Datatype = NormalizedString. An indication of the location of a person's legal residence relative to (within or outside) the boundaries of the public school attended and its administrative unit. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.",
+          "type": "string"
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "enum": [
+                "male",
+                "female",
+                "unspecified",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Model Primitive Datatype = NormalizedString.",
+              "pattern": "(ext:)[a-zA-Z0-9\\.\\-_]+",
+              "type": "string"
+            }
+          ],
+          "description": "The sex of the individual. The permitted values are from an enumerated list."
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID  System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId.  The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products.  Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.",
+          "type": "string"
+        },
+        "stateOfBirthAbbreviation": {
+          "description": "Model Primitive Datatype = NormalizedString. The abbreviation for the name of the state (within the United States) or extra-state jurisdiction in which a person was born. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.",
+          "type": "string"
+        },
+        "status": {
+          "description": "All objects MUST BE either 'active' or 'tobedeleted'.  Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.",
+          "enum": [
+            "active",
+            "tobedeleted"
+          ],
+          "type": "string"
+        },
+        "white": {
+          "description": "Identification of whether or not the user is of white ethnicity.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourcedId",
+        "status",
+        "dateLastModified"
+      ],
+      "type": "object"
+    },
+    "MetadataDType": {
+      "additionalProperties": true,
+      "description": "The container for the proprietary extensions.",
+      "patternProperties": {
+        "^[^:][^:]*:[^:][^:]*$": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "properties": {},
+      "type": "object"
+    }
+  },
+  "description": "Author-Colin Smythe (1EdTech);  Version-1.2;  Release Date-19th September 2022. ",
+  "properties": {
+    "demographics": {
+      "description": "The collection of demographics instances. The order is not significant. The corresponding query constraints may result in no instances being returned.",
+      "items": {
+        "$ref": "#/definitions/DemographicsDType"
+      },
+      "minItems": 0,
+      "type": "array"
+    }
+  },
+  "title": " Version  IMS Final Release JSON Schema Binding (getAllDemographics-200-responsepayload-schema)",
+  "type": "object"
+}

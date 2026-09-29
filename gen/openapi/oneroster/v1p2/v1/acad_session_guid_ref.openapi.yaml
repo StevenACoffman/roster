@@ -1,0 +1,38 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    oneroster.v1p2.v1.AcadSessionGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "academicSession"
+          description: The type of object being referenced i.e. an 'academicSession'.
+          const: academicSession
+      title: AcadSessionGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Academic Session' object that has an allocated sourcedId (GUID).
+security: []

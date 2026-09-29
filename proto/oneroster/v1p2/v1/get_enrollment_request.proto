@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message GetEnrollmentRequest {
+  // OneRoster GUID of the enrollment to retrieve.
+  string sourced_id = 1 [(buf.validate.field).string.min_len = 1];
+}

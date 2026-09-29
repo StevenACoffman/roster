@@ -1,0 +1,218 @@
+version: "2"
+linters:
+  enable:
+  # Correctness
+  - bodyclose
+  - contextcheck
+  - durationcheck
+  - errcheck
+  - errorlint
+  - exhaustive
+  - fatcontext
+  - forcetypeassert
+  - makezero
+  - nilerr
+  - nilnesserr
+  - noctx
+  - protogetter
+  - reassign
+  - rowserrcheck
+  - spancheck
+  - sqlclosecheck
+  - wastedassign
+  # Security
+  - gosec
+  # Tests
+  - paralleltest
+  - testifylint
+  - thelper
+  - tparallel
+  - usetesting
+  # Clarity / modern Go
+  - copyloopvar
+  - dupword
+  - gocritic
+  - intrange
+  - misspell
+  - modernize
+  - perfsprint
+  - predeclared
+  - revive
+  - sloglint
+  - unconvert
+  - usestdlibvars
+  # ── dependency hygiene ───────────────────────────────────────────────────
+  - depguard        # ban CLI frameworks (cobra, urfave/cli, pflag) and test frameworks — spec.md / rules.md
+  - forbidigo       # ban os.Exit outside main; ban fmt.Print* in cmds — spec.md
+  - gochecknoinits
+  - nolintlint
+  settings:
+    # ── depguard ─────────────────────────────────────────────────────────────
+    # spec.md: climax uses its own command pattern; no third-party CLI frameworks.
+    # rules.md: use stdlib testing only; no third-party test frameworks.
+    depguard:
+      rules:
+        no-cli-frameworks:
+          deny:
+          - pkg: "github.com/spf13/cobra"
+            desc: "climax uses its own command pattern; do not import cobra"
+          - pkg: "github.com/urfave/cli"
+            desc: "climax uses its own command pattern; do not import urfave/cli"
+          - pkg: "github.com/spf13/pflag"
+            desc: "use the standard library flag package"
+          - pkg: "github.com/spf13/viper"
+            desc: "use standard library or explicit config structs"
+        no-test-frameworks:
+          # rules.md: "do not use third-party testing frameworks — use the stdlib
+          # testing package only." Assertion libraries and BDD suites add dependency
+          # weight and obscure test failures behind framework indirection.
+          files:
+          - "*_test.go"
+          deny:
+          - pkg: "github.com/stretchr/testify"
+            desc: "use stdlib testing; testify is banned — rules.md"
+          - pkg: "github.com/onsi/gomega"
+            desc: "use stdlib testing; gomega is banned — rules.md"
+          - pkg: "github.com/onsi/ginkgo"
+            desc: "use stdlib testing; ginkgo is banned — rules.md"
+          - pkg: "github.com/golang/mock"
+            desc: "use stdlib testing; gomock is banned — rules.md"
+          - pkg: "go.uber.org/mock"
+            desc: "use stdlib testing; uber-mock is banned — rules.md"
+    forbidigo:
+      # depguard cannot express this: it matches import paths by prefix, so a rule
+      # denying "log" also denies "log/slog". Forbidding the call site instead is
+      # precise and catches a regression back to unstructured logging.
+      forbid:
+      - pattern: ^log\.(Print|Fatal|Panic|New|Default|Set|Flags|Prefix|Writer)
+        msg: use log/slog (see internal/logging); the stdlib log package is unstructured
+      - pattern: "^os\\.Exit$"
+        msg: "only main() may call os.Exit; commands must return errors or root.ExitError"
+      - pattern: "^fmt\\.Print(ln|f)?$"
+        msg: "write to cmd.Stdout or cmd.Stderr instead of fmt.Print*"
+      - pattern: "^log\\.(Print|Fatal|Panic|New|Default|SetOutput|SetFlags|SetPrefix)"
+        msg: "return errors instead of calling log.Fatal/Panic; do not configure the global logger"
+      - pattern: "^flag\\.Parse$"
+        msg: "use ff.NewFlagSet scoped to the command; never call flag.Parse directly"
+      - pattern: "^flag\\.ExitOnError$"
+        msg: "use flag.ContinueOnError; ExitOnError calls os.Exit on parse failure — spec.md"
+      - pattern: "^flag\\.PanicOnError$"
+        msg: "use flag.ContinueOnError; PanicOnError panics on parse failure — spec.md"
+      - pattern: "^time\\.Sleep$"
+        msg: "do not use time.Sleep in tests; use a channel or sync primitive instead"
+      - pattern: "\\.Setenv$"
+        msg: "do not use t.Setenv; pass environment via a getenv parameter instead"
+      - pattern: "^runtime\\.Caller$"
+        msg: "do not use runtime.Caller to compute fixture paths; use testdata/ relative to the test — rules.md"
+      - pattern: "^os\\.Getwd$"
+        msg: "do not use os.Getwd to compute fixture paths; use testdata/ relative to the test — rules.md"
+      analyze-types: true
+    errcheck:
+      check-type-assertions: true
+      exclude-functions:
+      - (io.Writer).Write
+      - (http.ResponseWriter).Write
+      - (*bytes.Buffer).WriteByte
+      - (*strings.Builder).WriteByte
+      - (*strings.Builder).WriteString
+      - io.Copy
+      - io.WriteString
+      - fmt.Fprintln
+      - fmt.Fprint
+      - fmt.FprintF
+    exhaustive:
+      default-signifies-exhaustive: true
+    # ── funlen ───────────────────────────────────────────────────────────────
+    # rules.md: functions should be short and focused.
+    funlen:
+      lines: 60
+      statements: 40
+    gocritic:
+      enabled-tags:
+      - diagnostic
+      - opinionated
+      - performance
+      - style
+      disabled-checks:
+      # Conflicts with the repo's existing named-result and long-comment style.
+      - whyNoLint
+      - hugeParam
+    gosec:
+      severity: medium
+      confidence: medium
+    govet:
+      enable-all: true
+      disable:
+      # fieldalignment reorders struct fields for packing; readability wins here.
+      - fieldalignment
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+      allow-unused: false
+    revive:
+      rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: empty-block
+      - name: error-naming
+      - name: error-return
+      - name: error-strings
+      - name: errorf
+      - name: increment-decrement
+      - name: indent-error-flow
+      - name: package-comments
+        disabled: true
+      - name: range
+      - name: receiver-naming
+      - name: redefines-builtin-id
+      - name: superfluous-else
+      - name: time-naming
+      - name: unexported-return
+      - name: unreachable-code
+      - name: unused-parameter
+      - name: var-declaration
+      - name: var-naming
+    sloglint:
+      no-mixed-args: true
+      kv-only: true
+      static-msg: false
+      no-raw-keys: false
+      key-naming-case: snake
+    testifylint:
+      enable-all: true
+  exclusions:
+    generated: lax
+    presets:
+    - comments
+    - common-false-positives
+    - legacy
+    - std-error-handling
+    paths:
+    - gen
+    - internal/db
+    - web
+    - third_party$
+    - builtin$
+    - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+  - gofmt
+  - goimports
+  settings:
+    goimports:
+      local-prefixes:
+      - github.com/StevenACoffman/roster
+  exclusions:
+    generated: lax
+    paths:
+    - gen
+    - internal/db
+    - web
+    - third_party$
+    - builtin$
+    - examples$

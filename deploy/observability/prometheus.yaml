@@ -1,0 +1,4 @@
+global:
+  scrape_interval: 15s
+# Metrics arrive by remote write from Alloy rather than Prometheus scraping the
+# service, so that Alloy stays the single collection point.

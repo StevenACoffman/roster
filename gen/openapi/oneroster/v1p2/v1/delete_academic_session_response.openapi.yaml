@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    oneroster.v1p2.v1.DeleteAcademicSessionResponse:
+      type: object
+      title: DeleteAcademicSessionResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning. Deleting an
+         already-deleted session is also success.
+security: []

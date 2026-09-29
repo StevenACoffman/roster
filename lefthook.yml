@@ -1,0 +1,57 @@
+# Pre-commit gates. These are deliberately the fast ones: anything needing Docker
+# or a network belongs in CI, not in the path of every commit.
+#
+# Install with: lefthook install
+# Bypass once with: git commit --no-verify
+pre-commit:
+  parallel: true
+  jobs:
+  - name: gofmt
+    glob: "*.go"
+    # gofmt -l exits 0 even when it lists files, so the emptiness of its output is
+    # what decides the outcome.
+    run: |
+      unformatted=$(gofmt -l {staged_files})
+      if [ -n "$unformatted" ]; then
+          echo "gofmt: these files need formatting (run 'gofmt -w' on them):" >&2
+          echo "$unformatted" >&2
+          exit 1
+      fi
+  - name: golangci-lint
+    glob: "*.go"
+    run: golangci-lint run --fix --new-from-rev=HEAD ./...
+    stage_fixed: true
+    # A second pass for the integration build: the default one skips
+    # //go:build integration files entirely, so a lint error in an integration
+    # test would otherwise reach CI unseen.
+  - name: golangci-lint (integration build)
+    glob: "*.go"
+    run: golangci-lint run --fix --new-from-rev=HEAD --build-tags=integration ./...
+    stage_fixed: true
+  - name: go-mod-tidy
+    glob: "go.{mod,sum}"
+    run: just tidy-check
+  - name: unit-tests
+    glob: "*.go"
+    run: go test -race -count=1 ./...
+pre-push:
+  parallel: false
+  jobs:
+  - name: full-check
+    run: just lint
+commit-msg:
+  jobs:
+  - name: scope-first-subject
+    run: |
+      subject=$(head -1 {1})
+      # Reject Conventional Commits type prefixes; this repo uses `scope: description`.
+      if printf '%s' "$subject" | grep -Eq '^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\([^)]*\))?!?:'; then
+          echo "commit message: this repository uses scope-first subjects, not Conventional Commits." >&2
+          echo "  got:  $subject" >&2
+          echo "  want: 'pet: reject blank species' or 'ci: add integration job'" >&2
+          exit 1
+      fi
+      if [ "${#subject}" -gt 72 ]; then
+          echo "commit message: subject is ${#subject} characters; keep it under 72." >&2
+          exit 1
+      fi

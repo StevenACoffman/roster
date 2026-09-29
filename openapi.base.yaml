@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+  title: Petstore API
+  description: OpenAPI 3.1 specification for Petstore ConnectRPC microservice
+  version: 1.0.0
+servers:
+- url: https://localhost:8080
+  description: Local API Server (TLS)
+- url: http://localhost:8080
+  description: Local API Server (Cleartext)

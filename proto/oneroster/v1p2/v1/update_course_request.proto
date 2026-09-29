@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "oneroster/v1p2/v1/course.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message UpdateCourseRequest {
+  // The course carrying the new values, identified by its sourced_id. Only the
+  // fields named in update_mask are read from it.
+  Course course = 1 [(buf.validate.field) = { required: true }];
+
+  // Which fields to change. Required and non-empty: an absent mask is refused
+  // rather than treated as "replace everything", because a client bug that
+  // dropped it would otherwise blank every field it did not send. sourced_id may
+  // not appear — the primary key is not editable.
+  google.protobuf.FieldMask update_mask = 2 [(buf.validate.field) = { required: true }];
+
+  // The date_last_modified this caller last read. The update applies only if the
+  // stored value still matches, so a concurrent edit or an overlapping import is
+  // reported as aborted instead of being silently overwritten.
+  google.protobuf.Timestamp expected_date_last_modified = 3 [(buf.validate.field) = { required: true }];
+}

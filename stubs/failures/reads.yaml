@@ -1,0 +1,25 @@
+# Failure stubs for exercising a client's error handling on demand.
+#
+# The gRPC status codes these return are the ones the real service returns, so a
+# UI built against them handles the real thing: 5 NotFound, 7 PermissionDenied,
+# 8 ResourceExhausted, 10 Aborted, 14 Unavailable, 16 Unauthenticated.
+stubs:
+  - id: get-org-not-found
+    target: oneroster.v1p2.v1.RosterService/GetOrg
+    error_code: 5
+    error_message: "not found"
+
+  - id: get-all-orgs-unauthenticated
+    target: oneroster.v1p2.v1.RosterService/GetAllOrgs
+    error_code: 16
+    error_message: "missing bearer token"
+
+  - id: get-all-users-rate-limited
+    target: oneroster.v1p2.v1.RosterService/GetAllUsers
+    error_code: 8
+    error_message: "rate limit of 200 requests per second exceeded"
+
+  - id: get-roster-unavailable
+    target: oneroster.v1p2.v1.RosterService/GetRoster
+    error_code: 14
+    error_message: "service temporarily unavailable, retry shortly"

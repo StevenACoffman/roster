@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "oneroster/v1p2/v1/course.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message CreateCourseRequest {
+  // The course to create. Its sourced_id must not already exist; creating over an
+  // existing course is refused rather than merged, so a curator is told when they
+  // are about to change something they thought was new.
+  Course course = 1 [(buf.validate.field) = { required: true }];
+}

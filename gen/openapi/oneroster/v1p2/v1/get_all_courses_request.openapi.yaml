@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    oneroster.v1p2.v1.GetAllCoursesRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllCoursesRequest
+      additionalProperties: false
+security: []

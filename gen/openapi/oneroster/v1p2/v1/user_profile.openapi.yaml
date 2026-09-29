@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    oneroster.v1p2.v1.Credential:
+      type: object
+      properties:
+        password:
+          type:
+            - string
+            - "null"
+          title: password
+          description: Model Primitive Datatype = String. The password in this set of credentials. Care should be taken to ensure that no unencrypted value is revealed.
+        type:
+          type: string
+          title: type
+          description: Model Primitive Datatype = String. The type of credentials for the profile. This should be indicative of when this specific credential should be used.
+        username:
+          type: string
+          title: username
+          description: Model Primitive Datatype = NormalizedString. The username.
+      title: Credential
+      required:
+        - type
+        - username
+      additionalProperties: false
+      description: The container for a single set of credentials for an account.
+    oneroster.v1p2.v1.UserProfile:
+      type: object
+      properties:
+        applicationId:
+          type:
+            - string
+            - "null"
+          title: application_id
+          description: Model Primitive Datatype = NormalizedString. Identifier for the application associated with the account. The nature, and how this identifier is assigned is not defined by this specification. This may have a value of 'default' to denote this account should be used for default access to all applications related to this vendor.
+        credentials:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Credential'
+          title: credentials
+          description: The set of credentials that are available for access to this profile.
+        description:
+          type:
+            - string
+            - "null"
+          title: description
+          description: Model Primitive Datatype = String. A human readable description of the use of the profile. This should not contain any security information for access to the account.
+        profileId:
+          type: string
+          title: profile_id
+          description: Model Primitive Datatype = AnyURI. The unique identifier for the profile. This does not need to be a globally unique identifier but it must be unique within the scope of the user.
+        profileType:
+          type: string
+          title: profile_type
+          description: Model Primitive Datatype = NormalizedString. The type of profile. This should be a human readable label that has some significance in the context of the related system, app, tool, etc.
+        vendorId:
+          type: string
+          title: vendor_id
+          description: Model Primitive Datatype = NormalizedString. The unique identifier for the vendor of the system, tool, app, etc. which requires the use of this profile.
+      title: UserProfile
+      required:
+        - profileId
+        - profileType
+        - vendorId
+      additionalProperties: false
+      description: The container for the information about a User Profile that will provide the user with access to some system, application, tool, etc.
+security: []

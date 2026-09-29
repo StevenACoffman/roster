@@ -1,0 +1,460 @@
+{
+  "$id": "getAllStudents-200-responsepayload-schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "CredentialDType": {
+      "additionalProperties": true,
+      "description": "The container for a single set of credentials for an account.",
+      "patternProperties": {
+        "^[^:][^:]*:[^:][^:]*$": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "properties": {
+        "password": {
+          "description": "Model Primitive Datatype = String. The password in this set of credentials.  Care should be taken to ensure that no unencrypted value is revealed.",
+          "type": "string"
+        },
+        "type": {
+          "description": "Model Primitive Datatype = String. The type of credentials for the profile. This should be indicative of when this specific credential should be used.",
+          "type": "string"
+        },
+        "username": {
+          "description": "Model Primitive Datatype = NormalizedString. The username.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "username"
+      ],
+      "type": "object"
+    },
+    "MetadataDType": {
+      "additionalProperties": true,
+      "description": "The container for the proprietary extensions.",
+      "patternProperties": {
+        "^[^:][^:]*:[^:][^:]*$": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "properties": {},
+      "type": "object"
+    },
+    "OrgGUIDRefDType": {
+      "additionalProperties": false,
+      "description": "This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).",
+      "properties": {
+        "href": {
+          "description": "Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.",
+          "format": "uri",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The globally unique identifier of the object being referenced.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of object being referenced i.e. an 'org'.",
+          "enum": [
+            "org"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "sourcedId",
+        "type"
+      ],
+      "type": "object"
+    },
+    "ResourceGUIDRefDType": {
+      "additionalProperties": false,
+      "description": "This is the container for reference to a OneRoster 'Resourse' object that has an allocated sourcedId (GUID).",
+      "properties": {
+        "href": {
+          "description": "Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.",
+          "format": "uri",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The globally unique identifier of the object being referenced.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of object being referenced i.e. a 'resource'.",
+          "enum": [
+            "resource"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "sourcedId",
+        "type"
+      ],
+      "type": "object"
+    },
+    "RoleDType": {
+      "additionalProperties": false,
+      "description": "The container for one mapping between a role and an org for the user.",
+      "properties": {
+        "beginDate": {
+          "description": "Model Primitive Datatype = Date. The start date on which the role becomes active (inclusive). ",
+          "format": "date",
+          "type": "string"
+        },
+        "endDate": {
+          "description": "Model Primitive Datatype = Date. The end date on which the role becomes inactive (exclusive). ",
+          "format": "date",
+          "type": "string"
+        },
+        "org": {
+          "$ref": "#/definitions/OrgGUIDRefDType",
+          "description": "The link to the associated org i.e. the 'sourcedId' for the org."
+        },
+        "role": {
+          "anyOf": [
+            {
+              "enum": [
+                "aide",
+                "counselor",
+                "districtAdministrator",
+                "guardian",
+                "parent",
+                "principal",
+                "proctor",
+                "relative",
+                "siteAdministrator",
+                "student",
+                "systemAdministrator",
+                "teacher"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Model Primitive Datatype = NormalizedString.",
+              "pattern": "(ext:)[a-zA-Z0-9\\.\\-_]+",
+              "type": "string"
+            }
+          ],
+          "description": "The role of the user in the org. The permitted values are from an enumerated list. "
+        },
+        "roleType": {
+          "description": "Indicates if this role is the primary or secondary role for that org. There MUST be one, and only one, primary role for each org.",
+          "enum": [
+            "primary",
+            "secondary"
+          ],
+          "type": "string"
+        },
+        "userProfile": {
+          "description": "Model Primitive Datatype = AnyURI. The identifier for the system/tool/app access account that is relevant to this role in the org. The equivalent UserProfile should exist with a 'profileId' equal to this identifier value.",
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "roleType",
+        "role",
+        "org"
+      ],
+      "type": "object"
+    },
+    "UserDType": {
+      "additionalProperties": false,
+      "description": "Users, Teachers and Students are human beings that are teaching or studying in a class respectively. A single User class is used to represent both teachers and students and a role property is used to distinguish a user's natural role.Humans may have relationships with other humans. For example, a student may have parents. The 'agents' attribute allows for relationships between humans to be expressed. Note that these are typically from the point of view of the student - so a student will link to its parents (via the agent attribute). The reverse view MUST also be modeled, so for example, a user of role 'parent' MUST have agents that are of type 'student'. Note: Teachers MUST NOT be set as agents of students i.e. the teaching relationship is covered via enrollments. ",
+      "properties": {
+        "agents": {
+          "description": "The links to other people i.e. User 'sourcedIds'.",
+          "items": {
+            "$ref": "#/definitions/UserGUIDRefDType"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "dateLastModified": {
+          "description": "Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.",
+          "format": "date-time",
+          "type": "string"
+        },
+        "email": {
+          "description": "Model Primitive Datatype = NormalizedString. The email address for the user.",
+          "type": "string"
+        },
+        "enabledUser": {
+          "description": "This is used to determine whether or not the record is active in the local system. 'false' denotes that the record is active but system access is curtailed according to the local administration rules.",
+          "enum": [
+            "true",
+            "false"
+          ],
+          "type": "string"
+        },
+        "familyName": {
+          "description": "Model Primitive Datatype = NormalizedString. The family name. Also, known as the last name.",
+          "type": "string"
+        },
+        "givenName": {
+          "description": "Model Primitive Datatype = NormalizedString. The given name. Also, known as the first name.",
+          "type": "string"
+        },
+        "grades": {
+          "description": "Model Primitive Datatype = NormalizedString. Grade(s) for which a user with role 'student' is enrolled. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "identifier": {
+          "description": "Model Primitive Datatype = String. An identifier for the user. NOTE - This characteristic is kept for backwards compatibility with OneRoster 1.1/1.0. The 'userIds' characteristic SHOULD be used instead.",
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/MetadataDType",
+          "description": "All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used."
+        },
+        "middleName": {
+          "description": "Model Primitive Datatype = NormalizedString. The set of middle names. If more than one middle name is needed separate using a space e.g. 'Wingarde Granville'.",
+          "type": "string"
+        },
+        "password": {
+          "description": "Model Primitive Datatype = String. A top-level password for the user. Care should be taken when using this field and the password SHOULD be encrypted.",
+          "type": "string"
+        },
+        "phone": {
+          "description": "Model Primitive Datatype = NormalizedString. The phone number for the user.",
+          "type": "string"
+        },
+        "preferredFirstName": {
+          "description": "Model Primitive Datatype = NormalizedString. The user's preferred first name. This attribute was added in version 1.2.",
+          "type": "string"
+        },
+        "preferredLastName": {
+          "description": "Model Primitive Datatype = NormalizedString. The user's preferred last name. This attribute was added in version 1.2.",
+          "type": "string"
+        },
+        "preferredMiddleName": {
+          "description": "Model Primitive Datatype = NormalizedString. The user's preferred middle name(s). This attribute was added in version 1.2.",
+          "type": "string"
+        },
+        "primaryOrg": {
+          "$ref": "#/definitions/OrgGUIDRefDType",
+          "description": "It is possible for a user to be a member of more than one organization and to have one or more roles in an organization. This attribute identifies the 'sourcedId' of the primary organization."
+        },
+        "pronouns": {
+          "description": "Model Primitive Datatype = NormalizedString. The pronoun(s) by which this person is referenced. Examples (in the case of English) include 'she/her/hers', 'he/him/his', 'they/them/theirs', 'ze/hir/hir', 'xe/xir', or a statement that the person's name should be used instead of any pronoun.",
+          "type": "string"
+        },
+        "resources": {
+          "description": "The identifiers (GUIDs) for the set of resources that are to be made available to the user. These are the sourcedIds that should be used for obtaining the metadata about the resources using the OR 1.2 Resources Service [OR-RES-SM-12].",
+          "items": {
+            "$ref": "#/definitions/ResourceGUIDRefDType"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "roles": {
+          "description": "The set of roles for each of the orgs to which the user is affilliated. This is expressed as a set of role/org tuples.",
+          "items": {
+            "$ref": "#/definitions/RoleDType"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "sms": {
+          "description": "Model Primitive Datatype = NormalizedString. The SMS number for the user.",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID  System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId.  The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products.  Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.",
+          "type": "string"
+        },
+        "status": {
+          "description": "All objects MUST BE either 'active' or 'tobedeleted'.  Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.",
+          "enum": [
+            "active",
+            "tobedeleted"
+          ],
+          "type": "string"
+        },
+        "userIds": {
+          "description": "The set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.",
+          "items": {
+            "$ref": "#/definitions/UserIdDType"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "userMasterIdentifier": {
+          "description": "Model Primitive Datatype = NormalizedString. The master unique identifier for this user. This is NOT the same as the user's interoperability 'sourcedId'. This should be used to ensure that all of the system identifiers/accounts etc. can be reconciled to the same user. How this identifier is assigned and its format is beyond the scope of this specification.",
+          "type": "string"
+        },
+        "userProfiles": {
+          "description": "The set of system/app/tool profiles for the user.",
+          "items": {
+            "$ref": "#/definitions/UserProfileDType"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "username": {
+          "description": "Model Primitive Datatype = NormalizedString. The user name assigned to the user. NOTE - This has been kept for backwards compatibility with OneRoster 1.1 and the new 'userProfiles' characteristic SHOULD be used instead.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourcedId",
+        "status",
+        "dateLastModified",
+        "enabledUser",
+        "givenName",
+        "familyName",
+        "roles"
+      ],
+      "type": "object"
+    },
+    "UserGUIDRefDType": {
+      "additionalProperties": false,
+      "description": "This is the container for reference to a OneRoster 'User' object that has an allocated sourcedId (GUID).",
+      "properties": {
+        "href": {
+          "description": "Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.",
+          "format": "uri",
+          "type": "string"
+        },
+        "sourcedId": {
+          "description": "Model Primitive Datatype = String. The globally unique identifier of the object being referenced.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of object being referenced i.e. a 'user'.",
+          "enum": [
+            "user"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "href",
+        "sourcedId",
+        "type"
+      ],
+      "type": "object"
+    },
+    "UserIdDType": {
+      "additionalProperties": false,
+      "description": "This is the set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.",
+      "properties": {
+        "identifier": {
+          "description": "Model Primitive Datatype = String. The user identifier.",
+          "type": "string"
+        },
+        "type": {
+          "description": "Model Primitive Datatype = NormalizedString. The type of identifier. This is no predefined vocabuary.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "identifier"
+      ],
+      "type": "object"
+    },
+    "UserProfileDType": {
+      "additionalProperties": false,
+      "description": "The container for the information about a User Profile that will provide the user with access to some system, application, tool, etc.",
+      "properties": {
+        "applicationId": {
+          "description": "Model Primitive Datatype = NormalizedString. Identifier for the application associated with the account. The nature, and how this identifier is assigned is not defined by this specification. This may have a value of 'default' to denote this account should be used for default access to all applications related to this vendor.",
+          "type": "string"
+        },
+        "credentials": {
+          "description": "The set of credentials that are available for access to this profile.",
+          "items": {
+            "$ref": "#/definitions/CredentialDType"
+          },
+          "minItems": 0,
+          "type": "array"
+        },
+        "description": {
+          "description": "Model Primitive Datatype = String. A human readable description of the use of the profile. This should not contain any security information for access to the account.",
+          "type": "string"
+        },
+        "profileId": {
+          "description": "Model Primitive Datatype = AnyURI. The unique identifier for the profile. This does not need to be a globally unique identifier but it must be unique within the scope of the user.",
+          "format": "uri",
+          "type": "string"
+        },
+        "profileType": {
+          "description": "Model Primitive Datatype = NormalizedString. The type of profile. This should be a human readable label that has some significance in the context of the related system, app, tool, etc.",
+          "type": "string"
+        },
+        "vendorId": {
+          "description": "Model Primitive Datatype = NormalizedString. The unique identifier for the vendor of the system, tool, app, etc. which requires the use of this profile.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profileId",
+        "profileType",
+        "vendorId"
+      ],
+      "type": "object"
+    }
+  },
+  "description": "Author-Colin Smythe (1EdTech);  Version-1.2;  Release Date-19th September 2022. ",
+  "properties": {
+    "users": {
+      "description": "The collection of user instances. The order is not significant. The corresponding query constraints may result in no instances being returned.",
+      "items": {
+        "$ref": "#/definitions/UserDType"
+      },
+      "minItems": 0,
+      "type": "array"
+    }
+  },
+  "title": " Version  IMS Final Release JSON Schema Binding (getAllStudents-200-responsepayload-schema)",
+  "type": "object"
+}

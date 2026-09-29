@@ -1,0 +1,18 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// This is the container for reference to a OneRoster 'User' object that has an allocated sourcedId (GUID).
+message UserGUIDRef {
+  // Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+  string href = 1 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+  string sourced_id = 2 [(buf.validate.field) = { required: true }];
+  // The type of object being referenced i.e. a 'user'.
+  string type = 3 [
+    (buf.validate.field).string = { const: "user" },
+    (gnostic.openapi.v3.property) = { enum: [ { yaml: "\"user\"" } ], type: "string" }
+  ];
+}

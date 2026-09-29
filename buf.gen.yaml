@@ -1,0 +1,24 @@
+version: v2
+plugins:
+- local: protoc-gen-go
+  out: gen/go
+  opt:
+  - paths=source_relative
+- local: protoc-gen-connect-go
+  out: gen/go
+  opt:
+  - paths=source_relative
+- local: protoc-gen-go-protojsonx
+  out: gen/go
+  opt:
+  - paths=source_relative
+- local: protoc-gen-connect-openapi
+  out: gen/openapi
+  opt:
+  - format=yaml
+  - base=openapi.base.yaml
+- remote: buf.build/bufbuild/es:v2.2.3
+  out: web/src/gen
+  include_imports: true
+  opt:
+  - target=ts

@@ -1,0 +1,74 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "oneroster/v1p2/v1/acad_session_guid_ref.proto";
+import "oneroster/v1p2/v1/course_guid_ref.proto";
+import "oneroster/v1p2/v1/org_guid_ref.proto";
+import "oneroster/v1p2/v1/resource_guid_ref.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// A class is an instance of a course, onto which students and teachers are enrolled. A class is typically held within a term.
+message Class {
+  // Model Primitive Datatype = NormalizedString. The class code.
+  optional string class_code = 1;
+  // The type of class. This is based upon an enumerated vocabulary.
+  optional string class_type = 2 [
+    (gnostic.openapi.v3.property) = {
+      type: "string",
+      any_of: [
+        {
+          schema: {
+            enum: [
+              { yaml: "\"homeroom\"" },
+              { yaml: "\"scheduled\"" }
+            ],
+            type: "string"
+          }
+        },
+        {
+          schema: { pattern: "(ext:)[a-zA-Z0-9\\.\\-_]+", type: "string" }
+        }
+      ]
+    }
+  ];
+  // The link to the associated course i.e. the Course 'sourcedId'.
+  CourseGUIDRef course = 3 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+  google.protobuf.Timestamp date_last_modified = 4 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = NormalizedString. The grade(s) who attend the class. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+  repeated string grades = 5;
+  // Model Primitive Datatype = NormalizedString. The location for the class e.g. 'Room 19'.
+  optional string location = 6;
+  // All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+  google.protobuf.Struct metadata = 7;
+  // Model Primitive Datatype = NormalizedString. The time slots in the day that the class will be given. Examples are 1 or a list of 1, 3, 5, etc.
+  repeated string periods = 8;
+  // The links to the set of associated resources i.e. the Resource 'sourcedIds'.
+  repeated ResourceGUIDRef resources = 9;
+  // The link to the associated school i.e. the School 'sourcedId'.
+  OrgGUIDRef school = 10 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+  string sourced_id = 11 [(buf.validate.field) = { required: true }];
+  // All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+  string status = 12 [
+    (buf.validate.field).string = { in: ["active", "tobedeleted"] },
+    (gnostic.openapi.v3.property) = {
+      enum: [
+        { yaml: "\"active\"" },
+        { yaml: "\"tobedeleted\"" }
+      ],
+      type: "string"
+    }
+  ];
+  // Model Primitive Datatype = NormalizedString. This is a machine readable set of codes and the number should match the associated 'subjects' attribute. The vocabulary for this characteristic should be defined as part of the local addition of this specification (see the Implementation Guide [OR-IMPL-12] for more details).
+  repeated string subject_codes = 13;
+  // Model Primitive Datatype = NormalizedString. The set of subjects addressed by this class e.g. 'chemistry'.
+  repeated string subjects = 14;
+  // The links to the set of terms or semesters (academicSession) i.e. the set of 'sourcedIds' for the terms within the associated school year.
+  repeated AcadSessionGUIDRef terms = 15 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = NormalizedString. The tile/label for the class.
+  string title = 16 [(buf.validate.field) = { required: true }];
+}

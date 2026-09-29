@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "oneroster/v1p2/v1/academic_session.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message UpdateAcademicSessionRequest {
+  // The session carrying the new values, identified by its sourced_id.
+  AcademicSession academic_session = 1 [(buf.validate.field) = { required: true }];
+
+  // Which fields to change. Required and non-empty; sourced_id may not appear.
+  google.protobuf.FieldMask update_mask = 2 [(buf.validate.field) = { required: true }];
+
+  // The date_last_modified this caller last read, so a concurrent write is
+  // reported as aborted rather than silently overwritten.
+  google.protobuf.Timestamp expected_date_last_modified = 3 [(buf.validate.field) = { required: true }];
+}

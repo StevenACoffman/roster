@@ -1,0 +1,232 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    google.protobuf.ListValue:
+      type: array
+      items:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON array whose elements may be any JSON value.
+    google.protobuf.NullValue:
+      type: string
+      title: NullValue
+      enum:
+        - NULL_VALUE
+      description: |-
+        `NullValue` is a singleton enumeration to represent the null value for the
+         `Value` type union.
+
+         The JSON representation for `NullValue` is JSON `null`.
+    google.protobuf.Struct:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON object whose property values may be any JSON value.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+    google.protobuf.Value:
+      oneOf:
+        - type: "null"
+        - type: number
+        - type: string
+        - type: boolean
+        - type: array
+        - type: object
+          additionalProperties: true
+      description: 'Any JSON value: `null`, number, string, boolean, array, or object.'
+    google.type.Date:
+      type: object
+      properties:
+        year:
+          type: integer
+          title: year
+          format: int32
+          description: |-
+            Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+             a year.
+        month:
+          type: integer
+          title: month
+          format: int32
+          description: |-
+            Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+             month and day.
+        day:
+          type: integer
+          title: day
+          format: int32
+          description: |-
+            Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+             to specify a year by itself or a year and month where the day isn't
+             significant.
+      title: Date
+      additionalProperties: false
+      description: |-
+        Represents a whole or partial calendar date, such as a birthday. The time of
+         day and time zone are either specified elsewhere or are insignificant. The
+         date is relative to the Gregorian Calendar. This can represent one of the
+         following:
+
+         * A full date, with non-zero year, month, and day values.
+         * A month and day, with a zero year (for example, an anniversary).
+         * A year on its own, with a zero month and a zero day.
+         * A year and month, with a zero day (for example, a credit card expiration
+           date).
+
+         Related types:
+
+         * [google.type.TimeOfDay][google.type.TimeOfDay]
+         * [google.type.DateTime][google.type.DateTime]
+         * [google.protobuf.Timestamp][google.protobuf.Timestamp]
+    oneroster.v1p2.v1.Demographics:
+      type: object
+      properties:
+        americanIndianOrAlaskaNative:
+          type:
+            - string
+            - "null"
+          title: american_indian_or_alaska_native
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is an American Indian or Alaska Native ethnicity.
+        asian:
+          type:
+            - string
+            - "null"
+          title: asian
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is of Asian ethnicity.
+        birthDate:
+          type: string
+          title: birth_date
+          format: date
+          description: Model Primitive Datatype = Date. the date of birth. The format is [ISO 8601] of 'YYYY-MM-DD'.
+        blackOrAfricanAmerican:
+          type:
+            - string
+            - "null"
+          title: black_or_african_american
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is black or African American ethnicity.
+        cityOfBirth:
+          type:
+            - string
+            - "null"
+          title: city_of_birth
+          description: Model Primitive Datatype = NormalizedString. The name of the city in which the user was born.
+        countryOfBirthCode:
+          type:
+            - string
+            - "null"
+          title: country_of_birth_code
+          description: Model Primitive Datatype = NormalizedString. The country of birth code. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        demographicRaceTwoOrMoreRaces:
+          type:
+            - string
+            - "null"
+          title: demographic_race_two_or_more_races
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user has a demographic of two or more race ethnicities.
+        hispanicOrLatinoEthnicity:
+          type:
+            - string
+            - "null"
+          title: hispanic_or_latino_ethnicity
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is Hispanic or of Latino ethnicity.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        nativeHawaiianOrOtherPacificIslander:
+          type:
+            - string
+            - "null"
+          title: native_hawaiian_or_other_pacific_islander
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is Native Hawaiian or Other Pacific Islander ethnicity.
+        publicSchoolResidenceStatus:
+          type:
+            - string
+            - "null"
+          title: public_school_residence_status
+          description: Model Primitive Datatype = NormalizedString. An indication of the location of a person's legal residence relative to (within or outside) the boundaries of the public school attended and its administrative unit. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        sex:
+          type:
+            - string
+            - "null"
+          anyOf:
+            - type: string
+              enum:
+                - "male"
+                - "female"
+                - "unspecified"
+                - "other"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: sex
+          description: The sex of the individual. The permitted values are from an enumerated list.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        stateOfBirthAbbreviation:
+          type:
+            - string
+            - "null"
+          title: state_of_birth_abbreviation
+          description: Model Primitive Datatype = NormalizedString. The abbreviation for the name of the state (within the United States) or extra-state jurisdiction in which a person was born. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        white:
+          type:
+            - string
+            - "null"
+          title: white
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is of white ethnicity.
+      title: Demographics
+      required:
+        - dateLastModified
+        - sourcedId
+      additionalProperties: false
+      description: Demographics information is taken from the Common Educational Data Standards (CEDS) from the US government. (http://ceds.ed.gov). Note that demographics data is held in its own service, and that access to this service is considered privileged. Not all consumer keys will be able to request demographics data.
+security: []

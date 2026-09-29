@@ -1,0 +1,481 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths: {}
+components:
+  schemas:
+    google.protobuf.ListValue:
+      type: array
+      items:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON array whose elements may be any JSON value.
+    google.protobuf.NullValue:
+      type: string
+      title: NullValue
+      enum:
+        - NULL_VALUE
+      description: |-
+        `NullValue` is a singleton enumeration to represent the null value for the
+         `Value` type union.
+
+         The JSON representation for `NullValue` is JSON `null`.
+    google.protobuf.Struct:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON object whose property values may be any JSON value.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+    google.protobuf.Value:
+      oneOf:
+        - type: "null"
+        - type: number
+        - type: string
+        - type: boolean
+        - type: array
+        - type: object
+          additionalProperties: true
+      description: 'Any JSON value: `null`, number, string, boolean, array, or object.'
+    google.type.Date:
+      type: object
+      properties:
+        year:
+          type: integer
+          title: year
+          format: int32
+          description: |-
+            Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+             a year.
+        month:
+          type: integer
+          title: month
+          format: int32
+          description: |-
+            Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+             month and day.
+        day:
+          type: integer
+          title: day
+          format: int32
+          description: |-
+            Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+             to specify a year by itself or a year and month where the day isn't
+             significant.
+      title: Date
+      additionalProperties: false
+      description: |-
+        Represents a whole or partial calendar date, such as a birthday. The time of
+         day and time zone are either specified elsewhere or are insignificant. The
+         date is relative to the Gregorian Calendar. This can represent one of the
+         following:
+
+         * A full date, with non-zero year, month, and day values.
+         * A month and day, with a zero year (for example, an anniversary).
+         * A year on its own, with a zero month and a zero day.
+         * A year and month, with a zero day (for example, a credit card expiration
+           date).
+
+         Related types:
+
+         * [google.type.TimeOfDay][google.type.TimeOfDay]
+         * [google.type.DateTime][google.type.DateTime]
+         * [google.protobuf.Timestamp][google.protobuf.Timestamp]
+    oneroster.v1p2.v1.Credential:
+      type: object
+      properties:
+        password:
+          type:
+            - string
+            - "null"
+          title: password
+          description: Model Primitive Datatype = String. The password in this set of credentials. Care should be taken to ensure that no unencrypted value is revealed.
+        type:
+          type: string
+          title: type
+          description: Model Primitive Datatype = String. The type of credentials for the profile. This should be indicative of when this specific credential should be used.
+        username:
+          type: string
+          title: username
+          description: Model Primitive Datatype = NormalizedString. The username.
+      title: Credential
+      required:
+        - type
+        - username
+      additionalProperties: false
+      description: The container for a single set of credentials for an account.
+    oneroster.v1p2.v1.OrgGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "org"
+          description: The type of object being referenced i.e. an 'org'.
+          const: org
+      title: OrgGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.ResourceGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "resource"
+          description: The type of object being referenced i.e. a 'resource'.
+          const: resource
+      title: ResourceGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Resourse' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.Role:
+      type: object
+      properties:
+        beginDate:
+          type: string
+          title: begin_date
+          format: date
+          description: Model Primitive Datatype = Date. The start date on which the role becomes active (inclusive).
+        endDate:
+          type: string
+          title: end_date
+          format: date
+          description: Model Primitive Datatype = Date. The end date on which the role becomes inactive (exclusive).
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: org
+          description: The link to the associated org i.e. the 'sourcedId' for the org.
+        role:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "aide"
+                - "counselor"
+                - "districtAdministrator"
+                - "guardian"
+                - "parent"
+                - "principal"
+                - "proctor"
+                - "relative"
+                - "siteAdministrator"
+                - "student"
+                - "systemAdministrator"
+                - "teacher"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: role
+          description: The role of the user in the org. The permitted values are from an enumerated list.
+        roleType:
+          type: string
+          title: role_type
+          enum:
+            - "primary"
+            - "secondary"
+          description: Indicates if this role is the primary or secondary role for that org. There MUST be one, and only one, primary role for each org.
+        userProfile:
+          type:
+            - string
+            - "null"
+          title: user_profile
+          description: Model Primitive Datatype = AnyURI. The identifier for the system/tool/app access account that is relevant to this role in the org. The equivalent UserProfile should exist with a 'profileId' equal to this identifier value.
+      title: Role
+      required:
+        - org
+        - role
+      additionalProperties: false
+      description: The container for one mapping between a role and an org for the user.
+    oneroster.v1p2.v1.UpdateUserResponse:
+      type: object
+      properties:
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: user
+          description: |-
+            The stored user after the update, carrying the new date_last_modified to
+             send with the next one.
+      title: UpdateUserResponse
+      required:
+        - user
+      additionalProperties: false
+    oneroster.v1p2.v1.User:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.UserGUIDRef'
+          title: agents
+          description: The links to other people i.e. User 'sourcedIds'.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        email:
+          type:
+            - string
+            - "null"
+          title: email
+          description: Model Primitive Datatype = NormalizedString. The email address for the user.
+        enabledUser:
+          type: string
+          title: enabled_user
+          enum:
+            - "true"
+            - "false"
+          description: This is used to determine whether or not the record is active in the local system. 'false' denotes that the record is active but system access is curtailed according to the local administration rules.
+        familyName:
+          type: string
+          title: family_name
+          description: Model Primitive Datatype = NormalizedString. The family name. Also, known as the last name.
+        givenName:
+          type: string
+          title: given_name
+          description: Model Primitive Datatype = NormalizedString. The given name. Also, known as the first name.
+        grades:
+          type: array
+          items:
+            type: string
+          title: grades
+          description: Model Primitive Datatype = NormalizedString. Grade(s) for which a user with role 'student' is enrolled. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        identifier:
+          type:
+            - string
+            - "null"
+          title: identifier
+          description: Model Primitive Datatype = String. An identifier for the user. NOTE - This characteristic is kept for backwards compatibility with OneRoster 1.1/1.0. The 'userIds' characteristic SHOULD be used instead.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        middleName:
+          type:
+            - string
+            - "null"
+          title: middle_name
+          description: Model Primitive Datatype = NormalizedString. The set of middle names. If more than one middle name is needed separate using a space e.g. 'Wingarde Granville'.
+        password:
+          type:
+            - string
+            - "null"
+          title: password
+          description: Model Primitive Datatype = String. A top-level password for the user. Care should be taken when using this field and the password SHOULD be encrypted.
+        phone:
+          type:
+            - string
+            - "null"
+          title: phone
+          description: Model Primitive Datatype = NormalizedString. The phone number for the user.
+        preferredFirstName:
+          type:
+            - string
+            - "null"
+          title: preferred_first_name
+          description: Model Primitive Datatype = NormalizedString. The user's preferred first name. This attribute was added in version 1.2.
+        preferredLastName:
+          type:
+            - string
+            - "null"
+          title: preferred_last_name
+          description: Model Primitive Datatype = NormalizedString. The user's preferred last name. This attribute was added in version 1.2.
+        preferredMiddleName:
+          type:
+            - string
+            - "null"
+          title: preferred_middle_name
+          description: Model Primitive Datatype = NormalizedString. The user's preferred middle name(s). This attribute was added in version 1.2.
+        primaryOrg:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: primary_org
+          description: It is possible for a user to be a member of more than one organization and to have one or more roles in an organization. This attribute identifies the 'sourcedId' of the primary organization.
+        pronouns:
+          type:
+            - string
+            - "null"
+          title: pronouns
+          description: Model Primitive Datatype = NormalizedString. The pronoun(s) by which this person is referenced. Examples (in the case of English) include 'she/her/hers', 'he/him/his', 'they/them/theirs', 'ze/hir/hir', 'xe/xir', or a statement that the person's name should be used instead of any pronoun.
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.ResourceGUIDRef'
+          title: resources
+          description: The identifiers (GUIDs) for the set of resources that are to be made available to the user. These are the sourcedIds that should be used for obtaining the metadata about the resources using the OR 1.2 Resources Service [OR-RES-SM-12].
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Role'
+          title: roles
+          description: The set of roles for each of the orgs to which the user is affilliated. This is expressed as a set of role/org tuples.
+        sms:
+          type:
+            - string
+            - "null"
+          title: sms
+          description: Model Primitive Datatype = NormalizedString. The SMS number for the user.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        userIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.UserId'
+          title: user_ids
+          description: The set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.
+        userMasterIdentifier:
+          type:
+            - string
+            - "null"
+          title: user_master_identifier
+          description: Model Primitive Datatype = NormalizedString. The master unique identifier for this user. This is NOT the same as the user's interoperability 'sourcedId'. This should be used to ensure that all of the system identifiers/accounts etc. can be reconciled to the same user. How this identifier is assigned and its format is beyond the scope of this specification.
+        userProfiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.UserProfile'
+          title: user_profiles
+          description: The set of system/app/tool profiles for the user.
+        username:
+          type:
+            - string
+            - "null"
+          title: username
+          description: Model Primitive Datatype = NormalizedString. The user name assigned to the user. NOTE - This has been kept for backwards compatibility with OneRoster 1.1 and the new 'userProfiles' characteristic SHOULD be used instead.
+      title: User
+      required:
+        - dateLastModified
+        - enabledUser
+        - familyName
+        - givenName
+        - roles
+        - sourcedId
+      additionalProperties: false
+      description: 'Users, Teachers and Students are human beings that are teaching or studying in a class respectively. A single User class is used to represent both teachers and students and a role property is used to distinguish a user''s natural role.Humans may have relationships with other humans. For example, a student may have parents. The ''agents'' attribute allows for relationships between humans to be expressed. Note that these are typically from the point of view of the student - so a student will link to its parents (via the agent attribute). The reverse view MUST also be modeled, so for example, a user of role ''parent'' MUST have agents that are of type ''student''. Note: Teachers MUST NOT be set as agents of students i.e. the teaching relationship is covered via enrollments.'
+    oneroster.v1p2.v1.UserGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "user"
+          description: The type of object being referenced i.e. a 'user'.
+          const: user
+      title: UserGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'User' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.UserId:
+      type: object
+      properties:
+        identifier:
+          type: string
+          title: identifier
+          description: Model Primitive Datatype = String. The user identifier.
+        type:
+          type: string
+          title: type
+          description: Model Primitive Datatype = NormalizedString. The type of identifier. This is no predefined vocabuary.
+      title: UserId
+      required:
+        - identifier
+        - type
+      additionalProperties: false
+      description: This is the set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.
+    oneroster.v1p2.v1.UserProfile:
+      type: object
+      properties:
+        applicationId:
+          type:
+            - string
+            - "null"
+          title: application_id
+          description: Model Primitive Datatype = NormalizedString. Identifier for the application associated with the account. The nature, and how this identifier is assigned is not defined by this specification. This may have a value of 'default' to denote this account should be used for default access to all applications related to this vendor.
+        credentials:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Credential'
+          title: credentials
+          description: The set of credentials that are available for access to this profile.
+        description:
+          type:
+            - string
+            - "null"
+          title: description
+          description: Model Primitive Datatype = String. A human readable description of the use of the profile. This should not contain any security information for access to the account.
+        profileId:
+          type: string
+          title: profile_id
+          description: Model Primitive Datatype = AnyURI. The unique identifier for the profile. This does not need to be a globally unique identifier but it must be unique within the scope of the user.
+        profileType:
+          type: string
+          title: profile_type
+          description: Model Primitive Datatype = NormalizedString. The type of profile. This should be a human readable label that has some significance in the context of the related system, app, tool, etc.
+        vendorId:
+          type: string
+          title: vendor_id
+          description: Model Primitive Datatype = NormalizedString. The unique identifier for the vendor of the system, tool, app, etc. which requires the use of this profile.
+      title: UserProfile
+      required:
+        - profileId
+        - profileType
+        - vendorId
+      additionalProperties: false
+      description: The container for the information about a User Profile that will provide the user with access to some system, application, tool, etc.
+security: []

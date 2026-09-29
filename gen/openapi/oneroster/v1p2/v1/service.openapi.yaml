@@ -1,0 +1,4030 @@
+openapi: 3.1.0
+info:
+  title: oneroster.v1p2.v1
+  description: API documentation for oneroster.v1p2.v1
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Local API Server (TLS)
+  - url: http://localhost:8080
+    description: Local API Server (Cleartext)
+paths:
+  /oneroster.v1p2.v1.RosterService/CreateAcademicSession:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: CreateAcademicSession stores a new session.
+      description: |-
+        Errors: invalid_argument when the session fails validation or its dates are
+         inverted; already_exists when its sourced_id is taken;
+         permission_denied when the caller does not hold a global roster_admin grant.
+      operationId: oneroster.v1p2.v1.RosterService.CreateAcademicSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.CreateAcademicSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.CreateAcademicSessionResponse'
+  /oneroster.v1p2.v1.RosterService/CreateClass:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: CreateClass stores a new class.
+      description: |-
+        Errors: invalid_argument when the class fails validation;
+         already_exists when its sourced_id is taken; not_found when the caller holds
+         no curating grant over the owning org; failed_precondition when a referenced
+         entity does not exist.
+      operationId: oneroster.v1p2.v1.RosterService.CreateClass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.CreateClassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.CreateClassResponse'
+  /oneroster.v1p2.v1.RosterService/CreateCourse:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: CreateCourse stores a new course.
+      description: |-
+        Errors: invalid_argument when the course fails validation;
+         already_exists when its sourced_id is taken; not_found when the caller holds
+         no curating grant over the owning org; failed_precondition when a referenced
+         entity does not exist.
+      operationId: oneroster.v1p2.v1.RosterService.CreateCourse
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.CreateCourseRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.CreateCourseResponse'
+  /oneroster.v1p2.v1.RosterService/CreateEnrollment:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: CreateEnrollment stores a new enrollment.
+      description: |-
+        Errors: invalid_argument when the enrollment fails validation;
+         already_exists when its sourced_id is taken; not_found when the caller holds
+         no curating grant over the owning org; failed_precondition when a referenced
+         entity does not exist.
+      operationId: oneroster.v1p2.v1.RosterService.CreateEnrollment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.CreateEnrollmentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.CreateEnrollmentResponse'
+  /oneroster.v1p2.v1.RosterService/CreateOrg:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: CreateOrg stores a new org.
+      description: |-
+        Errors: invalid_argument when the org fails validation;
+         already_exists when its sourced_id is taken; not_found when the caller holds
+         no curating grant over the owning org; failed_precondition when a referenced
+         entity does not exist.
+      operationId: oneroster.v1p2.v1.RosterService.CreateOrg
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.CreateOrgRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.CreateOrgResponse'
+  /oneroster.v1p2.v1.RosterService/CreateUser:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: CreateUser stores a new user.
+      description: |-
+        Errors: invalid_argument when the user fails validation;
+         already_exists when its sourced_id is taken; not_found when the caller holds
+         no curating grant over the owning org; failed_precondition when a referenced
+         entity does not exist.
+      operationId: oneroster.v1p2.v1.RosterService.CreateUser
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.CreateUserRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.CreateUserResponse'
+  /oneroster.v1p2.v1.RosterService/DeleteAcademicSession:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: |-
+        DeleteAcademicSession marks the session deleted by setting status to
+         "tobedeleted". Idempotent.
+      description: |-
+        Errors: permission_denied without a global roster_admin grant; not_found
+         when no such session exists.
+      operationId: oneroster.v1p2.v1.RosterService.DeleteAcademicSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteAcademicSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteAcademicSessionResponse'
+  /oneroster.v1p2.v1.RosterService/DeleteClass:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: |-
+        DeleteClass marks the class deleted by setting status to "tobedeleted",
+         which is what OneRoster defines deletion to mean. The row stops appearing in
+         listings but its references survive, so dependent records are not orphaned.
+      description: |-
+        Idempotent: deleting an already-deleted class succeeds.
+
+         Errors: not_found when the class is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.DeleteClass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteClassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteClassResponse'
+  /oneroster.v1p2.v1.RosterService/DeleteCourse:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: |-
+        DeleteCourse marks the course deleted by setting status to "tobedeleted",
+         which is what OneRoster defines deletion to mean. The row stops appearing in
+         listings but its references survive, so dependent records are not orphaned.
+      description: |-
+        Idempotent: deleting an already-deleted course succeeds.
+
+         Errors: not_found when the course is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.DeleteCourse
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteCourseRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteCourseResponse'
+  /oneroster.v1p2.v1.RosterService/DeleteEnrollment:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: |-
+        DeleteEnrollment marks the enrollment deleted by setting status to "tobedeleted",
+         which is what OneRoster defines deletion to mean. The row stops appearing in
+         listings but its references survive, so dependent records are not orphaned.
+      description: |-
+        Idempotent: deleting an already-deleted enrollment succeeds.
+
+         Errors: not_found when the enrollment is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.DeleteEnrollment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteEnrollmentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteEnrollmentResponse'
+  /oneroster.v1p2.v1.RosterService/DeleteOrg:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: |-
+        DeleteOrg marks the org deleted by setting status to "tobedeleted",
+         which is what OneRoster defines deletion to mean. The row stops appearing in
+         listings but its references survive, so dependent records are not orphaned.
+      description: |-
+        Idempotent: deleting an already-deleted org succeeds.
+
+         Errors: not_found when the org is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.DeleteOrg
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteOrgRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteOrgResponse'
+  /oneroster.v1p2.v1.RosterService/DeleteUser:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: |-
+        DeleteUser marks the user deleted by setting status to "tobedeleted",
+         which is what OneRoster defines deletion to mean. The row stops appearing in
+         listings but its references survive, so dependent records are not orphaned.
+      description: |-
+        Idempotent: deleting an already-deleted user succeeds.
+
+         Errors: not_found when the user is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.DeleteUser
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteUserRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.DeleteUserResponse'
+  /oneroster.v1p2.v1.RosterService/GetAcademicSession:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAcademicSession
+      description: |-
+        GetAcademicSession retrieves one academic session. Returns not_found when
+         it is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.GetAcademicSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAcademicSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAcademicSessionResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllAcademicSessions:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllAcademicSessions
+      description: GetAllAcademicSessions lists sessions of every type.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllAcademicSessions
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllAcademicSessionsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllAcademicSessionsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllClasses:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllClasses
+      description: GetAllClasses lists every class in the caller's scope.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllClasses
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllClassesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllClassesResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllCourses:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllCourses
+      description: GetAllCourses lists every course in the caller's scope.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllCourses
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllCoursesRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllCoursesResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllDemographics:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllDemographics
+      description: GetAllDemographics lists every demographics record in the caller's scope.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllDemographics
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllDemographicsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllDemographicsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllEnrollments:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllEnrollments
+      description: GetAllEnrollments lists every enrollment in the caller's scope.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllEnrollments
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllEnrollmentsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllEnrollmentsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllGradingPeriods:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllGradingPeriods
+      description: GetAllGradingPeriods lists academic sessions of type "gradingPeriod".
+      operationId: oneroster.v1p2.v1.RosterService.GetAllGradingPeriods
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllGradingPeriodsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllGradingPeriodsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllOrgs:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllOrgs
+      description: GetAllOrgs lists every org in the caller's scope.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllOrgs
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllOrgsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllOrgsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllSchools:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllSchools
+      description: |-
+        GetAllSchools lists orgs of type "school". A convenience view over
+         GetAllOrgs that OneRoster defines as its own endpoint.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllSchools
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllSchoolsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllSchoolsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllStudents:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllStudents
+      description: GetAllStudents lists users holding the "student" role.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllStudents
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllStudentsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllStudentsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllTeachers:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllTeachers
+      description: GetAllTeachers lists users holding the "teacher" role.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllTeachers
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllTeachersRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllTeachersResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllTerms:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllTerms
+      description: GetAllTerms lists academic sessions of type "term".
+      operationId: oneroster.v1p2.v1.RosterService.GetAllTerms
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllTermsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllTermsResponse'
+  /oneroster.v1p2.v1.RosterService/GetAllUsers:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetAllUsers
+      description: GetAllUsers lists every user in the caller's scope.
+      operationId: oneroster.v1p2.v1.RosterService.GetAllUsers
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllUsersRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetAllUsersResponse'
+  /oneroster.v1p2.v1.RosterService/GetClass:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetClass
+      description: |-
+        GetClass retrieves one class. Returns not_found when it is not visible to
+         the caller.
+      operationId: oneroster.v1p2.v1.RosterService.GetClass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetClassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetClassResponse'
+  /oneroster.v1p2.v1.RosterService/GetCourse:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetCourse
+      description: |-
+        GetCourse retrieves one course. Returns not_found when it is not visible to
+         the caller.
+      operationId: oneroster.v1p2.v1.RosterService.GetCourse
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetCourseRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetCourseResponse'
+  /oneroster.v1p2.v1.RosterService/GetDemographics:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetDemographics
+      description: |-
+        GetDemographics retrieves one demographics record. Returns not_found when
+         it is not visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.GetDemographics
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetDemographicsRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetDemographicsResponse'
+  /oneroster.v1p2.v1.RosterService/GetEnrollment:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetEnrollment
+      description: |-
+        GetEnrollment retrieves one enrollment. Returns not_found when it is not
+         visible to the caller.
+      operationId: oneroster.v1p2.v1.RosterService.GetEnrollment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetEnrollmentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetEnrollmentResponse'
+  /oneroster.v1p2.v1.RosterService/GetOrg:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetOrg
+      description: |-
+        GetOrg retrieves one org. Returns not_found when no such org is visible to
+         the caller — which is also the answer when the org exists but is out of
+         scope, so that the response cannot be used to probe for its existence.
+      operationId: oneroster.v1p2.v1.RosterService.GetOrg
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetOrgRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetOrgResponse'
+  /oneroster.v1p2.v1.RosterService/GetRoster:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetRoster returns every entity in the caller's scope as one snapshot.
+      description: |-
+        Unpaged by design: it exists for a consumer that needs a consistent
+         cross-entity view, which paging cannot provide because pages of different
+         entities would be read at different times. The cost is that the response
+         grows with the roster, so callers wanting incremental reads should use the
+         per-entity list methods instead.
+      operationId: oneroster.v1p2.v1.RosterService.GetRoster
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetRosterRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetRosterResponse'
+  /oneroster.v1p2.v1.RosterService/GetUser:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: GetUser
+      description: |-
+        GetUser retrieves one user. Returns not_found when they are not visible to
+         the caller.
+      operationId: oneroster.v1p2.v1.RosterService.GetUser
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.GetUserRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.GetUserResponse'
+  /oneroster.v1p2.v1.RosterService/UpdateAcademicSession:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: UpdateAcademicSession changes the fields named in update_mask.
+      description: |-
+        Errors: invalid_argument when the mask is absent, empty, or names
+         sourced_id; permission_denied without a global roster_admin grant;
+         not_found when no such session exists; aborted when
+         expected_date_last_modified no longer matches.
+      operationId: oneroster.v1p2.v1.RosterService.UpdateAcademicSession
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateAcademicSessionRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateAcademicSessionResponse'
+  /oneroster.v1p2.v1.RosterService/UpdateClass:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: UpdateClass changes the fields named in update_mask.
+      description: |-
+        Errors: invalid_argument when the mask is absent, empty, or names
+         sourced_id; not_found when the class is not visible to the caller;
+         aborted when expected_date_last_modified no longer matches, meaning someone
+         else wrote first and the caller should reload and retry.
+      operationId: oneroster.v1p2.v1.RosterService.UpdateClass
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateClassRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateClassResponse'
+  /oneroster.v1p2.v1.RosterService/UpdateCourse:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: UpdateCourse changes the fields named in update_mask.
+      description: |-
+        Errors: invalid_argument when the mask is absent, empty, or names
+         sourced_id; not_found when the course is not visible to the caller;
+         aborted when expected_date_last_modified no longer matches, meaning someone
+         else wrote first and the caller should reload and retry.
+      operationId: oneroster.v1p2.v1.RosterService.UpdateCourse
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateCourseRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateCourseResponse'
+  /oneroster.v1p2.v1.RosterService/UpdateEnrollment:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: UpdateEnrollment changes the fields named in update_mask.
+      description: |-
+        Errors: invalid_argument when the mask is absent, empty, or names
+         sourced_id; not_found when the enrollment is not visible to the caller;
+         aborted when expected_date_last_modified no longer matches, meaning someone
+         else wrote first and the caller should reload and retry.
+      operationId: oneroster.v1p2.v1.RosterService.UpdateEnrollment
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateEnrollmentRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateEnrollmentResponse'
+  /oneroster.v1p2.v1.RosterService/UpdateOrg:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: UpdateOrg changes the fields named in update_mask.
+      description: |-
+        Errors: invalid_argument when the mask is absent, empty, or names
+         sourced_id; not_found when the org is not visible to the caller;
+         aborted when expected_date_last_modified no longer matches, meaning someone
+         else wrote first and the caller should reload and retry.
+      operationId: oneroster.v1p2.v1.RosterService.UpdateOrg
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateOrgRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateOrgResponse'
+  /oneroster.v1p2.v1.RosterService/UpdateUser:
+    post:
+      tags:
+        - oneroster.v1p2.v1.RosterService
+      summary: UpdateUser changes the fields named in update_mask.
+      description: |-
+        Errors: invalid_argument when the mask is absent, empty, or names
+         sourced_id; not_found when the user is not visible to the caller;
+         aborted when expected_date_last_modified no longer matches, meaning someone
+         else wrote first and the caller should reload and retry.
+      operationId: oneroster.v1p2.v1.RosterService.UpdateUser
+      parameters:
+        - name: Connect-Protocol-Version
+          in: header
+          description: Define the version of the Connect protocol
+          required: true
+          schema:
+            $ref: '#/components/schemas/connect-protocol-version'
+          example: 1
+        - name: Connect-Timeout-Ms
+          in: header
+          description: Define the timeout, in ms
+          schema:
+            $ref: '#/components/schemas/connect-timeout-header'
+          example: 1000
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateUserRequest'
+        required: true
+      responses:
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/connect.error'
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/oneroster.v1p2.v1.UpdateUserResponse'
+components:
+  schemas:
+    connect-protocol-version:
+      type: number
+      examples:
+        - 1
+      title: Connect-Protocol-Version
+      description: Define the version of the Connect protocol
+      const: 1
+    connect-timeout-header:
+      type: number
+      examples:
+        - 1000
+      title: Connect-Timeout-Ms
+      description: Define the timeout, in ms
+    connect.error:
+      type: object
+      properties:
+        code:
+          type: string
+          examples:
+            - not_found
+          enum:
+            - canceled
+            - unknown
+            - invalid_argument
+            - deadline_exceeded
+            - not_found
+            - already_exists
+            - permission_denied
+            - resource_exhausted
+            - failed_precondition
+            - aborted
+            - out_of_range
+            - unimplemented
+            - internal
+            - unavailable
+            - data_loss
+            - unauthenticated
+          description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+        message:
+          type: string
+          description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/connect.error_details.Any'
+          description: A list of messages that carry the error details. There is no limit on the number of messages.
+      title: Connect Error
+      additionalProperties: true
+      description: 'Error type returned by Connect: https://connectrpc.com/docs/go/errors/#http-representation'
+    connect.error_details.Any:
+      type: object
+      properties:
+        type:
+          type: string
+          description: 'A URL that acts as a globally unique identifier for the type of the serialized message. For example: `type.googleapis.com/google.rpc.ErrorInfo`.'
+        value:
+          type: string
+          format: binary
+          description: The Protobuf message, serialized as bytes and base64-encoded. The specific message type is identified by the `type` field.
+        debug:
+          type: object
+          title: Debug
+          additionalProperties: true
+          description: Deserialized error detail payload. The 'type' field indicates the schema. This field is for easier debugging and should not be relied upon for application logic.
+      additionalProperties: true
+      description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message, with an additional debug field for ConnectRPC error details.
+    google.protobuf.FieldMask:
+      type: string
+      description: Comma-separated field paths in lowerCamelCase (for example, `user.displayName,photo`).
+    google.protobuf.ListValue:
+      type: array
+      items:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON array whose elements may be any JSON value.
+    google.protobuf.NullValue:
+      type: string
+      title: NullValue
+      enum:
+        - NULL_VALUE
+      description: |-
+        `NullValue` is a singleton enumeration to represent the null value for the
+         `Value` type union.
+
+         The JSON representation for `NullValue` is JSON `null`.
+    google.protobuf.Struct:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/google.protobuf.Value'
+      description: A JSON object whose property values may be any JSON value.
+    google.protobuf.Timestamp:
+      type: string
+      examples:
+        - "2023-01-15T01:30:15.01Z"
+        - "2024-12-25T12:00:00Z"
+      format: date-time
+      description: A point in time in RFC 3339 format, with up to nanosecond precision. Output uses UTC (`Z`); input may use an offset from UTC.
+    google.protobuf.Value:
+      oneOf:
+        - type: "null"
+        - type: number
+        - type: string
+        - type: boolean
+        - type: array
+        - type: object
+          additionalProperties: true
+      description: 'Any JSON value: `null`, number, string, boolean, array, or object.'
+    google.type.Date:
+      type: object
+      properties:
+        year:
+          type: integer
+          title: year
+          format: int32
+          description: |-
+            Year of the date. Must be from 1 to 9999, or 0 to specify a date without
+             a year.
+        month:
+          type: integer
+          title: month
+          format: int32
+          description: |-
+            Month of a year. Must be from 1 to 12, or 0 to specify a year without a
+             month and day.
+        day:
+          type: integer
+          title: day
+          format: int32
+          description: |-
+            Day of a month. Must be from 1 to 31 and valid for the year and month, or 0
+             to specify a year by itself or a year and month where the day isn't
+             significant.
+      title: Date
+      additionalProperties: false
+      description: |-
+        Represents a whole or partial calendar date, such as a birthday. The time of
+         day and time zone are either specified elsewhere or are insignificant. The
+         date is relative to the Gregorian Calendar. This can represent one of the
+         following:
+
+         * A full date, with non-zero year, month, and day values.
+         * A month and day, with a zero year (for example, an anniversary).
+         * A year on its own, with a zero month and a zero day.
+         * A year and month, with a zero day (for example, a credit card expiration
+           date).
+
+         Related types:
+
+         * [google.type.TimeOfDay][google.type.TimeOfDay]
+         * [google.type.DateTime][google.type.DateTime]
+         * [google.protobuf.Timestamp][google.protobuf.Timestamp]
+    oneroster.v1p2.v1.AcadSessionGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "academicSession"
+          description: The type of object being referenced i.e. an 'academicSession'.
+          const: academicSession
+      title: AcadSessionGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Academic Session' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.AcademicSession:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcadSessionGUIDRef'
+          title: children
+          description: The set of links to the child AcademicSessions i.e. a set of AcademicSession 'sourcedIds'.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        endDate:
+          type: string
+          title: end_date
+          format: date
+          description: Model Primitive Datatype = Date. The end date for the academic session. The end date is excluded from the academic session. This is in [ISO 8601] format of 'YYYY-MM-DD'.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        parent:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcadSessionGUIDRef'
+          title: parent
+          description: The link to parent AcademicSession i.e. an AcademicSession 'sourcedId'.
+        schoolYear:
+          type: string
+          title: school_year
+          description: Model Primitive Datatype = NormalizedString. The school year for the academic session. This year should include the school year end e.g. 2014. This is in the [ISO 8601] format of 'YYYY'.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        startDate:
+          type: string
+          title: start_date
+          format: date
+          description: Model Primitive Datatype = Date. The start date for the academic session. The start date is included in the academic session. This is in [ISO 8601] format of 'YYYY-MM-DD'.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        title:
+          type: string
+          title: title
+          description: Model Primitive Datatype = NormalizedString. The title/label for the academic session.
+        type:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "gradingPeriod"
+                - "semester"
+                - "schoolYear"
+                - "term"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: type
+          description: The type of academic session. This is based upon an enumerated vocabulary.
+      title: AcademicSession
+      required:
+        - dateLastModified
+        - endDate
+        - schoolYear
+        - sourcedId
+        - startDate
+        - title
+        - type
+      additionalProperties: false
+      description: The container for an academicSession. An academicSession represents a duration of time. Typically they are used to describe terms, grading periods, and other durations e.g. school years. Term is used to describe a period of time during which learning will take place. Other words for term could be in common use around the world e.g. Semester. The important thing is that Term is a unit of time, often many weeks long, into which classes are scheduled. Grading Period is used to represent another unit of time, that within which line items are assessed. A term may have many grading periods, a grading period belongs to a single term. A class may be assessed over several grade periods (represented by a line item being connected to a grading period). The parent / child attributes of academic sessions allow terms to be connected to their grading periods and vice-versa.
+    oneroster.v1p2.v1.Class:
+      type: object
+      properties:
+        classCode:
+          type:
+            - string
+            - "null"
+          title: class_code
+          description: Model Primitive Datatype = NormalizedString. The class code.
+        classType:
+          type:
+            - string
+            - "null"
+          anyOf:
+            - type: string
+              enum:
+                - "homeroom"
+                - "scheduled"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: class_type
+          description: The type of class. This is based upon an enumerated vocabulary.
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.CourseGUIDRef'
+          title: course
+          description: The link to the associated course i.e. the Course 'sourcedId'.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        grades:
+          type: array
+          items:
+            type: string
+          title: grades
+          description: Model Primitive Datatype = NormalizedString. The grade(s) who attend the class. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        location:
+          type:
+            - string
+            - "null"
+          title: location
+          description: Model Primitive Datatype = NormalizedString. The location for the class e.g. 'Room 19'.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        periods:
+          type: array
+          items:
+            type: string
+          title: periods
+          description: Model Primitive Datatype = NormalizedString. The time slots in the day that the class will be given. Examples are 1 or a list of 1, 3, 5, etc.
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.ResourceGUIDRef'
+          title: resources
+          description: The links to the set of associated resources i.e. the Resource 'sourcedIds'.
+        school:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: school
+          description: The link to the associated school i.e. the School 'sourcedId'.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          title: subject_codes
+          description: Model Primitive Datatype = NormalizedString. This is a machine readable set of codes and the number should match the associated 'subjects' attribute. The vocabulary for this characteristic should be defined as part of the local addition of this specification (see the Implementation Guide [OR-IMPL-12] for more details).
+        subjects:
+          type: array
+          items:
+            type: string
+          title: subjects
+          description: Model Primitive Datatype = NormalizedString. The set of subjects addressed by this class e.g. 'chemistry'.
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcadSessionGUIDRef'
+          title: terms
+          description: The links to the set of terms or semesters (academicSession) i.e. the set of 'sourcedIds' for the terms within the associated school year.
+        title:
+          type: string
+          title: title
+          description: Model Primitive Datatype = NormalizedString. The tile/label for the class.
+      title: Class
+      required:
+        - course
+        - dateLastModified
+        - school
+        - sourcedId
+        - terms
+        - title
+      additionalProperties: false
+      description: A class is an instance of a course, onto which students and teachers are enrolled. A class is typically held within a term.
+    oneroster.v1p2.v1.ClassGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "class"
+          description: The type of object being referenced i.e. a 'class'.
+          const: class
+      title: ClassGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Class' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.Course:
+      type: object
+      properties:
+        courseCode:
+          type: string
+          title: course_code
+          description: Model Primitive Datatype = NormalizedString. The assigned course code.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        grades:
+          type: array
+          items:
+            type: string
+          title: grades
+          description: Model Primitive Datatype = NormalizedString. Grade(s) for which the class is attended. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: org
+          description: The link to org i.e. the 'sourcedId' of the org.
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.ResourceGUIDRef'
+          title: resources
+          description: The links to the associated resources if applicable i.e. the resource 'sourcedIds'.
+        schoolYear:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcadSessionGUIDRef'
+          title: school_year
+          description: The link to academicSession i.e. the AcademicSession 'sourcedId'.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          title: subject_codes
+          description: Model Primitive Datatype = NormalizedString. This is a machine readable set of codes and the number should match the associated 'subjects' attribute. The vocabulary for this characteristic should be defined as part of the local addition of this specification (see the Implementation Guide [OR-IMPL-12] for more details).
+        subjects:
+          type: array
+          items:
+            type: string
+          title: subjects
+          description: Model Primitive Datatype = NormalizedString. The set of subjects addresse by this course. This is a set of human readable strings.
+        title:
+          type: string
+          title: title
+          description: Model Primitive Datatype = NormalizedString. The title of the course.
+      title: Course
+      required:
+        - courseCode
+        - dateLastModified
+        - sourcedId
+        - title
+      additionalProperties: false
+      description: The information about a course. A Course is a course of study that, typically, has a shared curriculum although it may be taught to different students by different teachers. It is likely that several classes of a single course may be taught in a term. For example, a school runs Grade 9 English in the spring term. There are four classes, each with a different 30 students, taught by 4 different teachers. However the curriculum for each of those four classes is the same i.e. the course curriculum.
+    oneroster.v1p2.v1.CourseGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "course"
+          description: The type of object being referenced i.e. a 'course'.
+          const: course
+      title: CourseGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Course' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.CreateAcademicSessionRequest:
+      type: object
+      properties:
+        academicSession:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_session
+          description: The academic session to create.
+      title: CreateAcademicSessionRequest
+      required:
+        - academicSession
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateAcademicSessionResponse:
+      type: object
+      properties:
+        academicSession:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_session
+          description: |-
+            The stored session, carrying the date_last_modified to send with the next
+             update.
+      title: CreateAcademicSessionResponse
+      required:
+        - academicSession
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateClassRequest:
+      type: object
+      properties:
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: class
+          description: |-
+            The class to create. Its sourced_id must not already exist; creating over an
+             existing class is refused rather than merged, so a curator is told when they
+             are about to change something they thought was new.
+      title: CreateClassRequest
+      required:
+        - class
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateClassResponse:
+      type: object
+      properties:
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: class
+          description: |-
+            The stored class, including the date_last_modified the server assigned.
+             Send that value back as expected_date_last_modified on the next update.
+      title: CreateClassResponse
+      required:
+        - class
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateCourseRequest:
+      type: object
+      properties:
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: course
+          description: |-
+            The course to create. Its sourced_id must not already exist; creating over an
+             existing course is refused rather than merged, so a curator is told when they
+             are about to change something they thought was new.
+      title: CreateCourseRequest
+      required:
+        - course
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateCourseResponse:
+      type: object
+      properties:
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: course
+          description: |-
+            The stored course, including the date_last_modified the server assigned.
+             Send that value back as expected_date_last_modified on the next update.
+      title: CreateCourseResponse
+      required:
+        - course
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateEnrollmentRequest:
+      type: object
+      properties:
+        enrollment:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollment
+          description: |-
+            The enrollment to create. Its sourced_id must not already exist; creating over an
+             existing enrollment is refused rather than merged, so a curator is told when they
+             are about to change something they thought was new.
+      title: CreateEnrollmentRequest
+      required:
+        - enrollment
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateEnrollmentResponse:
+      type: object
+      properties:
+        enrollment:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollment
+          description: |-
+            The stored enrollment, including the date_last_modified the server assigned.
+             Send that value back as expected_date_last_modified on the next update.
+      title: CreateEnrollmentResponse
+      required:
+        - enrollment
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateOrgRequest:
+      type: object
+      properties:
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: org
+          description: |-
+            The org to create. Its sourced_id must not already exist; creating over an
+             existing org is refused rather than merged, so a curator is told when they
+             are about to change something they thought was new.
+      title: CreateOrgRequest
+      required:
+        - org
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateOrgResponse:
+      type: object
+      properties:
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: org
+          description: |-
+            The stored org, including the date_last_modified the server assigned.
+             Send that value back as expected_date_last_modified on the next update.
+      title: CreateOrgResponse
+      required:
+        - org
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateUserRequest:
+      type: object
+      properties:
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: user
+          description: |-
+            The user to create. Its sourced_id must not already exist; creating over an
+             existing user is refused rather than merged, so a curator is told when they
+             are about to change something they thought was new.
+      title: CreateUserRequest
+      required:
+        - user
+      additionalProperties: false
+    oneroster.v1p2.v1.CreateUserResponse:
+      type: object
+      properties:
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: user
+          description: |-
+            The stored user, including the date_last_modified the server assigned.
+             Send that value back as expected_date_last_modified on the next update.
+      title: CreateUserResponse
+      required:
+        - user
+      additionalProperties: false
+    oneroster.v1p2.v1.Credential:
+      type: object
+      properties:
+        password:
+          type:
+            - string
+            - "null"
+          title: password
+          description: Model Primitive Datatype = String. The password in this set of credentials. Care should be taken to ensure that no unencrypted value is revealed.
+        type:
+          type: string
+          title: type
+          description: Model Primitive Datatype = String. The type of credentials for the profile. This should be indicative of when this specific credential should be used.
+        username:
+          type: string
+          title: username
+          description: Model Primitive Datatype = NormalizedString. The username.
+      title: Credential
+      required:
+        - type
+        - username
+      additionalProperties: false
+      description: The container for a single set of credentials for an account.
+    oneroster.v1p2.v1.DeleteAcademicSessionRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the academic session to mark deleted.
+      title: DeleteAcademicSessionRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.DeleteAcademicSessionResponse:
+      type: object
+      title: DeleteAcademicSessionResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning. Deleting an
+         already-deleted session is also success.
+    oneroster.v1p2.v1.DeleteClassRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the class to mark deleted.
+      title: DeleteClassRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.DeleteClassResponse:
+      type: object
+      title: DeleteClassResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning, and carries nothing a
+         caller needs. Deleting an already-deleted class is also success.
+    oneroster.v1p2.v1.DeleteCourseRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the course to mark deleted.
+      title: DeleteCourseRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.DeleteCourseResponse:
+      type: object
+      title: DeleteCourseResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning, and carries nothing a
+         caller needs. Deleting an already-deleted course is also success.
+    oneroster.v1p2.v1.DeleteEnrollmentRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the enrollment to mark deleted.
+      title: DeleteEnrollmentRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.DeleteEnrollmentResponse:
+      type: object
+      title: DeleteEnrollmentResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning, and carries nothing a
+         caller needs. Deleting an already-deleted enrollment is also success.
+    oneroster.v1p2.v1.DeleteOrgRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the org to mark deleted.
+      title: DeleteOrgRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.DeleteOrgResponse:
+      type: object
+      title: DeleteOrgResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning, and carries nothing a
+         caller needs. Deleting an already-deleted org is also success.
+    oneroster.v1p2.v1.DeleteUserRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the user to mark deleted.
+      title: DeleteUserRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.DeleteUserResponse:
+      type: object
+      title: DeleteUserResponse
+      additionalProperties: false
+      description: |-
+        Empty: the operation reports success by returning, and carries nothing a
+         caller needs. Deleting an already-deleted user is also success.
+    oneroster.v1p2.v1.Demographics:
+      type: object
+      properties:
+        americanIndianOrAlaskaNative:
+          type:
+            - string
+            - "null"
+          title: american_indian_or_alaska_native
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is an American Indian or Alaska Native ethnicity.
+        asian:
+          type:
+            - string
+            - "null"
+          title: asian
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is of Asian ethnicity.
+        birthDate:
+          type: string
+          title: birth_date
+          format: date
+          description: Model Primitive Datatype = Date. the date of birth. The format is [ISO 8601] of 'YYYY-MM-DD'.
+        blackOrAfricanAmerican:
+          type:
+            - string
+            - "null"
+          title: black_or_african_american
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is black or African American ethnicity.
+        cityOfBirth:
+          type:
+            - string
+            - "null"
+          title: city_of_birth
+          description: Model Primitive Datatype = NormalizedString. The name of the city in which the user was born.
+        countryOfBirthCode:
+          type:
+            - string
+            - "null"
+          title: country_of_birth_code
+          description: Model Primitive Datatype = NormalizedString. The country of birth code. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        demographicRaceTwoOrMoreRaces:
+          type:
+            - string
+            - "null"
+          title: demographic_race_two_or_more_races
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user has a demographic of two or more race ethnicities.
+        hispanicOrLatinoEthnicity:
+          type:
+            - string
+            - "null"
+          title: hispanic_or_latino_ethnicity
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is Hispanic or of Latino ethnicity.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        nativeHawaiianOrOtherPacificIslander:
+          type:
+            - string
+            - "null"
+          title: native_hawaiian_or_other_pacific_islander
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is Native Hawaiian or Other Pacific Islander ethnicity.
+        publicSchoolResidenceStatus:
+          type:
+            - string
+            - "null"
+          title: public_school_residence_status
+          description: Model Primitive Datatype = NormalizedString. An indication of the location of a person's legal residence relative to (within or outside) the boundaries of the public school attended and its administrative unit. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        sex:
+          type:
+            - string
+            - "null"
+          anyOf:
+            - type: string
+              enum:
+                - "male"
+                - "female"
+                - "unspecified"
+                - "other"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: sex
+          description: The sex of the individual. The permitted values are from an enumerated list.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        stateOfBirthAbbreviation:
+          type:
+            - string
+            - "null"
+          title: state_of_birth_abbreviation
+          description: Model Primitive Datatype = NormalizedString. The abbreviation for the name of the state (within the United States) or extra-state jurisdiction in which a person was born. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        white:
+          type:
+            - string
+            - "null"
+          title: white
+          enum:
+            - "true"
+            - "false"
+          description: Identification of whether or not the user is of white ethnicity.
+      title: Demographics
+      required:
+        - dateLastModified
+        - sourcedId
+      additionalProperties: false
+      description: Demographics information is taken from the Common Educational Data Standards (CEDS) from the US government. (http://ceds.ed.gov). Note that demographics data is held in its own service, and that access to this service is considered privileged. Not all consumer keys will be able to request demographics data.
+    oneroster.v1p2.v1.Enrollment:
+      type: object
+      properties:
+        beginDate:
+          type: string
+          title: begin_date
+          format: date
+          description: Model Primitive Datatype = Date. The start date for the enrollment (inclusive). This date must be within the period of the associated Academic Session for the class (Term/Semester/SchoolYear). Use the [ISO 8601] format of 'YYYY-MM-DD'.
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.ClassGUIDRef'
+          title: class
+          description: The link to the class on which the user is enrolled i.e. the Class 'sourcedId'.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        endDate:
+          type: string
+          title: end_date
+          format: date
+          description: Model Primitive Datatype = Date. The end date for the enrollment (exclusive). This date must be within the period of the associated Academic Session for the class (Term/Semester/SchoolYear). Use the [ISO 8601] format of 'YYYY-MM-DD'.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        primary:
+          type:
+            - string
+            - "null"
+          title: primary
+          enum:
+            - "true"
+            - "false"
+          description: Applicable only to teachers. Only one teacher should be designated as the primary teacher for a class (this value set as 'true') in the period defined by the begin/end dates.
+        role:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "administrator"
+                - "proctor"
+                - "student"
+                - "teacher"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: role
+          description: The role of the user for this class in the school e.g teacher, student, etc. This is from an enumerated vocabulary.
+        school:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: school
+          description: The link to the school at which the class is being provided i.e. an Org 'sourcedId'.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.UserGUIDRef'
+          title: user
+          description: The link to the enrolled User i.e. the User 'sourcedId'.
+      title: Enrollment
+      required:
+        - class
+        - dateLastModified
+        - role
+        - school
+        - sourcedId
+        - user
+      additionalProperties: false
+      description: An enrollment is the name given to an individual taking part in a class. In the vast majority of cases, users will be students learning in a class, or teachers teaching the class. Other roles are also possible.
+    oneroster.v1p2.v1.GetAcademicSessionRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the academic session to retrieve.
+      title: GetAcademicSessionRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAcademicSessionResponse:
+      type: object
+      properties:
+        academicSession:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_session
+      title: GetAcademicSessionResponse
+      required:
+        - academicSession
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllAcademicSessionsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+      title: GetAllAcademicSessionsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllAcademicSessionsResponse:
+      type: object
+      properties:
+        academicSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_sessions
+          description: The collection of academicSession instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllAcademicSessionsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllClassesRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllClassesRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllClassesResponse:
+      type: object
+      properties:
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: classes
+          description: The collection of class instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllClassesResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllCoursesRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllCoursesRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllCoursesResponse:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: courses
+          description: The collection of course instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllCoursesResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllDemographicsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllDemographicsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllDemographicsResponse:
+      type: object
+      properties:
+        demographics:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Demographics'
+          title: demographics
+          description: The collection of demographics instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllDemographicsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllEnrollmentsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllEnrollmentsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllEnrollmentsResponse:
+      type: object
+      properties:
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollments
+          description: The collection of enrollment instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllEnrollmentsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllGradingPeriodsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+      title: GetAllGradingPeriodsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllGradingPeriodsResponse:
+      type: object
+      properties:
+        academicSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_sessions
+          description: The collection of academicSession instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllGradingPeriodsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllOrgsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+      title: GetAllOrgsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllOrgsResponse:
+      type: object
+      properties:
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: orgs
+          description: The collection of org instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllOrgsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllSchoolsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+      title: GetAllSchoolsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllSchoolsResponse:
+      type: object
+      properties:
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: orgs
+          description: The collection of org instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllSchoolsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllStudentsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllStudentsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllStudentsResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: users
+          description: The collection of user instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllStudentsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllTeachersRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllTeachersRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllTeachersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: users
+          description: The collection of user instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllTeachersResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllTermsRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+      title: GetAllTermsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllTermsResponse:
+      type: object
+      properties:
+        academicSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_sessions
+          description: The collection of academicSession instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllTermsResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetAllUsersRequest:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          title: page_size
+          maximum: 1000
+          minimum: 0
+          format: int32
+          description: |-
+            Maximum entries to return. Zero requests the server default. The server may
+             return fewer than requested; only an empty next_page_token ends iteration.
+        pageToken:
+          type: string
+          title: page_token
+          description: |-
+            Opaque cursor taken from a previous response's next_page_token. Empty starts
+             at the first page. Tokens are not portable across differing filters.
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict to this org and every org beneath it. Empty means every org the
+             caller may see.
+      title: GetAllUsersRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetAllUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: users
+          description: The collection of user instances. The order is not significant. The corresponding query constraints may result in no instances being returned.
+        nextPageToken:
+          type: string
+          title: next_page_token
+          description: Page token for the next page, empty when this is the last page.
+      title: GetAllUsersResponse
+      additionalProperties: false
+      description: Author-Colin Smythe (1EdTech); Version-1.2; Release Date-19th September 2022.
+    oneroster.v1p2.v1.GetClassRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the class to retrieve.
+      title: GetClassRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetClassResponse:
+      type: object
+      properties:
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: class
+      title: GetClassResponse
+      required:
+        - class
+      additionalProperties: false
+    oneroster.v1p2.v1.GetCourseRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the course to retrieve.
+      title: GetCourseRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetCourseResponse:
+      type: object
+      properties:
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: course
+      title: GetCourseResponse
+      required:
+        - course
+      additionalProperties: false
+    oneroster.v1p2.v1.GetDemographicsRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the demographics record to retrieve.
+      title: GetDemographicsRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetDemographicsResponse:
+      type: object
+      properties:
+        demographics:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Demographics'
+          title: demographics
+      title: GetDemographicsResponse
+      required:
+        - demographics
+      additionalProperties: false
+    oneroster.v1p2.v1.GetEnrollmentRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the enrollment to retrieve.
+      title: GetEnrollmentRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetEnrollmentResponse:
+      type: object
+      properties:
+        enrollment:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollment
+      title: GetEnrollmentResponse
+      required:
+        - enrollment
+      additionalProperties: false
+    oneroster.v1p2.v1.GetOrgRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the org to retrieve.
+      title: GetOrgRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetOrgResponse:
+      type: object
+      properties:
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: org
+      title: GetOrgResponse
+      required:
+        - org
+      additionalProperties: false
+    oneroster.v1p2.v1.GetRosterRequest:
+      type: object
+      properties:
+        orgSourcedId:
+          type: string
+          title: org_sourced_id
+          description: |-
+            Restrict the snapshot to this org and every org beneath it. Empty means
+             every org the caller may see.
+      title: GetRosterRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetRosterResponse:
+      type: object
+      properties:
+        roster:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Roster'
+          title: roster
+          description: An imaginary complete roster payload containing all OneRoster rostering collections.
+      title: GetRosterResponse
+      required:
+        - roster
+      additionalProperties: false
+      description: Composite roster response containing the full set of OneRoster v1.2 rostering collections.
+    oneroster.v1p2.v1.GetUserRequest:
+      type: object
+      properties:
+        sourcedId:
+          type: string
+          title: sourced_id
+          minLength: 1
+          description: OneRoster GUID of the user to retrieve.
+      title: GetUserRequest
+      additionalProperties: false
+    oneroster.v1p2.v1.GetUserResponse:
+      type: object
+      properties:
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: user
+      title: GetUserResponse
+      required:
+        - user
+      additionalProperties: false
+    oneroster.v1p2.v1.Org:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: children
+          description: The 'sourcedIds' for the set of child organizations.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        identifier:
+          type: string
+          title: identifier
+          description: Model Primitive Datatype = String. Human readable identifier for this org e.g. NCES ID.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        name:
+          type: string
+          title: name
+          description: Model Primitive Datatype = NormalizedString. The name of the organization.
+        parent:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: parent
+          description: The 'sourcedId' of the parent organization.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        type:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "department"
+                - "district"
+                - "local"
+                - "national"
+                - "school"
+                - "state"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: type
+          description: The type of organization. This uses a predefined vocabulary.
+      title: Org
+      required:
+        - dateLastModified
+        - identifier
+        - name
+        - sourcedId
+        - type
+      additionalProperties: false
+      description: ORG is defined here as a structure for holding organizational information. An ORG might be a school, or it might be a local, statewide, or national entity. ORGs will typically have a parent ORG (up to the national level), and children, allowing a hierarchy to be established. School is defined here as the place where the learning happens. Most commonly this is the data that describes a bricks and mortar building, or, in the case of a virtual school, the virtual school organization. For enrollment and result reporting purposes, little information about this organization is required. A common example of a local organization is a school district.
+    oneroster.v1p2.v1.OrgGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "org"
+          description: The type of object being referenced i.e. an 'org'.
+          const: org
+      title: OrgGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Org' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.ResourceGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "resource"
+          description: The type of object being referenced i.e. a 'resource'.
+          const: resource
+      title: ResourceGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'Resourse' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.Role:
+      type: object
+      properties:
+        beginDate:
+          type: string
+          title: begin_date
+          format: date
+          description: Model Primitive Datatype = Date. The start date on which the role becomes active (inclusive).
+        endDate:
+          type: string
+          title: end_date
+          format: date
+          description: Model Primitive Datatype = Date. The end date on which the role becomes inactive (exclusive).
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: org
+          description: The link to the associated org i.e. the 'sourcedId' for the org.
+        role:
+          type: string
+          anyOf:
+            - type: string
+              enum:
+                - "aide"
+                - "counselor"
+                - "districtAdministrator"
+                - "guardian"
+                - "parent"
+                - "principal"
+                - "proctor"
+                - "relative"
+                - "siteAdministrator"
+                - "student"
+                - "systemAdministrator"
+                - "teacher"
+            - type: string
+              pattern: (ext:)[a-zA-Z0-9\.\-_]+
+          title: role
+          description: The role of the user in the org. The permitted values are from an enumerated list.
+        roleType:
+          type: string
+          title: role_type
+          enum:
+            - "primary"
+            - "secondary"
+          description: Indicates if this role is the primary or secondary role for that org. There MUST be one, and only one, primary role for each org.
+        userProfile:
+          type:
+            - string
+            - "null"
+          title: user_profile
+          description: Model Primitive Datatype = AnyURI. The identifier for the system/tool/app access account that is relevant to this role in the org. The equivalent UserProfile should exist with a 'profileId' equal to this identifier value.
+      title: Role
+      required:
+        - org
+        - role
+      additionalProperties: false
+      description: The container for one mapping between a role and an org for the user.
+    oneroster.v1p2.v1.Roster:
+      type: object
+      properties:
+        academicSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_sessions
+          description: The collection of academicSession instances (includes terms, grading periods, and school years). The order is not significant.
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: classes
+          description: The collection of class instances. The order is not significant.
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: courses
+          description: The collection of course instances. The order is not significant.
+        demographics:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Demographics'
+          title: demographics
+          description: The collection of demographics instances. The order is not significant.
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollments
+          description: The collection of enrollment instances. The order is not significant.
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: orgs
+          description: The collection of org instances (includes schools and other organizations). The order is not significant.
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: users
+          description: The collection of user instances (includes students, teachers, and all other user roles). The order is not significant.
+      title: Roster
+      additionalProperties: false
+      description: A composite container for all OneRoster v1.2 rostering collections returned in a single response.
+    oneroster.v1p2.v1.UpdateAcademicSessionRequest:
+      type: object
+      properties:
+        academicSession:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_session
+          description: The session carrying the new values, identified by its sourced_id.
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+          description: Which fields to change. Required and non-empty; sourced_id may not appear.
+        expectedDateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expected_date_last_modified
+          description: |-
+            The date_last_modified this caller last read, so a concurrent write is
+             reported as aborted rather than silently overwritten.
+      title: UpdateAcademicSessionRequest
+      required:
+        - academicSession
+        - updateMask
+        - expectedDateLastModified
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateAcademicSessionResponse:
+      type: object
+      properties:
+        academicSession:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.AcademicSession'
+          title: academic_session
+          description: The stored session after the update.
+      title: UpdateAcademicSessionResponse
+      required:
+        - academicSession
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateClassRequest:
+      type: object
+      properties:
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: class
+          description: |-
+            The class carrying the new values, identified by its sourced_id. Only the
+             fields named in update_mask are read from it.
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+          description: |-
+            Which fields to change. Required and non-empty: an absent mask is refused
+             rather than treated as "replace everything", because a client bug that
+             dropped it would otherwise blank every field it did not send. sourced_id may
+             not appear — the primary key is not editable.
+        expectedDateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expected_date_last_modified
+          description: |-
+            The date_last_modified this caller last read. The update applies only if the
+             stored value still matches, so a concurrent edit or an overlapping import is
+             reported as aborted instead of being silently overwritten.
+      title: UpdateClassRequest
+      required:
+        - class
+        - updateMask
+        - expectedDateLastModified
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateClassResponse:
+      type: object
+      properties:
+        class:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Class'
+          title: class
+          description: |-
+            The stored class after the update, carrying the new date_last_modified to
+             send with the next one.
+      title: UpdateClassResponse
+      required:
+        - class
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateCourseRequest:
+      type: object
+      properties:
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: course
+          description: |-
+            The course carrying the new values, identified by its sourced_id. Only the
+             fields named in update_mask are read from it.
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+          description: |-
+            Which fields to change. Required and non-empty: an absent mask is refused
+             rather than treated as "replace everything", because a client bug that
+             dropped it would otherwise blank every field it did not send. sourced_id may
+             not appear — the primary key is not editable.
+        expectedDateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expected_date_last_modified
+          description: |-
+            The date_last_modified this caller last read. The update applies only if the
+             stored value still matches, so a concurrent edit or an overlapping import is
+             reported as aborted instead of being silently overwritten.
+      title: UpdateCourseRequest
+      required:
+        - course
+        - updateMask
+        - expectedDateLastModified
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateCourseResponse:
+      type: object
+      properties:
+        course:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Course'
+          title: course
+          description: |-
+            The stored course after the update, carrying the new date_last_modified to
+             send with the next one.
+      title: UpdateCourseResponse
+      required:
+        - course
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateEnrollmentRequest:
+      type: object
+      properties:
+        enrollment:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollment
+          description: |-
+            The enrollment carrying the new values, identified by its sourced_id. Only the
+             fields named in update_mask are read from it.
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+          description: |-
+            Which fields to change. Required and non-empty: an absent mask is refused
+             rather than treated as "replace everything", because a client bug that
+             dropped it would otherwise blank every field it did not send. sourced_id may
+             not appear — the primary key is not editable.
+        expectedDateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expected_date_last_modified
+          description: |-
+            The date_last_modified this caller last read. The update applies only if the
+             stored value still matches, so a concurrent edit or an overlapping import is
+             reported as aborted instead of being silently overwritten.
+      title: UpdateEnrollmentRequest
+      required:
+        - enrollment
+        - updateMask
+        - expectedDateLastModified
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateEnrollmentResponse:
+      type: object
+      properties:
+        enrollment:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Enrollment'
+          title: enrollment
+          description: |-
+            The stored enrollment after the update, carrying the new date_last_modified to
+             send with the next one.
+      title: UpdateEnrollmentResponse
+      required:
+        - enrollment
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateOrgRequest:
+      type: object
+      properties:
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: org
+          description: |-
+            The org carrying the new values, identified by its sourced_id. Only the
+             fields named in update_mask are read from it.
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+          description: |-
+            Which fields to change. Required and non-empty: an absent mask is refused
+             rather than treated as "replace everything", because a client bug that
+             dropped it would otherwise blank every field it did not send. sourced_id may
+             not appear — the primary key is not editable.
+        expectedDateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expected_date_last_modified
+          description: |-
+            The date_last_modified this caller last read. The update applies only if the
+             stored value still matches, so a concurrent edit or an overlapping import is
+             reported as aborted instead of being silently overwritten.
+      title: UpdateOrgRequest
+      required:
+        - org
+        - updateMask
+        - expectedDateLastModified
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateOrgResponse:
+      type: object
+      properties:
+        org:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.Org'
+          title: org
+          description: |-
+            The stored org after the update, carrying the new date_last_modified to
+             send with the next one.
+      title: UpdateOrgResponse
+      required:
+        - org
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateUserRequest:
+      type: object
+      properties:
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: user
+          description: |-
+            The user carrying the new values, identified by its sourced_id. Only the
+             fields named in update_mask are read from it.
+        updateMask:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.FieldMask'
+          title: update_mask
+          description: |-
+            Which fields to change. Required and non-empty: an absent mask is refused
+             rather than treated as "replace everything", because a client bug that
+             dropped it would otherwise blank every field it did not send. sourced_id may
+             not appear — the primary key is not editable.
+        expectedDateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: expected_date_last_modified
+          description: |-
+            The date_last_modified this caller last read. The update applies only if the
+             stored value still matches, so a concurrent edit or an overlapping import is
+             reported as aborted instead of being silently overwritten.
+      title: UpdateUserRequest
+      required:
+        - user
+        - updateMask
+        - expectedDateLastModified
+      additionalProperties: false
+    oneroster.v1p2.v1.UpdateUserResponse:
+      type: object
+      properties:
+        user:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.User'
+          title: user
+          description: |-
+            The stored user after the update, carrying the new date_last_modified to
+             send with the next one.
+      title: UpdateUserResponse
+      required:
+        - user
+      additionalProperties: false
+    oneroster.v1p2.v1.User:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.UserGUIDRef'
+          title: agents
+          description: The links to other people i.e. User 'sourcedIds'.
+        dateLastModified:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Timestamp'
+          title: date_last_modified
+          description: Model Primitive Datatype = DateTime. All objects MUST be annotated with the dateTime upon which they were last modified. This enables requesters to query for just the latest objects. DateTimes MUST be expressed in W3C profile of [ISO 8601] and MUST contain the UTC timezone.
+        email:
+          type:
+            - string
+            - "null"
+          title: email
+          description: Model Primitive Datatype = NormalizedString. The email address for the user.
+        enabledUser:
+          type: string
+          title: enabled_user
+          enum:
+            - "true"
+            - "false"
+          description: This is used to determine whether or not the record is active in the local system. 'false' denotes that the record is active but system access is curtailed according to the local administration rules.
+        familyName:
+          type: string
+          title: family_name
+          description: Model Primitive Datatype = NormalizedString. The family name. Also, known as the last name.
+        givenName:
+          type: string
+          title: given_name
+          description: Model Primitive Datatype = NormalizedString. The given name. Also, known as the first name.
+        grades:
+          type: array
+          items:
+            type: string
+          title: grades
+          description: Model Primitive Datatype = NormalizedString. Grade(s) for which a user with role 'student' is enrolled. The permitted vocabulary should be defined as part of the adoption and deployment process. See the Implementation Guide [OR-IMPL-12] for more details on how to define/use such a vocabulary.
+        identifier:
+          type:
+            - string
+            - "null"
+          title: identifier
+          description: Model Primitive Datatype = String. An identifier for the user. NOTE - This characteristic is kept for backwards compatibility with OneRoster 1.1/1.0. The 'userIds' characteristic SHOULD be used instead.
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/google.protobuf.Struct'
+          title: metadata
+          description: All objects CAN be extended using the Metadata class. This specification is silent on what implementers may consider to be appropriate extensions. The form of the extension is dependent on the binding technology being used.
+        middleName:
+          type:
+            - string
+            - "null"
+          title: middle_name
+          description: Model Primitive Datatype = NormalizedString. The set of middle names. If more than one middle name is needed separate using a space e.g. 'Wingarde Granville'.
+        password:
+          type:
+            - string
+            - "null"
+          title: password
+          description: Model Primitive Datatype = String. A top-level password for the user. Care should be taken when using this field and the password SHOULD be encrypted.
+        phone:
+          type:
+            - string
+            - "null"
+          title: phone
+          description: Model Primitive Datatype = NormalizedString. The phone number for the user.
+        preferredFirstName:
+          type:
+            - string
+            - "null"
+          title: preferred_first_name
+          description: Model Primitive Datatype = NormalizedString. The user's preferred first name. This attribute was added in version 1.2.
+        preferredLastName:
+          type:
+            - string
+            - "null"
+          title: preferred_last_name
+          description: Model Primitive Datatype = NormalizedString. The user's preferred last name. This attribute was added in version 1.2.
+        preferredMiddleName:
+          type:
+            - string
+            - "null"
+          title: preferred_middle_name
+          description: Model Primitive Datatype = NormalizedString. The user's preferred middle name(s). This attribute was added in version 1.2.
+        primaryOrg:
+          allOf:
+            - $ref: '#/components/schemas/oneroster.v1p2.v1.OrgGUIDRef'
+          title: primary_org
+          description: It is possible for a user to be a member of more than one organization and to have one or more roles in an organization. This attribute identifies the 'sourcedId' of the primary organization.
+        pronouns:
+          type:
+            - string
+            - "null"
+          title: pronouns
+          description: Model Primitive Datatype = NormalizedString. The pronoun(s) by which this person is referenced. Examples (in the case of English) include 'she/her/hers', 'he/him/his', 'they/them/theirs', 'ze/hir/hir', 'xe/xir', or a statement that the person's name should be used instead of any pronoun.
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.ResourceGUIDRef'
+          title: resources
+          description: The identifiers (GUIDs) for the set of resources that are to be made available to the user. These are the sourcedIds that should be used for obtaining the metadata about the resources using the OR 1.2 Resources Service [OR-RES-SM-12].
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Role'
+          title: roles
+          description: The set of roles for each of the orgs to which the user is affilliated. This is expressed as a set of role/org tuples.
+        sms:
+          type:
+            - string
+            - "null"
+          title: sms
+          description: Model Primitive Datatype = NormalizedString. The SMS number for the user.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The sourcedId of the object. All objects MUST be identified by a Source Identifier. This is a GUID System ID for an object. This is the GUID that SYSTEMS will refer to when making API calls, or when needing to identify an object. It is RECOMMENDED that systems are able to map whichever local ids (e.g. database key fields) they use to SourcedId. The sourcedId of an object is considered an addressable property of an entity and as such will not be treated as Personally Identifiable Information (PII) by certified products. Therefore, as a part of certification, vendors will be required to declare that they will notify customers via documentation or other formal and documented agreement that sourcedIds should never contain PII in general, but particularly users. This means that if a customer includes a student name in an enrollment.sourcedId, it will not fall to any certified product to protect the enrollment.sourcedId as PII, or even the userSourcedId field in the enrollment record.
+        status:
+          type: string
+          title: status
+          enum:
+            - "active"
+            - "tobedeleted"
+          description: All objects MUST BE either 'active' or 'tobedeleted'. Something which is flagged 'tobedeleted' is to be considered safe to delete. Systems can delete records that are flagged as such if they wish, but they are not under any compulsion to do so. In v1.1 the enumeration value of 'inactive' was removed and so for backwards compatibility all such marked objects should be interpreted as 'tobedeleted'.
+        userIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.UserId'
+          title: user_ids
+          description: The set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.
+        userMasterIdentifier:
+          type:
+            - string
+            - "null"
+          title: user_master_identifier
+          description: Model Primitive Datatype = NormalizedString. The master unique identifier for this user. This is NOT the same as the user's interoperability 'sourcedId'. This should be used to ensure that all of the system identifiers/accounts etc. can be reconciled to the same user. How this identifier is assigned and its format is beyond the scope of this specification.
+        userProfiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.UserProfile'
+          title: user_profiles
+          description: The set of system/app/tool profiles for the user.
+        username:
+          type:
+            - string
+            - "null"
+          title: username
+          description: Model Primitive Datatype = NormalizedString. The user name assigned to the user. NOTE - This has been kept for backwards compatibility with OneRoster 1.1 and the new 'userProfiles' characteristic SHOULD be used instead.
+      title: User
+      required:
+        - dateLastModified
+        - enabledUser
+        - familyName
+        - givenName
+        - roles
+        - sourcedId
+      additionalProperties: false
+      description: 'Users, Teachers and Students are human beings that are teaching or studying in a class respectively. A single User class is used to represent both teachers and students and a role property is used to distinguish a user''s natural role.Humans may have relationships with other humans. For example, a student may have parents. The ''agents'' attribute allows for relationships between humans to be expressed. Note that these are typically from the point of view of the student - so a student will link to its parents (via the agent attribute). The reverse view MUST also be modeled, so for example, a user of role ''parent'' MUST have agents that are of type ''student''. Note: Teachers MUST NOT be set as agents of students i.e. the teaching relationship is covered via enrollments.'
+    oneroster.v1p2.v1.UserGUIDRef:
+      type: object
+      properties:
+        href:
+          type: string
+          title: href
+          description: Model Primitive Datatype = AnyURI. The URI for the type of object being referenced.
+        sourcedId:
+          type: string
+          title: sourced_id
+          description: Model Primitive Datatype = String. The globally unique identifier of the object being referenced.
+        type:
+          type: string
+          title: type
+          enum:
+            - "user"
+          description: The type of object being referenced i.e. a 'user'.
+          const: user
+      title: UserGUIDRef
+      required:
+        - href
+        - sourcedId
+      additionalProperties: false
+      description: This is the container for reference to a OneRoster 'User' object that has an allocated sourcedId (GUID).
+    oneroster.v1p2.v1.UserId:
+      type: object
+      properties:
+        identifier:
+          type: string
+          title: identifier
+          description: Model Primitive Datatype = String. The user identifier.
+        type:
+          type: string
+          title: type
+          description: Model Primitive Datatype = NormalizedString. The type of identifier. This is no predefined vocabuary.
+      title: UserId
+      required:
+        - identifier
+        - type
+      additionalProperties: false
+      description: This is the set of external user identifiers that should be used for this user, if for some reason the sourcedId cannot be used. This might be an active directory id, an LTI id, or some other machine-readable identifier that is used for this person.
+    oneroster.v1p2.v1.UserProfile:
+      type: object
+      properties:
+        applicationId:
+          type:
+            - string
+            - "null"
+          title: application_id
+          description: Model Primitive Datatype = NormalizedString. Identifier for the application associated with the account. The nature, and how this identifier is assigned is not defined by this specification. This may have a value of 'default' to denote this account should be used for default access to all applications related to this vendor.
+        credentials:
+          type: array
+          items:
+            $ref: '#/components/schemas/oneroster.v1p2.v1.Credential'
+          title: credentials
+          description: The set of credentials that are available for access to this profile.
+        description:
+          type:
+            - string
+            - "null"
+          title: description
+          description: Model Primitive Datatype = String. A human readable description of the use of the profile. This should not contain any security information for access to the account.
+        profileId:
+          type: string
+          title: profile_id
+          description: Model Primitive Datatype = AnyURI. The unique identifier for the profile. This does not need to be a globally unique identifier but it must be unique within the scope of the user.
+        profileType:
+          type: string
+          title: profile_type
+          description: Model Primitive Datatype = NormalizedString. The type of profile. This should be a human readable label that has some significance in the context of the related system, app, tool, etc.
+        vendorId:
+          type: string
+          title: vendor_id
+          description: Model Primitive Datatype = NormalizedString. The unique identifier for the vendor of the system, tool, app, etc. which requires the use of this profile.
+      title: UserProfile
+      required:
+        - profileId
+        - profileType
+        - vendorId
+      additionalProperties: false
+      description: The container for the information about a User Profile that will provide the user with access to some system, application, tool, etc.
+security: []
+tags:
+  - name: oneroster.v1p2.v1.RosterService
+    description: |-
+      RosterService serves the OneRoster v1.2 rostering model.
+
+       Every response is scoped to what the calling principal is authorized to see.
+       Scoping is applied by the database as part of each query rather than by
+       filtering results afterwards, so an unauthorized row is never loaded — see
+       the auth_effective_access view in sql/schema/002_authorization.sql.
+
+       Paging is cursor-based: a response carries next_page_token, and passing it
+       back returns the following page. This deviates from OneRoster's REST binding,
+       which specifies limit/offset; offset paging skips rows inserted between
+       fetches and repeats rows when earlier ones are deleted, and a roster is
+       written by bulk imports that do exactly that.

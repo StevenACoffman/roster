@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: roster-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: roster_db
+    ports:
+    - "5432:5432"
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d roster_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  # Continuous profiling sink. `just up` starts it so PYROSCOPE_ENDPOINT has
+  # somewhere to push to; the UI is at http://localhost:4040.
+  pyroscope:
+    image: grafana/pyroscope:1.16.0
+    container_name: roster-pyroscope
+    restart: unless-stopped
+    ports:
+    - "4040:4040"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4040/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # Everything below is opt-in:
+  #   docker compose --profile observability up -d
+  # `just up` and `just observability` are the shorthands.
+  alloy:
+    image: grafana/alloy:v1.12.0
+    container_name: roster-alloy
+    profiles: ["observability"]
+    command:
+    - run
+    - --server.http.listen-addr=0.0.0.0:12345
+    - --storage.path=/var/lib/alloy/data
+    - /etc/alloy/config.river
+    volumes:
+    - ./deploy/observability/alloy.river:/etc/alloy/config.river:ro
+    ports:
+    - "4317:4317" # OTLP gRPC, where the service sends traces
+    - "4318:4318" # OTLP HTTP
+    - "12345:12345" # Alloy's own UI
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+    depends_on:
+    - tempo
+    - prometheus
+  tempo:
+    image: grafana/tempo:2.9.0
+    container_name: roster-tempo
+    profiles: ["observability"]
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+    - ./deploy/observability/tempo.yaml:/etc/tempo.yaml:ro
+    - tempo_data:/var/tempo
+    ports:
+    - "3200:3200"
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: roster-prometheus
+    profiles: ["observability"]
+    command:
+    - --config.file=/etc/prometheus.yaml
+    - --web.enable-remote-write-receiver
+    - --enable-feature=native-histograms
+    volumes:
+    - ./deploy/observability/prometheus.yaml:/etc/prometheus.yaml:ro
+    ports:
+    - "9091:9090"
+  grafana:
+    image: grafana/grafana:12.3.0
+    container_name: roster-grafana
+    profiles: ["observability"]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_FEATURE_TOGGLES_ENABLE: traceToProfiles
+    volumes:
+    - ./deploy/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+    - "3000:3000"
+    depends_on:
+    - tempo
+    - prometheus
+    - pyroscope
+volumes:
+  postgres_data:
+  tempo_data:

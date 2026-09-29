@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message GetRosterRequest {
+  // Restrict the snapshot to this org and every org beneath it. Empty means
+  // every org the caller may see.
+  string org_sourced_id = 1;
+}

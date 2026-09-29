@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+message GetAllCoursesRequest {
+  // Maximum entries to return. Zero requests the server default. The server may
+  // return fewer than requested; only an empty next_page_token ends iteration.
+  int32 page_size = 1 [(buf.validate.field).int32 = {
+    gte: 0,
+    lte: 1000
+  }];
+
+  // Opaque cursor taken from a previous response's next_page_token. Empty starts
+  // at the first page. Tokens are not portable across differing filters.
+  string page_token = 2;
+
+  // Restrict to this org and every org beneath it. Empty means every org the
+  // caller may see.
+  string org_sourced_id = 3;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+// Empty: the operation reports success by returning, and carries nothing a
+// caller needs. Deleting an already-deleted class is also success.
+message DeleteClassResponse {}

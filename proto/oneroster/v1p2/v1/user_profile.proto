@@ -1,0 +1,21 @@
+// Code generated from the OneRoster v1.2 JSON Schemas. DO NOT EDIT.
+syntax = "proto3";
+package oneroster.v1p2.v1;
+import "buf/validate/validate.proto";
+import "oneroster/v1p2/v1/credential.proto";
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+// The container for the information about a User Profile that will provide the user with access to some system, application, tool, etc.
+message UserProfile {
+  // Model Primitive Datatype = NormalizedString. Identifier for the application associated with the account. The nature, and how this identifier is assigned is not defined by this specification. This may have a value of 'default' to denote this account should be used for default access to all applications related to this vendor.
+  optional string application_id = 1;
+  // The set of credentials that are available for access to this profile.
+  repeated Credential credentials = 2;
+  // Model Primitive Datatype = String. A human readable description of the use of the profile. This should not contain any security information for access to the account.
+  optional string description = 3;
+  // Model Primitive Datatype = AnyURI. The unique identifier for the profile. This does not need to be a globally unique identifier but it must be unique within the scope of the user.
+  string profile_id = 4 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = NormalizedString. The type of profile. This should be a human readable label that has some significance in the context of the related system, app, tool, etc.
+  string profile_type = 5 [(buf.validate.field) = { required: true }];
+  // Model Primitive Datatype = NormalizedString. The unique identifier for the vendor of the system, tool, app, etc. which requires the use of this profile.
+  string vendor_id = 6 [(buf.validate.field) = { required: true }];
+}

@@ -1,0 +1,341 @@
+syntax = "proto3";
+
+package oneroster.v1p2.v1;
+
+import "oneroster/v1p2/v1/create_academic_session_request.proto";
+import "oneroster/v1p2/v1/create_academic_session_response.proto";
+import "oneroster/v1p2/v1/create_class_request.proto";
+import "oneroster/v1p2/v1/create_class_response.proto";
+import "oneroster/v1p2/v1/create_course_request.proto";
+import "oneroster/v1p2/v1/create_course_response.proto";
+import "oneroster/v1p2/v1/create_enrollment_request.proto";
+import "oneroster/v1p2/v1/create_enrollment_response.proto";
+import "oneroster/v1p2/v1/create_org_request.proto";
+import "oneroster/v1p2/v1/create_org_response.proto";
+import "oneroster/v1p2/v1/create_user_request.proto";
+import "oneroster/v1p2/v1/create_user_response.proto";
+import "oneroster/v1p2/v1/delete_academic_session_request.proto";
+import "oneroster/v1p2/v1/delete_academic_session_response.proto";
+import "oneroster/v1p2/v1/delete_class_request.proto";
+import "oneroster/v1p2/v1/delete_class_response.proto";
+import "oneroster/v1p2/v1/delete_course_request.proto";
+import "oneroster/v1p2/v1/delete_course_response.proto";
+import "oneroster/v1p2/v1/delete_enrollment_request.proto";
+import "oneroster/v1p2/v1/delete_enrollment_response.proto";
+import "oneroster/v1p2/v1/delete_org_request.proto";
+import "oneroster/v1p2/v1/delete_org_response.proto";
+import "oneroster/v1p2/v1/delete_user_request.proto";
+import "oneroster/v1p2/v1/delete_user_response.proto";
+import "oneroster/v1p2/v1/get_academic_session_request.proto";
+import "oneroster/v1p2/v1/get_academic_session_response.proto";
+import "oneroster/v1p2/v1/get_all_academic_sessions_request.proto";
+import "oneroster/v1p2/v1/get_all_academic_sessions_response.proto";
+import "oneroster/v1p2/v1/get_all_classes_request.proto";
+import "oneroster/v1p2/v1/get_all_classes_response.proto";
+import "oneroster/v1p2/v1/get_all_courses_request.proto";
+import "oneroster/v1p2/v1/get_all_courses_response.proto";
+import "oneroster/v1p2/v1/get_all_demographics_request.proto";
+import "oneroster/v1p2/v1/get_all_demographics_response.proto";
+import "oneroster/v1p2/v1/get_all_enrollments_request.proto";
+import "oneroster/v1p2/v1/get_all_enrollments_response.proto";
+import "oneroster/v1p2/v1/get_all_grading_periods_request.proto";
+import "oneroster/v1p2/v1/get_all_grading_periods_response.proto";
+import "oneroster/v1p2/v1/get_all_orgs_request.proto";
+import "oneroster/v1p2/v1/get_all_orgs_response.proto";
+import "oneroster/v1p2/v1/get_all_schools_request.proto";
+import "oneroster/v1p2/v1/get_all_schools_response.proto";
+import "oneroster/v1p2/v1/get_all_students_request.proto";
+import "oneroster/v1p2/v1/get_all_students_response.proto";
+import "oneroster/v1p2/v1/get_all_teachers_request.proto";
+import "oneroster/v1p2/v1/get_all_teachers_response.proto";
+import "oneroster/v1p2/v1/get_all_terms_request.proto";
+import "oneroster/v1p2/v1/get_all_terms_response.proto";
+import "oneroster/v1p2/v1/get_all_users_request.proto";
+import "oneroster/v1p2/v1/get_all_users_response.proto";
+import "oneroster/v1p2/v1/get_class_request.proto";
+import "oneroster/v1p2/v1/get_class_response.proto";
+import "oneroster/v1p2/v1/get_course_request.proto";
+import "oneroster/v1p2/v1/get_course_response.proto";
+import "oneroster/v1p2/v1/get_demographics_request.proto";
+import "oneroster/v1p2/v1/get_demographics_response.proto";
+import "oneroster/v1p2/v1/get_enrollment_request.proto";
+import "oneroster/v1p2/v1/get_enrollment_response.proto";
+import "oneroster/v1p2/v1/get_org_request.proto";
+import "oneroster/v1p2/v1/get_org_response.proto";
+import "oneroster/v1p2/v1/get_roster_request.proto";
+import "oneroster/v1p2/v1/get_roster_response.proto";
+import "oneroster/v1p2/v1/get_user_request.proto";
+import "oneroster/v1p2/v1/get_user_response.proto";
+import "oneroster/v1p2/v1/update_academic_session_request.proto";
+import "oneroster/v1p2/v1/update_academic_session_response.proto";
+import "oneroster/v1p2/v1/update_class_request.proto";
+import "oneroster/v1p2/v1/update_class_response.proto";
+import "oneroster/v1p2/v1/update_course_request.proto";
+import "oneroster/v1p2/v1/update_course_response.proto";
+import "oneroster/v1p2/v1/update_enrollment_request.proto";
+import "oneroster/v1p2/v1/update_enrollment_response.proto";
+import "oneroster/v1p2/v1/update_org_request.proto";
+import "oneroster/v1p2/v1/update_org_response.proto";
+import "oneroster/v1p2/v1/update_user_request.proto";
+import "oneroster/v1p2/v1/update_user_response.proto";
+
+option go_package = "github.com/StevenACoffman/roster/gen/go/oneroster/v1p2/v1;onerosterv1p2v1";
+
+// RosterService serves the OneRoster v1.2 rostering model.
+//
+// Every response is scoped to what the calling principal is authorized to see.
+// Scoping is applied by the database as part of each query rather than by
+// filtering results afterwards, so an unauthorized row is never loaded — see
+// the auth_effective_access view in sql/schema/002_authorization.sql.
+//
+// Paging is cursor-based: a response carries next_page_token, and passing it
+// back returns the following page. This deviates from OneRoster's REST binding,
+// which specifies limit/offset; offset paging skips rows inserted between
+// fetches and repeats rows when earlier ones are deleted, and a roster is
+// written by bulk imports that do exactly that.
+service RosterService {
+  // GetAllOrgs lists every org in the caller's scope.
+  rpc GetAllOrgs(GetAllOrgsRequest) returns (GetAllOrgsResponse);
+
+  // GetOrg retrieves one org. Returns not_found when no such org is visible to
+  // the caller — which is also the answer when the org exists but is out of
+  // scope, so that the response cannot be used to probe for its existence.
+  rpc GetOrg(GetOrgRequest) returns (GetOrgResponse);
+
+  // GetAllSchools lists orgs of type "school". A convenience view over
+  // GetAllOrgs that OneRoster defines as its own endpoint.
+  rpc GetAllSchools(GetAllSchoolsRequest) returns (GetAllSchoolsResponse);
+
+  // GetAllAcademicSessions lists sessions of every type.
+  rpc GetAllAcademicSessions(GetAllAcademicSessionsRequest) returns (GetAllAcademicSessionsResponse);
+
+  // GetAcademicSession retrieves one academic session. Returns not_found when
+  // it is not visible to the caller.
+  rpc GetAcademicSession(GetAcademicSessionRequest) returns (GetAcademicSessionResponse);
+
+  // GetAllTerms lists academic sessions of type "term".
+  rpc GetAllTerms(GetAllTermsRequest) returns (GetAllTermsResponse);
+
+  // GetAllGradingPeriods lists academic sessions of type "gradingPeriod".
+  rpc GetAllGradingPeriods(GetAllGradingPeriodsRequest) returns (GetAllGradingPeriodsResponse);
+
+  // GetAllCourses lists every course in the caller's scope.
+  rpc GetAllCourses(GetAllCoursesRequest) returns (GetAllCoursesResponse);
+
+  // GetCourse retrieves one course. Returns not_found when it is not visible to
+  // the caller.
+  rpc GetCourse(GetCourseRequest) returns (GetCourseResponse);
+
+  // GetAllClasses lists every class in the caller's scope.
+  rpc GetAllClasses(GetAllClassesRequest) returns (GetAllClassesResponse);
+
+  // GetClass retrieves one class. Returns not_found when it is not visible to
+  // the caller.
+  rpc GetClass(GetClassRequest) returns (GetClassResponse);
+
+  // GetAllUsers lists every user in the caller's scope.
+  rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse);
+
+  // GetUser retrieves one user. Returns not_found when they are not visible to
+  // the caller.
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+  // GetAllStudents lists users holding the "student" role.
+  rpc GetAllStudents(GetAllStudentsRequest) returns (GetAllStudentsResponse);
+
+  // GetAllTeachers lists users holding the "teacher" role.
+  rpc GetAllTeachers(GetAllTeachersRequest) returns (GetAllTeachersResponse);
+
+  // GetAllEnrollments lists every enrollment in the caller's scope.
+  rpc GetAllEnrollments(GetAllEnrollmentsRequest) returns (GetAllEnrollmentsResponse);
+
+  // GetEnrollment retrieves one enrollment. Returns not_found when it is not
+  // visible to the caller.
+  rpc GetEnrollment(GetEnrollmentRequest) returns (GetEnrollmentResponse);
+
+  // GetAllDemographics lists every demographics record in the caller's scope.
+  rpc GetAllDemographics(GetAllDemographicsRequest) returns (GetAllDemographicsResponse);
+
+  // GetDemographics retrieves one demographics record. Returns not_found when
+  // it is not visible to the caller.
+  rpc GetDemographics(GetDemographicsRequest) returns (GetDemographicsResponse);
+
+  // GetRoster returns every entity in the caller's scope as one snapshot.
+  //
+  // Unpaged by design: it exists for a consumer that needs a consistent
+  // cross-entity view, which paging cannot provide because pages of different
+  // entities would be read at different times. The cost is that the response
+  // grows with the roster, so callers wanting incremental reads should use the
+  // per-entity list methods instead.
+  rpc GetRoster(GetRosterRequest) returns (GetRosterResponse);
+
+  // ── Curation ────────────────────────────────────────────────────────────
+  // These exist because a roster is not only imported from a source system; it
+  // is also corrected by hand afterwards. Every one of them requires a
+  // curating grant: a principal holding only roster_reader is refused.
+  //
+  // Authorization is applied by the database as part of each statement, so a
+  // write outside the caller's scope affects no rows and is reported as
+  // not_found — the same answer an out-of-scope read gets, so a write cannot be
+  // used to probe for an entity's existence either.
+
+  // CreateOrg stores a new org.
+  //
+  // Errors: invalid_argument when the org fails validation;
+  // already_exists when its sourced_id is taken; not_found when the caller holds
+  // no curating grant over the owning org; failed_precondition when a referenced
+  // entity does not exist.
+  rpc CreateOrg(CreateOrgRequest) returns (CreateOrgResponse);
+
+  // UpdateOrg changes the fields named in update_mask.
+  //
+  // Errors: invalid_argument when the mask is absent, empty, or names
+  // sourced_id; not_found when the org is not visible to the caller;
+  // aborted when expected_date_last_modified no longer matches, meaning someone
+  // else wrote first and the caller should reload and retry.
+  rpc UpdateOrg(UpdateOrgRequest) returns (UpdateOrgResponse);
+
+  // DeleteOrg marks the org deleted by setting status to "tobedeleted",
+  // which is what OneRoster defines deletion to mean. The row stops appearing in
+  // listings but its references survive, so dependent records are not orphaned.
+  //
+  // Idempotent: deleting an already-deleted org succeeds.
+  //
+  // Errors: not_found when the org is not visible to the caller.
+  rpc DeleteOrg(DeleteOrgRequest) returns (DeleteOrgResponse);
+
+  // CreateCourse stores a new course.
+  //
+  // Errors: invalid_argument when the course fails validation;
+  // already_exists when its sourced_id is taken; not_found when the caller holds
+  // no curating grant over the owning org; failed_precondition when a referenced
+  // entity does not exist.
+  rpc CreateCourse(CreateCourseRequest) returns (CreateCourseResponse);
+
+  // UpdateCourse changes the fields named in update_mask.
+  //
+  // Errors: invalid_argument when the mask is absent, empty, or names
+  // sourced_id; not_found when the course is not visible to the caller;
+  // aborted when expected_date_last_modified no longer matches, meaning someone
+  // else wrote first and the caller should reload and retry.
+  rpc UpdateCourse(UpdateCourseRequest) returns (UpdateCourseResponse);
+
+  // DeleteCourse marks the course deleted by setting status to "tobedeleted",
+  // which is what OneRoster defines deletion to mean. The row stops appearing in
+  // listings but its references survive, so dependent records are not orphaned.
+  //
+  // Idempotent: deleting an already-deleted course succeeds.
+  //
+  // Errors: not_found when the course is not visible to the caller.
+  rpc DeleteCourse(DeleteCourseRequest) returns (DeleteCourseResponse);
+
+  // CreateClass stores a new class.
+  //
+  // Errors: invalid_argument when the class fails validation;
+  // already_exists when its sourced_id is taken; not_found when the caller holds
+  // no curating grant over the owning org; failed_precondition when a referenced
+  // entity does not exist.
+  rpc CreateClass(CreateClassRequest) returns (CreateClassResponse);
+
+  // UpdateClass changes the fields named in update_mask.
+  //
+  // Errors: invalid_argument when the mask is absent, empty, or names
+  // sourced_id; not_found when the class is not visible to the caller;
+  // aborted when expected_date_last_modified no longer matches, meaning someone
+  // else wrote first and the caller should reload and retry.
+  rpc UpdateClass(UpdateClassRequest) returns (UpdateClassResponse);
+
+  // DeleteClass marks the class deleted by setting status to "tobedeleted",
+  // which is what OneRoster defines deletion to mean. The row stops appearing in
+  // listings but its references survive, so dependent records are not orphaned.
+  //
+  // Idempotent: deleting an already-deleted class succeeds.
+  //
+  // Errors: not_found when the class is not visible to the caller.
+  rpc DeleteClass(DeleteClassRequest) returns (DeleteClassResponse);
+
+  // CreateEnrollment stores a new enrollment.
+  //
+  // Errors: invalid_argument when the enrollment fails validation;
+  // already_exists when its sourced_id is taken; not_found when the caller holds
+  // no curating grant over the owning org; failed_precondition when a referenced
+  // entity does not exist.
+  rpc CreateEnrollment(CreateEnrollmentRequest) returns (CreateEnrollmentResponse);
+
+  // UpdateEnrollment changes the fields named in update_mask.
+  //
+  // Errors: invalid_argument when the mask is absent, empty, or names
+  // sourced_id; not_found when the enrollment is not visible to the caller;
+  // aborted when expected_date_last_modified no longer matches, meaning someone
+  // else wrote first and the caller should reload and retry.
+  rpc UpdateEnrollment(UpdateEnrollmentRequest) returns (UpdateEnrollmentResponse);
+
+  // DeleteEnrollment marks the enrollment deleted by setting status to "tobedeleted",
+  // which is what OneRoster defines deletion to mean. The row stops appearing in
+  // listings but its references survive, so dependent records are not orphaned.
+  //
+  // Idempotent: deleting an already-deleted enrollment succeeds.
+  //
+  // Errors: not_found when the enrollment is not visible to the caller.
+  rpc DeleteEnrollment(DeleteEnrollmentRequest) returns (DeleteEnrollmentResponse);
+
+  // CreateUser stores a new user.
+  //
+  // Errors: invalid_argument when the user fails validation;
+  // already_exists when its sourced_id is taken; not_found when the caller holds
+  // no curating grant over the owning org; failed_precondition when a referenced
+  // entity does not exist.
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+  // UpdateUser changes the fields named in update_mask.
+  //
+  // Errors: invalid_argument when the mask is absent, empty, or names
+  // sourced_id; not_found when the user is not visible to the caller;
+  // aborted when expected_date_last_modified no longer matches, meaning someone
+  // else wrote first and the caller should reload and retry.
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+
+  // DeleteUser marks the user deleted by setting status to "tobedeleted",
+  // which is what OneRoster defines deletion to mean. The row stops appearing in
+  // listings but its references survive, so dependent records are not orphaned.
+  //
+  // Idempotent: deleting an already-deleted user succeeds.
+  //
+  // Errors: not_found when the user is not visible to the caller.
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+  // ── Academic session curation (roster_admin only) ───────────────────────────
+  //
+  // Sessions are the one rostering entity with no owning org: the OneRoster
+  // schema gives AcademicSessionDType no org reference, and its parent/children
+  // links chain only to other sessions. Classes and courses point AT a session,
+  // so one is reachable from many orgs at once — which makes the reachable set a
+  // union rather than a scope, and gives a write nothing to be authorized
+  // against. A brand-new session has no classes pointing at it at all.
+  //
+  // So these require a deployment-wide roster_admin grant and are scoped to no
+  // org. A district_admin cannot create a school year, because a school year is
+  // not a district's to own.
+
+  // CreateAcademicSession stores a new session.
+  //
+  // Errors: invalid_argument when the session fails validation or its dates are
+  // inverted; already_exists when its sourced_id is taken;
+  // permission_denied when the caller does not hold a global roster_admin grant.
+  rpc CreateAcademicSession(CreateAcademicSessionRequest) returns (CreateAcademicSessionResponse);
+
+  // UpdateAcademicSession changes the fields named in update_mask.
+  //
+  // Errors: invalid_argument when the mask is absent, empty, or names
+  // sourced_id; permission_denied without a global roster_admin grant;
+  // not_found when no such session exists; aborted when
+  // expected_date_last_modified no longer matches.
+  rpc UpdateAcademicSession(UpdateAcademicSessionRequest) returns (UpdateAcademicSessionResponse);
+
+  // DeleteAcademicSession marks the session deleted by setting status to
+  // "tobedeleted". Idempotent.
+  //
+  // Errors: permission_denied without a global roster_admin grant; not_found
+  // when no such session exists.
+  rpc DeleteAcademicSession(DeleteAcademicSessionRequest) returns (DeleteAcademicSessionResponse);
+}
