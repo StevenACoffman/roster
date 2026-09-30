@@ -2,7 +2,7 @@
 
 A modern, production-grade reference microservice modeled after the OneRoster domain, built with **[Go 1.27](https://go.dev)**, **[ConnectRPC](https://connectrpc.com)**, **[OpenTelemetry](https://opentelemetry.io)**, **[Buf](https://buf.build)**, **[protovalidate](https://github.com/bufbuild/protovalidate)**, **[FauxRPC](https://github.com/sudorandom/fauxrpc)**, **[sqlc](https://sqlc.dev)**, **[PostgreSQL](https://www.postgresql.org)**, and a **[React](https://react.dev)** + **[Vite](https://vite.dev)** frontend using **[TanStack Query](https://tanstack.com/query)** and **[Connect-Web](https://connectrpc.com/docs/web/getting-started)**.
 
-This was put together [by request](https://github.com/sudorandom/kmcd.dev/issues/11). This shows how you can have static typing and validation for your APIs, your code (because Go) and database queries via `sqlc`.
+This shows how you can have static typing and validation for your APIs, your code (because Go) and database queries via `sqlc`.
 
 ______________________________________________________________________
 
