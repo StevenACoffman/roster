@@ -2,6 +2,8 @@ package oneroster
 
 import (
 	"errors"
+	"net/http"
+	"strings"
 	"testing"
 	"time"
 	"unicode/utf8"
@@ -408,4 +410,51 @@ func protoName(path string) protoreflect.Name {
 		return ""
 	}
 	return protoreflect.Name(path)
+}
+
+// FuzzProxyIdentityRespectsTheTrustBoundary asserts the two properties the
+// proxy-authentication path rests on, against arbitrary header values.
+//
+// The first is the security boundary: with trustProxy false, nothing a client
+// can put in a header may name a caller. On a listener reachable without a
+// proxy, a single missed branch there would let anyone set X-Forwarded-User and
+// become anyone, and that is not a bug a table of examples reliably catches.
+//
+// The second is the contract the shell depends on: a reported identity always
+// names someone, so an empty or blank subject can never reach the context.
+func FuzzProxyIdentityRespectsTheTrustBoundary(f *testing.F) {
+	f.Add("ada", "ada@example.test", "12345", "jwt")
+	f.Add("", "", "", "")
+	f.Add("   ", "\t", " ", "")
+	f.Add("accounts.google.com:", "accounts.google.com:", "accounts.google.com:", "x")
+	f.Add("a\nb", "c\rd", "e f", "g")
+
+	f.Fuzz(func(t *testing.T, user, email, iapID, assertion string) {
+		// http.Header.Set panics on some byte sequences a fuzzer will produce, and
+		// a header value containing a newline could never arrive over HTTP anyway:
+		// net/http rejects it at the transport. Assigning the map directly models
+		// what a real request can carry.
+		h := http.Header{
+			headerForwardedUser:  []string{user},
+			headerForwardedEmail: []string{email},
+			headerIAPID:          []string{iapID},
+			headerIAPAssertion:   []string{assertion},
+		}
+
+		if got, ok := proxyIdentity(h, false); ok {
+			t.Errorf("proxyIdentity named %q with trustProxy false; "+
+				"any caller could then become anyone", got.subject)
+		}
+
+		got, ok := proxyIdentity(h, true)
+		if !ok {
+			return
+		}
+		if strings.TrimSpace(got.subject) == "" {
+			t.Errorf("reported an identity with a blank subject %q", got.subject)
+		}
+		if got.provider != providerIAP && got.provider != providerProxy {
+			t.Errorf("provider = %q, want one of the two known upstreams", got.provider)
+		}
+	})
 }

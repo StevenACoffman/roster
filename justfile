@@ -2,7 +2,7 @@
 # files a mutation run can judge, because unit tests reach all of their
 # behaviour. Kept in one place so the mutate recipes cannot disagree about what
 # "the pure core" means.
-pure_core := "./internal/oneroster/core.go ./internal/oneroster/cursor.go ./internal/oneroster/curation.go ./internal/oneroster/tostorage.go"
+pure_core := "./internal/oneroster/core.go ./internal/oneroster/cursor.go ./internal/oneroster/curation.go ./internal/oneroster/tostorage.go ./internal/oneroster/identity.go"
 
 default:
     @just --list

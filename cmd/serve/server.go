@@ -44,7 +44,14 @@ func (cfg *Config) newServerHandler(
 		OpenDelay:        cfg.BreakerOpenDelay,
 	}, logger)
 
-	authenticator := oneroster.NewAuthenticator(pool, cfg.DevSubject)
+	// Dev mode implies proxy trust, because that is how the dev identity reaches
+	// the authenticator: as headers, through the same code a deployment uses.
+	// serve.validate() already refuses --dev-subject on a non-loopback address.
+	authOpts := []oneroster.AuthenticatorOption{}
+	if cfg.TrustProxyHeaders || cfg.DevSubject != "" {
+		authOpts = append(authOpts, oneroster.WithTrustedProxyHeaders())
+	}
+	authenticator := oneroster.NewAuthenticator(pool, authOpts...)
 
 	// Interceptor order is the request's path inwards: tracing outermost so that
 	// even a rejected request produces a span, then the deadline so it covers
@@ -82,8 +89,45 @@ func (cfg *Config) newServerHandler(
 	// request. Applied unconditionally: it costs a few nanoseconds when no
 	// Baggage header is present, and the labels are useful to anything reading
 	// pprof on the admin listener, not only to a Pyroscope push.
+	if cfg.DevSubject != "" {
+		handler = devIdentityMiddleware(cfg.DevSubject)(handler)
+	}
 	handler = profiling.K6LabelsMiddleware()(handler)
 	return cors.New(cfg.corsOptions()).Handler(handler), nil
+}
+
+// devSubjectHeader lets a developer name a different caller per request, which
+// is how org scoping gets exercised locally without minting tokens.
+const devSubjectHeader = "X-Roster-Dev-Subject"
+
+// devIdentityMiddleware supplies a local identity by writing the headers an
+// oauth2-proxy would.
+//
+// Injecting headers rather than short-circuiting the authenticator is the whole
+// point: local development then runs the same resolution a deployment behind a
+// proxy runs, so that path cannot rot untested while the dev path stays green.
+//
+// It defers to any credential the request already carries, so a local checkout
+// can still exercise a real bearer token.
+func devIdentityMiddleware(devSubject string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			subject := devSubject
+			if named := r.Header.Get(devSubjectHeader); named != "" {
+				subject = named
+			}
+
+			if r.Header.Get("Authorization") == "" &&
+				r.Header.Get("X-Goog-Authenticated-User-Email") == "" &&
+				r.Header.Get("X-Goog-Authenticated-User-Id") == "" &&
+				r.Header.Get("X-Forwarded-User") == "" &&
+				r.Header.Get("X-Forwarded-Email") == "" {
+				r.Header.Set("X-Forwarded-User", subject)
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // corsOptions permits the browser origins the operator named.

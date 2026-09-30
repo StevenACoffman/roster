@@ -285,6 +285,25 @@ func TestServeRefusesDevSubjectOffLoopback(t *testing.T) {
 	}
 }
 
+func TestServeRefusesProxyTrustTogetherWithDevSubject(t *testing.T) {
+	t.Parallel()
+
+	// Both flags name a caller without a token, and --dev-subject already
+	// implies proxy trust. Accepting the pair would leave an operator unsure
+	// which one was deciding, so the command refuses instead of picking.
+	err := cmd.Run(t.Context(), []string{
+		"serve", "--addr", "127.0.0.1:0",
+		"--dev-subject", "oidc|dee", "--trust-proxy-headers",
+	}, strings.NewReader(""), io.Discard, io.Discard)
+
+	if err == nil {
+		t.Fatal("serve started with both --dev-subject and --trust-proxy-headers")
+	}
+	if !strings.Contains(err.Error(), "--trust-proxy-headers") {
+		t.Errorf("got %v, want an error naming the conflicting flag", err)
+	}
+}
+
 func TestServeRequiresBothTLSFilesTogether(t *testing.T) {
 	t.Parallel()
 

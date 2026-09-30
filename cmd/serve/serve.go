@@ -36,18 +36,19 @@ const (
 type Config struct {
 	*root.Config
 
-	Addr             string
-	DatabaseURL      string
-	AutoMigrate      bool
-	CertFile         string
-	KeyFile          string
-	AllowedOrigins   string
-	LogLevel         string
-	LogFormat        string
-	AdminAddr        string
-	DevSubject       string
-	RequestTimeout   time.Duration
-	TraceSnapshotDir string
+	Addr              string
+	DatabaseURL       string
+	AutoMigrate       bool
+	CertFile          string
+	KeyFile           string
+	AllowedOrigins    string
+	LogLevel          string
+	LogFormat         string
+	AdminAddr         string
+	DevSubject        string
+	TrustProxyHeaders bool
+	RequestTimeout    time.Duration
+	TraceSnapshotDir  string
 
 	OTelExporter       string
 	OTelEndpoint       string
@@ -97,6 +98,9 @@ func New(parent *root.Config) *Config {
 		`address for pprof and metrics; "off" disables the admin listener`)
 	cfg.Flags.StringVar(&cfg.DevSubject, 0, "dev-subject", "",
 		"DEVELOPMENT ONLY: authenticate every request as this subject, skipping token checks")
+	cfg.Flags.BoolVar(&cfg.TrustProxyHeaders, 0, "trust-proxy-headers",
+		"trust identity headers from an upstream proxy (Google IAP or oauth2-proxy); "+
+			"only safe when clients cannot reach this service except through it")
 	cfg.Flags.DurationVar(&cfg.RequestTimeout, 0, "request-timeout", 30*time.Second,
 		"per-request deadline applied to every RPC")
 	cfg.Flags.StringVar(&cfg.TraceSnapshotDir, 0, "trace-snapshot-dir", "",
@@ -227,6 +231,15 @@ func (cfg *Config) validate() error {
 			"serve: --dev-subject disables authentication and requires a loopback --addr, got %q",
 			cfg.Addr)
 	}
+	// Trusting proxy headers is safe only behind a proxy, and a proxy terminates
+	// TLS in front of this process. Refusing the combination with --dev-subject
+	// keeps the two ways of naming a caller without a token from being enabled at
+	// once, where the weaker one would silently win.
+	if cfg.TrustProxyHeaders && cfg.DevSubject != "" {
+		return errors.New(
+			"serve: --trust-proxy-headers and --dev-subject both name callers without a token; " +
+				"--dev-subject already trusts proxy headers, so pass only one")
+	}
 	if (cfg.CertFile == "") != (cfg.KeyFile == "") {
 		return errors.New("serve: --tls-cert and --tls-key must be given together")
 	}
@@ -268,6 +281,10 @@ func (cfg *Config) listenAndServe(
 		"url", fmt.Sprintf("%s://%s", scheme, listener.Addr()),
 		"tls", useTLS,
 		"dev_subject", cfg.DevSubject != "",
+		// Loud on purpose. Trusting these headers on a listener clients can reach
+		// directly lets any caller name themselves, so an operator should be able
+		// to see the posture in the line they already read at boot.
+		"trust_proxy_headers", cfg.TrustProxyHeaders || cfg.DevSubject != "",
 	)
 	// The resolved address goes to stdout so a caller that asked for :0 — a test,
 	// or a script picking a free port — can discover which port it got.

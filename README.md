@@ -326,37 +326,46 @@ Read from the environment at startup. Development is the default so an unconfigu
 checkout runs; `APP_ENV=production` (or `DEV_MODE=false`) invents no credential,
 token or CORS origin for you.
 
-| Variable                                  | Default                                   | Purpose                                                                 |
-| ----------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
-| `PORT`                                    | `8080`                                    | Public listen port                                                      |
-| `DATABASE_URL`                            | local postgres                            | PostgreSQL connection string                                            |
-| `APP_ENV`                                 | `development`                             | `production` switches to the strict posture                             |
-| `DEV_MODE`                                | derived from `APP_ENV`                    | Explicit override                                                       |
-| `AUTO_MIGRATE`                            | `true` in dev                             | Apply migrations on startup                                             |
-| `AUTH_ENABLED`                            | `true`                                    | Enforce authentication                                                  |
-| `AUTH_TOKENS`                             | dev token in dev                          | Comma-separated static bearer tokens                                    |
-| `TRUST_PROXY_HEADERS`                     | `false`                                   | Accept upstream IAP / OAuth2-Proxy identity headers                     |
-| `DEV_EMAIL`                               | `developer@local.test`                    | Identity injected in dev mode                                           |
-| `DEV_ROLES`                               | `user,admin`                              | Roles for the dev identity; narrow it to test as a non-admin            |
-| `CORS_ALLOWED_ORIGINS`                    | localhost in dev                          | Comma-separated; `*` is dropped, as credentialed CORS forbids it        |
-| `TLS_CERT_FILE` / `TLS_KEY_FILE`          | `.certs/*.pem`                            | Serve TLS when both exist, otherwise cleartext                          |
-| `LOG_LEVEL`                               | `debug` in dev, `info` otherwise          | `debug`, `info`, `warn`, `error`                                        |
-| `LOG_FORMAT`                              | `text` in dev, `json` otherwise           | `json` for production collectors                                        |
-| `ADMIN_ADDR`                              | `127.0.0.1:9090`                          | Admin listener; `off` disables it                                       |
-| `TRACE_SNAPSHOT_DIR`                      | unset                                     | Enables the flight recorder and names the snapshot directory            |
-| `RATE_LIMIT_RPS`                          | `200`                                     | Per-instance admission rate; `0` disables it                            |
-| `AUTHZ_POLICY`                            | empty (admin only)                        | Role matrix: `procedure=role,role` entries separated by `;` or newlines |
-| `PYROSCOPE_ENDPOINT`                      | unset                                     | Pyroscope server; empty disables continuous profiling                   |
-| `PYROSCOPE_BASIC_AUTH_USER` / `_PASSWORD` | unset                                     | Grafana Cloud credentials                                               |
-| `DEPLOYMENT_ENVIRONMENT`                  | `development`                             | Tags profiles so environments stay distinct                             |
-| `OTEL_SERVICE_NAME`                       | `pets-service`                            | Resource attribute shared by traces and metrics                         |
-| `OTEL_TRACES_EXPORTER`                    | `otlp` if an endpoint is set, else `none` | `otlp`, `stdout`, `none`                                                |
-| `OTEL_EXPORTER_OTLP_ENDPOINT`             | unset                                     | OTLP gRPC collector address                                             |
-| `OTEL_SAMPLE_PERCENTAGE`                  | `100`                                     | Root-span sampling; accepts a trailing `%`                              |
-| `OTEL_CONFIG_FILE`                        | unset                                     | Optional YAML/JSON/TOML telemetry config, overlaid by the environment   |
+| Variable                                  | Default                                   | Purpose                                                               |
+| ----------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| `PORT`                                    | `8080`                                    | Public listen port                                                    |
+| `DATABASE_URL`                            | local postgres                            | PostgreSQL connection string                                          |
+| `APP_ENV`                                 | `development`                             | `production` switches to the strict posture                           |
+| `DEV_MODE`                                | derived from `APP_ENV`                    | Explicit override                                                     |
+| `AUTO_MIGRATE`                            | `true` in dev                             | Apply migrations on startup                                           |
+| `ROSTER_TRUST_PROXY_HEADERS`              | `false`                                   | Trust Google IAP / oauth2-proxy identity headers                      |
+| `ROSTER_DEV_SUBJECT`                      | unset                                     | DEVELOPMENT ONLY: name every caller; requires a loopback `--addr`     |
+| `CORS_ALLOWED_ORIGINS`                    | localhost in dev                          | Comma-separated; `*` is dropped, as credentialed CORS forbids it      |
+| `TLS_CERT_FILE` / `TLS_KEY_FILE`          | `.certs/*.pem`                            | Serve TLS when both exist, otherwise cleartext                        |
+| `LOG_LEVEL`                               | `debug` in dev, `info` otherwise          | `debug`, `info`, `warn`, `error`                                      |
+| `LOG_FORMAT`                              | `text` in dev, `json` otherwise           | `json` for production collectors                                      |
+| `ADMIN_ADDR`                              | `127.0.0.1:9090`                          | Admin listener; `off` disables it                                     |
+| `TRACE_SNAPSHOT_DIR`                      | unset                                     | Enables the flight recorder and names the snapshot directory          |
+| `RATE_LIMIT_RPS`                          | `200`                                     | Per-instance admission rate; `0` disables it                          |
+| `PYROSCOPE_ENDPOINT`                      | unset                                     | Pyroscope server; empty disables continuous profiling                 |
+| `PYROSCOPE_BASIC_AUTH_USER` / `_PASSWORD` | unset                                     | Grafana Cloud credentials                                             |
+| `DEPLOYMENT_ENVIRONMENT`                  | `development`                             | Tags profiles so environments stay distinct                           |
+| `OTEL_SERVICE_NAME`                       | `pets-service`                            | Resource attribute shared by traces and metrics                       |
+| `OTEL_TRACES_EXPORTER`                    | `otlp` if an endpoint is set, else `none` | `otlp`, `stdout`, `none`                                              |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`             | unset                                     | OTLP gRPC collector address                                           |
+| `OTEL_SAMPLE_PERCENTAGE`                  | `100`                                     | Root-span sampling; accepts a trailing `%`                            |
+| `OTEL_CONFIG_FILE`                        | unset                                     | Optional YAML/JSON/TOML telemetry config, overlaid by the environment |
 
-Startup refuses to proceed if authentication is enabled in production with neither
-`TRUST_PROXY_HEADERS` nor `AUTH_TOKENS` set.
+Authentication accepts an identity asserted by a trusted upstream proxy, or a
+bearer token this service issued and stores hashed in `auth_api_token`. Proxy
+headers are ignored unless `--trust-proxy-headers` is set, because on a listener
+a client can reach directly any caller could otherwise name themselves. Startup
+refuses `--dev-subject` on a non-loopback address, and refuses it alongside
+`--trust-proxy-headers`.
+
+Roles are never read from a header. They come from `auth_grant` and reach every
+query through the `auth_effective_access` view, so `X-Forwarded-Groups` is
+ignored.
+
+The rest of this table still describes petstore-reference's environment rather
+than roster's flags. Run `roster serve --help` for the authoritative list: every
+knob is a registered flag, and `ff` derives a `ROSTER_`-prefixed variable from
+each one.
 
 ______________________________________________________________________
 

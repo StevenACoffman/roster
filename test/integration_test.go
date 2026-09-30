@@ -81,6 +81,16 @@ func startService(
 ) (client onerosterv1p2v1connect.RosterServiceClient, databaseURL string) {
 	t.Helper()
 
+	return startServiceWithArgs(t, "--dev-subject", subject)
+}
+
+// startServiceWithArgs is startService with the authentication flags left to the
+// caller, so a test can exercise a posture other than the local dev one.
+func startServiceWithArgs(
+	t *testing.T, extra ...string,
+) (client onerosterv1p2v1connect.RosterServiceClient, databaseURL string) {
+	t.Helper()
+
 	databaseURL = testutil.NewDatabaseURL(t)
 
 	ctx, cancel := context.WithCancel(t.Context())
@@ -91,13 +101,13 @@ func startService(
 
 	done := make(chan error, 1)
 	go func() {
-		err := cmd.Run(ctx, []string{
+		args := append([]string{
 			"serve",
 			"--addr", "127.0.0.1:0",
 			"--database-url", databaseURL,
-			"--dev-subject", subject,
 			"--admin-addr", "off",
-		}, strings.NewReader(""), stdoutW, io.Discard)
+		}, extra...)
+		err := cmd.Run(ctx, args, strings.NewReader(""), stdoutW, io.Discard)
 		_ = stdoutW.Close()
 		done <- err
 	}()
@@ -364,6 +374,44 @@ func TestEveryCreateReachesTheServer(t *testing.T) {
 			t.Errorf("the created %s came back with no date_last_modified", created.name)
 		}
 	}
+}
+
+// TestProxyHeadersAuthenticateEndToEnd drives the deployment posture that has no
+// unit-test equivalent: a real server started with --trust-proxy-headers, an
+// identity asserted only by a header, and the generated client on the other end.
+//
+// The negative half matters as much as the positive one. A request with no
+// header at all must be refused by the same server in the same configuration,
+// because "the proxy path works" is only safe alongside "nothing else does".
+func TestProxyHeadersAuthenticateEndToEnd(t *testing.T) {
+	t.Parallel()
+
+	const subject = "ada@example.test"
+	client, databaseURL := startServiceWithArgs(t, "--trust-proxy-headers")
+	seed(t, databaseURL, subject)
+	ctx := t.Context()
+
+	// What an oauth2-proxy puts in front of this service would set.
+	proxied := connect.NewRequest(&v1.GetAllOrgsRequest{})
+	proxied.Header().Set("X-Forwarded-User", subject)
+
+	resp, err := client.GetAllOrgs(ctx, proxied)
+	ok(t, err)
+	equals(t, len(resp.Msg.GetOrgs()), 3)
+
+	// The same server, the same method, no asserted identity.
+	_, err = client.GetAllOrgs(ctx, connect.NewRequest(&v1.GetAllOrgsRequest{}))
+	wantCode(t, err, connect.CodeUnauthenticated)
+
+	// A header naming a subject with no principal authenticates, then sees
+	// nothing: authentication says who is calling and auth_effective_access
+	// decides what they may read.
+	stranger := connect.NewRequest(&v1.GetAllOrgsRequest{})
+	stranger.Header().Set("X-Forwarded-User", "nobody@example.test")
+
+	strangerResp, err := client.GetAllOrgs(ctx, stranger)
+	ok(t, err)
+	equals(t, len(strangerResp.Msg.GetOrgs()), 0)
 }
 
 // TestErrorCodesReachTheClient asserts what a consumer actually branches on.

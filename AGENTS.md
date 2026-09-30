@@ -33,6 +33,9 @@ without a container.
 
 | Rule                                                                                  | Why                                                                                                                                                                                                                                                                                                                                                                                          |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proxy identity headers are trusted only behind `--trust-proxy-headers`                | Google IAP and oauth2-proxy name the caller in a header. Where a client can reach the listener without passing through that proxy, a believed header would let anyone claim any identity. The flag defaults to off, and with it off the headers are ignored rather than refused, so nobody can tell a proxied deployment from a direct one by testing.                                       |
+| Authentication reads no roles, and `X-Forwarded-Groups` is ignored                    | Roles come from `auth_grant` and reach a query through `auth_effective_access`. A group list asserted by a header would be a second source of truth able to drift from the one the database enforces. This is a deliberate departure from petstore-reference, whose `Claims` carry roles.                                                                                                    |
+| The proxy path never queries the database                                             | Authentication answers who is calling, not what they may see. `auth_effective_access` filters `NOT p.disabled` in both branches, so a subject with no principal, or a disabled one, authenticates and then reads nothing and writes nothing.                                                                                                                                                 |
 | Authorization lives in SQL, not an interceptor                                        | An interceptor can answer "may this caller call `GetAllClasses`?" but never "*which* classes?". Every read joins `auth_effective_access`; every write is `INSERT ... WHERE EXISTS` or carries the predicate in its `WHERE`. An out-of-scope row is never loaded.                                                                                                                             |
 | A refused write returns `not_found`, not `permission_denied`                          | Otherwise a write could be used to probe for the existence of a record the caller may not see. Academic sessions are the one exception, described below.                                                                                                                                                                                                                                     |
 | Academic session curation returns `permission_denied` and needs global `roster_admin` | `AcademicSessionDType` has no org reference in the OneRoster schema, so there is nothing for a scoped grant to check; and sessions are readable by any principal with any grant, so their existence is not a secret worth protecting.                                                                                                                                                        |
@@ -45,6 +48,32 @@ without a container.
 | Reads retry, writes never do                                                          | A replayed insert duplicates. A replayed version-checked update re-applies against a version that has already moved. `resilience.Read` gets retry plus breaker. `resilience.Write` gets only the breaker.                                                                                                                                                                                    |
 | Delete sets `status = 'tobedeleted'`                                                  | That is what OneRoster defines deletion to mean, and a hard delete would remove the classes and enrollments beneath an org.                                                                                                                                                                                                                                                                  |
 | Every knob is a registered flag                                                       | `roster serve --help` is the whole configuration surface. Nothing calls `os.Getenv`. `ff` derives a `ROSTER_`-prefixed environment variable from each flag. Where an ecosystem standard exists (`OTEL_*`), an empty flag passes no option, so the OpenTelemetry SDK applies its own handling.                                                                                                |
+
+## Authentication
+
+Two ways in, tried in that order, in `internal/oneroster`:
+
+1. an identity asserted by a trusted upstream proxy, resolved by the pure
+   `proxyIdentity` in `identity.go`;
+2. a bearer token this service issued, looked up by its SHA-256 in
+   `auth_api_token`.
+
+A `TokenValidator` can be supplied to verify a credential instead of believing
+the header that carried it. Roster provides none, and neither does petstore-reference.
+Where one is configured it applies to IAP assertions and bearer tokens, and
+never to oauth2-proxy, which forwards nothing signed for it to check. Demanding
+an assertion there would reject every request behind an oauth2-proxy.
+
+Dev mode injects `X-Forwarded-User` rather than short-circuiting the
+authenticator, so a local checkout runs the same resolution a deployment does
+and that path cannot rot while the dev path stays green. `X-Roster-Dev-Subject`
+still names a different caller per request, which is how org scoping gets
+exercised without minting tokens.
+
+`SkipProcedures` has no roster counterpart. Every RPC is scoped to the caller,
+and liveness and readiness are plain HTTP routes that never reach an
+interceptor, so there is no procedure to skip and no reason to keep a
+configuration switch that would make one public.
 
 ## The specification is the authority
 
@@ -108,12 +137,14 @@ those. Counting their mutants as survivors pinned the raw score near 30%, so the
 MSI marks unreached code as not-covered and asks the question worth gating: of
 the code these tests do reach, how much would they notice breaking?
 
-Eight surviving mutants are equivalent, meaning no test can kill them because
+Nine surviving mutants are equivalent, meaning no test can kill them because
 they produce no observable difference. Two return a different value on an error
 path no caller reads. Three change a length check in `metadata` that only skips
 work, since a short input fails `protojson.Unmarshal` and yields nil either way.
 One drops a nil check that the following length check already covers. Two widen
-an array whose extra element is never read. Recognise that shape before writing
+an array whose extra element is never read. One loosens `bearerToken`'s length
+guard from `<=` to `<`, which changes nothing because the empty-token check
+below it already rejects a header that is only the scheme. Recognise that shape before writing
 a test to chase a survivor, because the test you would have to write asserts
 something no caller can observe.
 
