@@ -13,6 +13,8 @@ import (
 	"context"
 	"fmt"
 
+	otelpyroscope "github.com/grafana/otel-profiling-go"
+
 	"connectrpc.com/connect"
 	"connectrpc.com/otelconnect"
 	"go.opentelemetry.io/otel"
@@ -56,6 +58,14 @@ type Config struct {
 	// startup over a telemetry typo.
 	Exporter string
 
+	// ProfileCorrelation annotates every span with the identity of the profile
+	// covering it, so a trace in Grafana links to its own flame graph.
+	//
+	// Worth turning on only where profiles exist to link to. The annotation costs
+	// a little on every span, and with no Pyroscope endpoint configured it would
+	// point at nothing.
+	ProfileCorrelation bool
+
 	// Endpoint is the OTLP collector address. Empty defers to
 	// OTEL_EXPORTER_OTLP_ENDPOINT.
 	Endpoint string
@@ -78,6 +88,7 @@ type Config struct {
 // returned shutdown must be called or buffered spans are lost.
 //
 // Requires: cfg.SamplePercent in [0, 100]; values outside are clamped.
+//
 // Ensures:  on error nothing global has been installed.
 func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error, err error) {
 	res, err := NewResource(ctx, cfg)
@@ -122,7 +133,16 @@ func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error
 
 	// Installed only once everything above has succeeded, so an error leaves no
 	// half-configured global behind.
-	otel.SetTracerProvider(provider)
+	//
+	// What goes in the global may be a wrapper that labels spans with the profile
+	// covering them. The wrapper delegates and holds no resources of its own,
+	// which is why the shutdown returned below is the real provider's: returning
+	// the wrapper's would drop the final flush of buffered spans.
+	if cfg.ProfileCorrelation {
+		otel.SetTracerProvider(otelpyroscope.NewTracerProvider(provider))
+	} else {
+		otel.SetTracerProvider(provider)
+	}
 	// W3C TraceContext and Baggage, so a trace started in the browser continues
 	// through this service, and so k6's baggage reaches the profiler.
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(

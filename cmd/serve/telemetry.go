@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/StevenACoffman/roster/internal/profiling"
 	"github.com/StevenACoffman/roster/internal/telemetry"
 )
 
@@ -32,6 +33,9 @@ func (cfg *Config) startTelemetry(
 		Endpoint:       cfg.OTelEndpoint,
 		Insecure:       cfg.OTelInsecure,
 		SamplePercent:  cfg.OTelSamplePercent,
+		// Asked of the profiling config rather than re-testing the endpoint here,
+		// so "profiling is on" keeps one definition.
+		ProfileCorrelation: profiling.Config{Endpoint: cfg.PyroscopeEndpoint}.Enabled(),
 	}
 
 	// The resource is built once and shared, so a span and a metric series
