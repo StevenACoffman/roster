@@ -8,6 +8,12 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+# Read-only is enough. The gate clones, installs benchgate, runs benchmarks and
+# appends to $GITHUB_STEP_SUMMARY, which is a file the runner collects rather
+# than an API call needing a scope. Nothing here comments on the pull request or
+# writes to the repository.
+permissions:
+  contents: read
 env:
   GOTOOLCHAIN: local
 jobs:
@@ -15,7 +21,7 @@ jobs:
     name: Regressions and benchmark coverage
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         persist-credentials: false
         # benchgate measures the base revision in a detached worktree, so it needs real
@@ -28,7 +34,7 @@ jobs:
     - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
       with:
         cache: true
-    - uses: StevenACoffman/benchgate@v0.2.0
+    - uses: StevenACoffman/benchgate@ab2d4a87775c1f3fbd712a529e3d193077823130 # v0.2.0
       with:
         # Pinned deliberately: an unpinned gate changes its own verdicts when a new release
         # lands, and a build that starts failing for that reason looks exactly like a real

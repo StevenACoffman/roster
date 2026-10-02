@@ -6,7 +6,13 @@ node = "22.14.0"
 pnpm = "10.5.2"
 "ubi:sudorandom/fauxrpc" = "0.29.0"
 "ubi:sudorandom/protoc-gen-connect-openapi" = "0.27.2"
-"go:github.com/sudorandom/protojsonx/cmd/protoc-gen-go-protojsonx" = "latest"
+# Pinned, not "latest". This is a code generator, and CI fails the
+# "Generated code is committed" check whenever its resolved version differs from
+# whoever last ran `just generate`: 0.0.9 added nil-receiver guards, which moves
+# 8 lines in each of the 100 .protojsonx.pb.go files. The version also matches
+# the protojsonx library in go.mod, so the generated code and the runtime it
+# calls into come from one release.
+"go:github.com/sudorandom/protojsonx/cmd/protoc-gen-go-protojsonx" = "0.0.9"
 protoc-gen-go = "1.36.5"
 protoc-gen-connect-go = "1.18.1"
 just = "1.58.0"
