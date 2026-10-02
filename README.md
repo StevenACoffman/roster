@@ -1,6 +1,8 @@
-# Roster Reference Architecture (`roster-reference`)
+# Roster
 
-A modern, production-grade reference microservice modeled after the OneRoster domain, built with **[Go 1.27](https://go.dev)**, **[ConnectRPC](https://connectrpc.com)**, **[OpenTelemetry](https://opentelemetry.io)**, **[Buf](https://buf.build)**, **[protovalidate](https://github.com/bufbuild/protovalidate)**, **[FauxRPC](https://github.com/sudorandom/fauxrpc)**, **[sqlc](https://sqlc.dev)**, **[PostgreSQL](https://www.postgresql.org)**, and a **[React](https://react.dev)** + **[Vite](https://vite.dev)** frontend using **[TanStack Query](https://tanstack.com/query)** and **[Connect-Web](https://connectrpc.com/docs/web/getting-started)**.
+An implementation of the **[IMS Global OneRoster v1.2](https://www.1edtech.org/standards/oneroster)** rostering API, built with **[Go 1.27](https://go.dev)**, **[ConnectRPC](https://connectrpc.com)**, **[OpenTelemetry](https://opentelemetry.io)**, **[Buf](https://buf.build)**, **[protovalidate](https://github.com/bufbuild/protovalidate)**, **[FauxRPC](https://github.com/sudorandom/fauxrpc)**, **[sqlc](https://sqlc.dev)** and **[PostgreSQL](https://www.postgresql.org)**.
+
+It serves 20 read RPCs and 18 curation RPCs, because a roster is browsed and edited by hand as well as loaded from a source system. Authorization is enforced by the database rather than by application code, so a caller scoped to one school cannot read the rows of another. A curation web frontend is intended but not built yet.
 
 This shows how you can have static typing and validation for your APIs, your code (because Go) and database queries via `sqlc`.
 
@@ -31,42 +33,53 @@ ______________________________________________________________________
 
 ```text
 ├── .mise.toml              # Toolchain versions (Go 1.27, Buf, sqlc, node, pnpm, fauxrpc)
-├── .golangci.yml           # Linter configuration with gosec enabled
+├── .golangci.yml           # Linter configuration; depguard bans testify in tests
+├── .mutago.yml             # Mutation-testing configuration
+├── .vale.ini               # Prose linting for Markdown and SQL comments
 ├── justfile                # Task runner commands (just)
 ├── docker-compose.yml      # Local PostgreSQL service
 ├── buf.yaml                # Buf module definition with protovalidate dependency
 ├── buf.gen.yaml            # Buf code generation for Go, OpenAPI, and TypeScript
 ├── sqlc.yaml               # SQLC configuration with pgx/v5 engine
+├── AGENTS.md               # Decisions that look wrong without their reasons
+├── main.go                 # Entry point; owns os.Exit and nothing else
 ├── cmd/
-│   ├── migrate/            # Database migration CLI tool
-│   └── server/             # Microservice entry point (CORS, h2c, interceptors, OTel, OpenAPI)
+│   ├── cmd.go              # Dispatcher; the only place commands register
+│   ├── root/               # Shared Config and ExitError
+│   ├── serve/              # API server (CORS, interceptors, OTel, admin listener)
+│   ├── migrate/            # Migration CLI: up, down, status, version
+│   └── version/            # Build and version reporting
 ├── internal/
-│   ├── auth/               # ConnectRPC Bearer Token authentication interceptor & context claims
-│   ├── config/             # Environment variable configuration
-│   ├── db/                 # SQLC generated database code & pgxpool with otelpgx
-│   ├── pet/                # OneRosterService: pure core (core.go) + I/O shell (handler.go)
-│   ├── telemetry/          # OpenTelemetry TracerProvider & Connect interceptor setup
-│   └── testutil/           # PostgreSQL Testcontainers helper with goose migrations & TRUNCATE
+│   ├── oneroster/          # The service: pure core + imperative shell
+│   ├── postgres/           # pgx pool and goose migrations
+│   ├── db/                 # SQLC generated code (lint-excluded)
+│   ├── onerosterjson/      # go-jsonschema output from the OneRoster schemas
+│   ├── telemetry/          # OpenTelemetry traces, metrics, Connect interceptor
+│   ├── profiling/          # Pyroscope continuous profiling
+│   ├── resilience/         # Retry, circuit breaker, rate limit, timeout
+│   ├── logging/            # slog handler that adds trace context
+│   ├── ptr/                # Pointer helpers
+│   └── testutil/           # PostgreSQL Testcontainers helper with goose migrations
 ├── proto/
-│   ├── pet/v2/pet.proto    # Protobuf schema with validation rules
-│   └── pet/v1/pet.proto    # withdrawn; retained for buf compatibility
-├── gen/                    # Generated Go stubs, OpenAPI specs, and binary descriptor images
+│   └── oneroster/v1p2/v1/  # 101 files, one message per file
+├── gen/                    # Generated Go stubs, OpenAPI specs, descriptor images
 ├── sql/
-│   ├── schema/             # Versioned goose migrations
-│   └── queries/            # SQLC queries for pets
+│   ├── schema/             # Versioned goose migrations, embedded in the binary
+│   └── queries/            # SQLC queries
 ├── stubs/
 │   ├── normal/             # FauxRPC stubs with CEL dynamic responses
 │   └── failures/           # FauxRPC failure stubs for error testing
 ├── test/
-│   └── integration_test.go # End-to-end ConnectRPC & PostgreSQL integration tests
-└── web/                    # React + Vite frontend with TanStack Query and Connect-Web
-    ├── src/
-    │   ├── components/     # Layout, ThemeSwitcher, etc.
-    │   ├── lib/            # Connect client, date utilities
-    │   ├── pages/          # OneRosterList, OneRosterDetails, CreateOneRoster, EditOneRoster, Docs
-    │   └── test/           # Vitest tests with ephemeral FauxRPC server
-    └── package.json
+│   └── integration_test.go # Black-box suite through the generated client
+├── k6/                     # Load test
+└── web/
+    └── src/gen/            # Generated TypeScript clients; no UI is built yet
 ```
+
+`internal/oneroster` is split along the functional-core/imperative-shell line.
+`core.go`, `cursor.go`, `curation.go`, `tostorage.go` and `identity.go` touch no
+database and read no clock. `handler.go`, `curation_*.go`, `auth.go` and
+`associations.go` are the shell.
 
 ______________________________________________________________________
 
@@ -116,7 +129,7 @@ just test-integration
 # Fuzz the pure core; a short burst per target
 just fuzz-all 20s
 # ...or one target for longer
-just fuzz FuzzNewOneRosterInput 60s
+just fuzz FuzzRequireMaskIsTotal 60s
 
 # Mutation-test the pure core (fails below 95% covered MSI)
 just mutate
@@ -131,7 +144,9 @@ just mutate-diff main
 # Verify go.mod/go.sum are tidy
 just tidy-check
 
-# Run frontend tests (Vitest + ephemeral FauxRPC mock server)
+# Lint the prose in Markdown and SQL comments
+just vale
+# Run frontend tests; skips while no web/package.json exists
 just test-web
 
 # Every gate CI runs
@@ -160,7 +175,7 @@ The service will be listening on `https://localhost:8080` (TLS enabled via `mkce
   so a database blip never gets a healthy pod killed.
 - **Readiness:** `/readyz` reports that PostgreSQL is reachable. Poll this one from a
   balancer.
-- **Connect Service:** `https://localhost:8080/pet.v2.OneRosterService/`
+- **Connect Service:** `https://localhost:8080/oneroster.v1p2.v1.RosterService/`
 
 Operational endpoints live on a **separate admin listener**, loopback-bound
 (`127.0.0.1:9090`) so profiling data is never public:
@@ -168,7 +183,7 @@ Operational endpoints live on a **separate admin listener**, loopback-bound
 - `/metrics` exposes RED metrics as histograms (p50/p95/p99 queryable), plus Go saturation.
 - `/debug/pprof/` covers CPU, heap, goroutine, and mutex profiles.
 - `POST /debug/trace/snapshot` dumps the flight recorder for `go tool trace`.
-  Enable with `TRACE_SNAPSHOT_DIR`.
+  Enable with `--trace-snapshot-dir`.
 
 ### Continuous Profiling
 
@@ -177,7 +192,7 @@ Set `PYROSCOPE_ENDPOINT` and the service pushes all ten Go profile types to
 <http://localhost:4040>. Unset, nothing is collected and nothing is sent.
 
 ```bash
-PYROSCOPE_ENDPOINT=http://localhost:4040 just run
+ROSTER_PYROSCOPE_ENDPOINT=http://localhost:4040 just run
 ```
 
 Two details carry most of the value:
@@ -211,8 +226,8 @@ clicking from a slow trace to the flame graph recorded while it ran.
 
 ```bash
 just observability     # Alloy, Tempo, Prometheus, Grafana — opt-in
-OTEL_TRACES_EXPORTER=otlp OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4317 \
-  PYROSCOPE_ENDPOINT=http://localhost:4040 ADMIN_ADDR=0.0.0.0:9090 just run
+ROSTER_OTEL_EXPORTER=otlp ROSTER_OTEL_ENDPOINT=localhost:4317 \
+  ROSTER_PYROSCOPE_ENDPOINT=http://localhost:4040 ROSTER_ADMIN_ADDR=0.0.0.0:9090 just run
 ```
 
 Grafana is on <http://localhost:3000> with Tempo, Prometheus and Pyroscope
@@ -220,7 +235,7 @@ provisioned, and the Tempo datasource carries `tracesToProfiles`, so a span link
 to its profile. Nothing starts unless you ask: `just up` and a plain
 `docker compose up` still bring up only Postgres and Pyroscope.
 
-`ADMIN_ADDR=0.0.0.0:9090` is needed because Alloy runs in Docker and scrapes
+`ROSTER_ADMIN_ADDR=0.0.0.0:9090` is needed because Alloy runs in Docker and scrapes
 `/metrics` through the host gateway; the loopback default is unreachable from a
 container. That is a real loosening, because pprof becomes reachable from anything
 that can route to the host. Use it locally rather than in a deployment.
@@ -229,68 +244,39 @@ Traces reach Tempo through Alloy rather than directly. The service could talk to
 Tempo itself, but a collector is the shape a deployment has: one place to add
 sampling or a second destination without redeploying.
 
-### 6. Run the Web Frontend
+### 6. The Curation Web Frontend
 
-```bash
-just web-dev
-```
+**Not built yet.** `web/src/` holds only `gen/`, the generated TypeScript
+clients, and there is no `package.json`. The rostering API is meant to be
+browsed and curated by hand as well as fed by imports, so a UI is intended, but
+nothing in this repository serves one.
 
-Open `https://localhost:4321` in your browser (TLS enabled via `mkcert`).
+What is already in place for it:
 
-- **Web Interface:** `https://localhost:4321/`
-- **Embedded API Documentation (Scalar):** `https://localhost:4321/docs`
-- **OpenAPI 3.1 Spec (YAML):** `https://localhost:4321/openapi.yaml`
+- generated Connect-Web clients for every RPC, refreshed by `just generate`;
+- an OpenAPI 3.1 document under `gen/openapi/`, which `just generate` copies to
+  `web/public/openapi.yaml` once a `web/package.json` exists;
+- `just test-web` and the CI `web` job, both of which detect the missing
+  `package.json` and skip rather than fail.
 
 ### 7. Run FauxRPC Standalone Mock Server
 
-To run a mock server with fake data without starting PostgreSQL:
+To serve fake data for every RPC without starting PostgreSQL:
 
 ```bash
-# Run with normal dynamic stubs (celfakeit)
+# Dynamic responses (celfakeit)
 just fauxrpc
 
-# Run with failure stubs (simulating errors across all RPC methods)
+# Failure stubs, simulating errors across all RPC methods
 just fauxrpc-fail
 ```
 
-- **Mock Documentation:** `https://127.0.0.1:8080/fauxrpc/docs/`
-FauxRPC will be available over HTTPS at `https://127.0.0.1:8080` with built-in documentation at `/fauxrpc/docs/`.
+FauxRPC listens on `https://127.0.0.1:8080`, the same port the Go server uses,
+with documentation at `/fauxrpc/docs/`. Stub definitions live in
+[`stubs/`](stubs/README.md).
 
-### 8. Testing the Frontend with FauxRPC
-
-You can test the frontend against FauxRPC both interactively in the browser and via automated tests:
-
-#### Interactive Development / Manual Testing
-
-1. In one terminal, start the FauxRPC mock server (listening on `:8080`, the same port as the Go server):
-
-   ```bash
-   just fauxrpc
-   # or test failure states:
-   just fauxrpc-fail
-   ```
-
-2. In another terminal, start the web dev server:
-
-   ```bash
-   just web-dev
-   ```
-
-   The frontend at `https://localhost:4321` proxies all requests to `https://localhost:8080` (FauxRPC).
-
-#### Automated Frontend Tests
-
-Run the Vitest test suite, which automatically spawns ephemeral FauxRPC mock servers and verifies frontend pages, components, and error states:
-
-```bash
-just test-web
-```
-
-Or from the `web` directory:
-
-```bash
-pnpm test
-```
+This is useful on its own for exercising a client against the schema. The
+frontend workflow it was originally paired with needs the UI above.
 
 ______________________________________________________________________
 
@@ -299,20 +285,23 @@ ______________________________________________________________________
 Tests that touch the database run against real PostgreSQL (`postgres:17-alpine`) using **[Testcontainers for Go](https://golang.testcontainers.org)** instead of mocks or SQLite. This even includes top-level handler code, so those tests exercise every layer beneath it without any mocking code. Unit tests built on interfaces and mocks tend to end up asserting against the mocks rather than the real behaviour.
 
 - **Automated migrations**: containers start with the full suite of goose migrations applied via [`postgres.Migrate`](internal/postgres/migrate.go).
-- **Fast isolation via `TRUNCATE`**: to keep test suites fast (<3s), suites reuse the container and run `TRUNCATE TABLE pets RESTART IDENTITY CASCADE;` between tests instead of recreating containers.
-- **Docker & Colima**: automatically detects Colima on macOS (`~/.colima/default/docker.sock`). Set `DATABASE_URL` to point tests at an existing database instead.
+- **A database per test**: one container is reused, and each test creates its own database inside it. That is what makes `t.Parallel` safe here, where a shared database with `TRUNCATE` between tests would not be.
+- **Docker & Colima**: automatically detects Colima on macOS (`~/.colima/default/docker.sock`). Set `ROSTER_TEST_DATABASE_URL` to point tests at an existing PostgreSQL server instead of starting a container.
 - **Pure unit tests**: logic without database dependencies (config, CORS, auth headers, validation helpers) runs in-memory.
 - **Build-tagged separation**: container suites sit behind `//go:build integration`,
   so `just test` stays fast and Docker-free; `just test-integration` runs everything.
   Both run `-race`.
 - **Fuzzing** over the pure core ([`fuzz_test.go`](internal/oneroster/fuzz_test.go)),
-  asserting invariants rather than fixed outputs: an accepted pet always has
-  trimmed, non-blank fields and non-nil slices, whatever arrived on the wire.
+  asserting properties rather than fixed outputs: round-trip, idempotence,
+  totality and boundary. One target found a real date-normalisation bug on its
+  fourth seed.
 - **Mutation testing** with [mutago](https://github.com/quality-gates/mutago) over
-  `internal/pet/core.go`, reaching **95% MSI** in ~30s. It answers what coverage
+  the pure core, reaching **96% covered MSI**. It answers what coverage
   cannot: not "did a test run this line?" but "would any test have noticed if it
-  behaved differently?". Scoped to the pure core, because `handler.go` is proven by the
-  container suites a mutation run does not execute. See [`.mutago.yml`](.mutago.yml);
+  behaved differently?". Gated on *covered* MSI, because the `toProto*` row
+  builders in `core.go` are proven by the container suites a mutation run does
+  not execute, and counting their mutants as survivors would make the gate
+  unreachable. See [`.mutago.yml`](.mutago.yml);
   CI also reports surviving mutants on the lines a PR changed.
 - **Golden schema snapshot** ([`schema_tables.golden`](internal/postgres/testdata/schema_tables.golden)):
   a migration that drops a column or loosens a constraint shows up as a reviewable
@@ -326,103 +315,113 @@ ______________________________________________________________________
 
 ## ⚙️ Configuration
 
-Read from the environment at startup. Development is the default so an unconfigured
-checkout runs; `APP_ENV=production` (or `DEV_MODE=false`) invents no credential,
-token or CORS origin for you.
+Every knob is a registered flag. Nothing reads `os.Getenv`, so
+`roster serve --help` is the whole configuration surface and this table is
+generated from it.
 
-| Variable                                  | Default                                   | Purpose                                                               |
-| ----------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| `PORT`                                    | `8080`                                    | Public listen port                                                    |
-| `DATABASE_URL`                            | local postgres                            | PostgreSQL connection string                                          |
-| `APP_ENV`                                 | `development`                             | `production` switches to the strict posture                           |
-| `DEV_MODE`                                | derived from `APP_ENV`                    | Explicit override                                                     |
-| `AUTO_MIGRATE`                            | `true` in dev                             | Apply migrations on startup                                           |
-| `ROSTER_TRUST_PROXY_HEADERS`              | `false`                                   | Trust Google IAP / oauth2-proxy identity headers                      |
-| `ROSTER_DEV_SUBJECT`                      | unset                                     | DEVELOPMENT ONLY: name every caller; requires a loopback `--addr`     |
-| `CORS_ALLOWED_ORIGINS`                    | localhost in dev                          | Comma-separated; `*` is dropped, as credentialed CORS forbids it      |
-| `TLS_CERT_FILE` / `TLS_KEY_FILE`          | `.certs/*.pem`                            | Serve TLS when both exist, otherwise cleartext                        |
-| `LOG_LEVEL`                               | `debug` in dev, `info` otherwise          | `debug`, `info`, `warn`, `error`                                      |
-| `LOG_FORMAT`                              | `text` in dev, `json` otherwise           | `json` for production collectors                                      |
-| `ADMIN_ADDR`                              | `127.0.0.1:9090`                          | Admin listener; `off` disables it                                     |
-| `TRACE_SNAPSHOT_DIR`                      | unset                                     | Enables the flight recorder and names the snapshot directory          |
-| `RATE_LIMIT_RPS`                          | `200`                                     | Per-instance admission rate; `0` disables it                          |
-| `PYROSCOPE_ENDPOINT`                      | unset                                     | Pyroscope server; empty disables continuous profiling                 |
-| `PYROSCOPE_BASIC_AUTH_USER` / `_PASSWORD` | unset                                     | Grafana Cloud credentials                                             |
-| `DEPLOYMENT_ENVIRONMENT`                  | `development`                             | Tags profiles so environments stay distinct                           |
-| `OTEL_SERVICE_NAME`                       | `pets-service`                            | Resource attribute shared by traces and metrics                       |
-| `OTEL_TRACES_EXPORTER`                    | `otlp` if an endpoint is set, else `none` | `otlp`, `stdout`, `none`                                              |
-| `OTEL_EXPORTER_OTLP_ENDPOINT`             | unset                                     | OTLP gRPC collector address                                           |
-| `OTEL_SAMPLE_PERCENTAGE`                  | `100`                                     | Root-span sampling; accepts a trailing `%`                            |
-| `OTEL_CONFIG_FILE`                        | unset                                     | Optional YAML/JSON/TOML telemetry config, overlaid by the environment |
+`ff` derives an environment variable from each flag: prepend `ROSTER_`,
+uppercase it, and write each dash as `_`, so `--database-url` becomes
+`ROSTER_DATABASE_URL`. A flag given on the command line wins over its variable.
 
-Authentication accepts an identity asserted by a trusted upstream proxy, or a
-bearer token this service issued and stores hashed in `auth_api_token`. Proxy
-headers are ignored unless `--trust-proxy-headers` is set, because on a listener
-a client can reach directly any caller could otherwise name themselves. Startup
-refuses `--dev-subject` on a non-loopback address, and refuses it alongside
-`--trust-proxy-headers`.
+Where an ecosystem standard already exists, an empty flag passes no option at
+all, so the OpenTelemetry SDK applies its own handling of `OTEL_*`. That is why
+`--otel-endpoint` and `--otel-service-name` document what they defer to rather
+than inventing a default.
+
+| Variable                         | Default                                                                 | Purpose                                                                                                                                        |
+| -------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ROSTER_ADDR`                    | `127.0.0.1:8080`                                                        | listen address for the API                                                                                                                     |
+| `ROSTER_DATABASE_URL`            | `postgres://postgres:password@localhost:5432/roster_db?sslmode=disable` | PostgreSQL connection string                                                                                                                   |
+| `ROSTER_AUTO_MIGRATE`            | unset                                                                   | apply pending database migrations at startup                                                                                                   |
+| `ROSTER_TLS_CERT`                | unset                                                                   | TLS certificate file; serves cleartext when this or `--tls-key` is unset                                                                       |
+| `ROSTER_TLS_KEY`                 | unset                                                                   | TLS private key file                                                                                                                           |
+| `ROSTER_CORS_ALLOWED_ORIGINS`    | unset                                                                   | comma-separated browser origins permitted to call the API                                                                                      |
+| `ROSTER_LOG_LEVEL`               | `info`                                                                  | log level: `debug`, `info`, `warn`, or `error`                                                                                                 |
+| `ROSTER_LOG_FORMAT`              | `json`                                                                  | log format: `json` or `text`                                                                                                                   |
+| `ROSTER_ADMIN_ADDR`              | `127.0.0.1:9090`                                                        | address for pprof and metrics; "off" disables the admin listener                                                                               |
+| `ROSTER_DEV_SUBJECT`             | unset                                                                   | DEVELOPMENT ONLY: authenticate every request as this subject, skipping token checks                                                            |
+| `ROSTER_TRUST_PROXY_HEADERS`     | unset                                                                   | trust identity headers from an upstream proxy (Google IAP or oauth2-proxy); only safe when clients cannot reach this service except through it |
+| `ROSTER_REQUEST_TIMEOUT`         | `30s`                                                                   | per-request deadline applied to every RPC                                                                                                      |
+| `ROSTER_TRACE_SNAPSHOT_DIR`      | unset                                                                   | enable the execution-trace flight recorder and write snapshots here                                                                            |
+| `ROSTER_OTEL_EXPORTER`           | `none`                                                                  | trace exporter: `none`, `otlp`, or `stdout`                                                                                                    |
+| `ROSTER_OTEL_ENDPOINT`           | unset                                                                   | OTLP collector address; empty defers to OTEL_EXPORTER_OTLP_ENDPOINT                                                                            |
+| `ROSTER_OTEL_INSECURE`           | unset                                                                   | send OTLP without TLS, for a collector on the same host                                                                                        |
+| `ROSTER_OTEL_SERVICE_NAME`       | `roster`                                                                | service name on every span and metric; empty defers to OTEL_SERVICE_NAME                                                                       |
+| `ROSTER_OTEL_SERVICE_VERSION`    | unset                                                                   | service version on every span and metric; empty defers to OTEL_SERVICE_VERSION                                                                 |
+| `ROSTER_OTEL_SAMPLE_PERCENT`     | `100`                                                                   | percentage of root spans to record; a sampled remote parent is always recorded                                                                 |
+| `ROSTER_RATE_LIMIT_RPS`          | `200`                                                                   | requests per second admitted per instance; 0 disables admission control                                                                        |
+| `ROSTER_DB_MAX_RETRIES`          | `3`                                                                     | replays of a transient database failure; reads only, never writes                                                                              |
+| `ROSTER_DB_BREAKER_FAILURES`     | `5`                                                                     | consecutive infrastructure failures that open the database circuit breaker                                                                     |
+| `ROSTER_DB_BREAKER_OPEN_DELAY`   | `5s`                                                                    | how long the database circuit breaker stays open before a trial request                                                                        |
+| `ROSTER_PYROSCOPE_ENDPOINT`      | unset                                                                   | Pyroscope server for continuous profiling; empty disables profiling                                                                            |
+| `ROSTER_PYROSCOPE_AUTH_USER`     | unset                                                                   | Pyroscope basic-auth user                                                                                                                      |
+| `ROSTER_PYROSCOPE_AUTH_PASSWORD` | unset                                                                   | Pyroscope basic-auth password; prefer ROSTER_PYROSCOPE_AUTH_PASSWORD, as a flag value is visible in `ps`                                       |
+| `ROSTER_DEPLOYMENT_ENVIRONMENT`  | unset                                                                   | environment label on profiles, e.g. `production`; empty means "development"                                                                    |
+
+`unset` in the default column means the flag is off, empty, or disabled
+until given a value.
+
+### Authentication and authorization posture
+
+Two ways to authenticate: an identity asserted by a trusted upstream proxy, or a
+bearer token this service issued and stores hashed in `auth_api_token`.
+
+Proxy headers are ignored unless `--trust-proxy-headers` is set. On a listener a
+client can reach without passing through the proxy, a believed header would let
+anyone claim any identity. Startup refuses `--dev-subject` on a non-loopback
+address, and refuses it alongside `--trust-proxy-headers`.
 
 Roles are never read from a header. They come from `auth_grant` and reach every
 query through the `auth_effective_access` view, so `X-Forwarded-Groups` is
 ignored.
 
-The rest of this table still describes petstore-reference's environment rather
-than roster's flags. Run `roster serve --help` for the authoritative list: every
-knob is a registered flag, and `ff` derives a `ROSTER_`-prefixed variable from
-each one.
-
 ______________________________________________________________________
 
 ## 📄 Pagination
 
-`ListRosters` is cursor-paged. Pass `page_size`, read `next_page_token` from the
-response, and send it back as `page_token`. An empty token means the last page.
+Every `GetAll*` RPC is cursor-paged. Pass `page_size`, read `next_page_token`
+from the response, and send it back as `page_token`. An empty token means the
+last page. A page may come back shorter than requested, so only an empty
+`next_page_token` ends iteration.
 
-Offset paging was removed because it is not consistent under concurrent writes: a
-row inserted between two fetches shifts the window, so one pet is served twice and
-another never at all. That was reproduced against a real database before the
-change, and the regression test replays it. Sending the deprecated `page` field is
-now rejected rather than silently honoured.
+Paging is keyset, never `OFFSET`. A roster is rewritten wholesale by nightly
+imports, which is exactly the traffic that makes offset pages skip and repeat
+rows: a row inserted between two fetches shifts the window, so one record is
+served twice and another never at all.
 
-The page and its `total_count` come from one query, a `COUNT(*) OVER()` inside a CTE
-that carries the filters. The total counts everything matching the filter
-rather than the remainder after the cursor, and page and count can no longer disagree
-the way two round trips could.
+No endpoint reports a total count. Counting the rows a caller is scoped to would
+mean a second pass over the same authorization join on every page, and the
+number would be stale before the client read it.
 
 ______________________________________________________________________
 
 ## 🔑 Authorization
 
-Authentication establishes *who* you are. Authorization decides *what you may do*.
-This follows the conventional OneRoster model: a declarative role × action matrix,
-**deny by default**, with an `admin` bypass so an operator cannot lock themselves out.
+Authentication establishes *who* you are. Authorization decides *which rows* you
+may see, and it lives in SQL rather than in an interceptor.
 
-```bash
-AUTHZ_POLICY="
-/roster.v1.RosterService/ListRoster=viewer,editor
-/roster.v1.RosterService/GetPet=viewer,editor
-/roster.v1.RosterService/CreatePet=editor
-/roster.v1.RosterService/UpdatePet=editor
-/roster.v1.RosterService/DeletePet=editor
-"
-```
+An interceptor can answer "may this caller call `GetAllClasses`?" but never
+"*which* classes?", and that second question is the one that matters. Roster
+defines no procedure-to-role matrix and no policy configuration. Instead:
 
-Roles come from the caller's claims, either `X-Forwarded-Groups` behind oauth2-proxy
-or `DEV_ROLES` locally. A procedure the matrix does not name is refused, so adding an
-RPC cannot silently open it, and a malformed policy fails startup rather than
-falling back to something permissive.
+- every read joins the `auth_effective_access` view, so a row outside the
+  caller's scope is never loaded;
+- every write is an `INSERT ... WHERE EXISTS` or carries the predicate in its
+  `WHERE`, so a refused write changes nothing.
 
-The matrix covers *action* authorization: may this role call `DeletePet` at all?
-Row-level rules belong in SQL `WHERE` clauses, where the database enforces them, and
-the two compose. The design deliberately omits an **ownership check**, because
-shelter staff edit each other's records, so the reference OneRoster models
-[RBAC](https://github.com/permitio/opal-example-policy-repo) as role × action
-rather than per-record ownership.
+Grants live in `auth_grant`, which pairs a principal with a role and an org.
+`org_closure`, a recursive view, expands a grant on a district down to every
+school beneath it, so scoping a curator to a district needs one row rather than
+one per school. `auth_effective_access` filters `NOT p.disabled` and honours
+`expires_at`, which is what makes a revoked or expired grant take effect on the
+next request rather than when a cached permission set expires.
 
-> **Upgrading an existing deployment:** the default denies everything to
-> everyone but `admin`, so the service will refuse traffic until `AUTHZ_POLICY` is
-> set. That is deliberate, since the safe posture is closed, but it is a breaking
-> change. Local development is unaffected: the dev identity is an admin.
+A refused write returns `not_found` rather than `permission_denied`, so a write
+cannot be used to probe for the existence of a record the caller may not see.
+Academic sessions are the one exception: they carry no org reference in the
+OneRoster schema, so there is nothing for a scoped grant to check, and their
+curation requires a global `roster_admin` grant and answers
+`permission_denied`.
 
 ______________________________________________________________________
 
@@ -437,9 +436,14 @@ actually has:
 - **Circuit breaker** over reads and writes alike, sharing one breaker, so an outage
   fails fast instead of parking requests on a pool wait. Its predicate ignores caller
   errors: constraint violations mean bad requests, not an unhealthy database.
-- **Rate limiting** (`RATE_LIMIT_RPS`), smooth rather than bursty so permits are
-  spaced evenly.
-- **Per-RPC deadlines**: a stricter client deadline is honoured, a longer one clamped.
+- **Rate limiting** (`--rate-limit-rps`), smooth rather than bursty so permits
+  are spaced evenly instead of handing the database a whole second's allowance at
+  once. Per-instance, because a limit spanning every replica needs a shared
+  counter that a single process cannot provide.
+- **Per-RPC deadlines** (`--request-timeout`): a stricter client deadline is
+  honoured, a longer one clamped. A zero or negative value disables the check
+  rather than expiring every request, which is the safer reading of a
+  misconfigured flag.
 - **Explicit pool bounds** rather than pgx's CPU-derived default, because without a
   ceiling an outage just grows the wait queue.
 
@@ -447,9 +451,33 @@ ______________________________________________________________________
 
 ## 🔐 Authentication
 
-In production, user login is handled by an upstream reverse proxy (like Google Cloud IAP or OAuth2 Proxy), which forwards user identity via headers. The service also supports static bearer tokens for machine-to-machine calls.
+Two ways in, tried in that order, in `internal/oneroster`:
 
-- **Proxy headers**: reads identity from IAP (`X-Goog-Authenticated-User-*`) or OAuth2 Proxy (`X-Forwarded-*`) when `TRUST_PROXY_HEADERS=true`. Only enable this behind a proxy that strips untrusted client headers.
-- **Bearer tokens**: set `AUTH_TOKENS=token1,token2` for service-to-service or CLI access (`Authorization: Bearer <token>`).
-- **Local dev**: with `DEV_MODE=true` (the default) a request without credentials gets a developer identity (`developer@local.test`, roles `user,admin`). The middleware simulates oauth2-proxy rather than IAP, because IAP carries no group membership and so could never exercise a role. Set `DEV_ROLES=user` to test as a non-admin.
-- **Context**: parsed claims are accessible in Go handlers via [`oneroster.SubjectFromContext(ctx)`](internal/oneroster/context.go).
+- **Proxy headers** from Google IAP (`X-Goog-Authenticated-User-Id`, falling back to
+  `-Email`) or oauth2-proxy (`X-Forwarded-User`, falling back to
+  `X-Forwarded-Email`). Read only when `--trust-proxy-headers` is set, and
+  ignored rather than refused when it is not, so nobody can tell a proxied
+  deployment from a direct one by testing. IAP outranks oauth2-proxy, because its
+  assertion is the stronger claim.
+- **Bearer tokens**: `Authorization: Bearer <token>`, hashed with SHA-256 and
+  matched against `auth_api_token`. The database stores only the hash, so a dump
+  of that table cannot be replayed against this service. One message answers an
+  unknown, revoked, expired, or disabled token, because distinguishing them would
+  tell a caller which of those a guessed token is.
+
+A `TokenValidator` can be supplied to verify a credential rather than trust the
+header that carried it, for a deployment that checks an IAP JWT assertion or an
+OIDC token. None is built in, so this is an extension point rather than a
+feature. Where one is configured it applies to IAP assertions and bearer tokens,
+and never to oauth2-proxy, which forwards nothing signed to check.
+
+Local development sets `--dev-subject`, which injects `X-Forwarded-User` rather
+than bypassing the authenticator, so a checkout exercises the same resolution a
+deployment does. `X-Roster-Dev-Subject` names a different caller per request,
+which is how org scoping gets exercised without minting tokens. Startup refuses
+`--dev-subject` unless `--addr` is bound to loopback.
+
+The resolved subject reaches handlers through
+[`oneroster.SubjectFromContext(ctx)`](internal/oneroster/context.go). It carries
+the subject alone, not a permission set, because the permissions live in the
+database.
