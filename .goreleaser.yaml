@@ -1,5 +1,4 @@
 # Make sure to check the documentation at https://goreleaser.com
-
 # The lines below are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/need to use them.
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
@@ -33,7 +32,10 @@ before:
 
 builds:
 - id: server
-  main: ./cmd/server
+  # The module root. roster is a climax CLI: main.go sits at the top level and
+  # the subcommands live in cmd/serve, cmd/migrate and the rest, so there is no
+  # cmd/server package to point at.
+  main: .
   skip: true
 # ko builds the image from Go source — no Dockerfile, no docker daemon, and a
 # reproducible layout. If the module path is github.com/StevenACoffman/roster
@@ -42,7 +44,7 @@ builds:
 kos:
 - id: server
   build: server
-  main: ./cmd/server
+  main: .
   base_image: cgr.dev/chainguard/static
   repositories:
   - ghcr.io/{{ tolower (envOrDefault "GITHUB_REPOSITORY" "stevenacoffman/roster") }}

@@ -260,9 +260,13 @@ migrate-status:
 load-test duration="30s" vus="5":
     DURATION={{duration}} VUS={{vus}} k6 run k6/load.js
 
+# roster is a CLI with subcommands, not a bare server binary: `go run .` alone
+# prints help. The entry point is main.go at the module root, so there is no
+# cmd/server package to run.
+#
 # Run the Go microservice
-run:
-    go run ./cmd/server
+run *args:
+    go run . serve {{args}}
 
 # Run FauxRPC mock server with HTTPS, protobuf descriptor image, OpenAPI specification, and normal stubs
 fauxrpc:
