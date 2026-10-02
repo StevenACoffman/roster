@@ -38,6 +38,7 @@ protovalidate
 Pyroscope
 rostering
 RosterService
+RPCs
 SDK
 sourcedId
 sqlc

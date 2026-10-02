@@ -123,7 +123,7 @@ package directory.
 | ----------------------- | --------------------------------------------------------------- |
 | `just test`             | unit tests; no Docker needed                                    |
 | `just test-integration` | `-tags=integration`; needs Docker or `ROSTER_TEST_DATABASE_URL` |
-| `just fuzz-all 20s`     | the pure core's nine property targets                           |
+| `just fuzz-all 20s`     | every fuzz target under `internal/`, a burst each               |
 | `just mutate`           | mutation testing, gated on covered MSI                          |
 | `just bench`            | benchmarks, reporting allocations                               |
 | `just bench-gaps`       | which code no benchmark reaches                                 |
@@ -170,6 +170,27 @@ out of `protoDate`. `time.Time.Date()` cannot report a month outside 1..12 or a
 day outside 1..31, so those checks were unreachable and no test could tell their
 bounds apart. Removing them made `gosec` ask for the bound it had been reading
 from the dead comparison, which is what the `//nolint:gosec` there records.
+
+Fuzz targets live in the package they exercise and drive unexported functions
+directly. That runs against the usual advice on testing unexported code.
+
+The reason is reach. A fuzz target needs a total function and its whole input
+domain, where roster's exported surface is 38 RPCs, each needing a PostgreSQL
+container. A fuzz target behind a container is one nobody runs. The exported API stays covered by `test/`, which goes through the
+generated client and the full interceptor chain.
+
+Seeds matter as much as the target. Only the seeds run under plain `go test`, so
+a target whose seeds skip its own boundaries contributes nothing to CI between
+fuzzing sessions. `FuzzRootSamplerIsAlwaysUsable` seeds NaN for that reason, and
+that seed is what found `--otel-sample-percent=NaN` building a sampler over an
+undefined fraction.
+
+Write the assertion for the property, not for the implementation. One target
+here asserted that an error message never repeats the SQLSTATE back, which the
+fuzzer broke in under a second with the input `a`, a substring of "request
+violates a data constraint". The check was redundant anyway, because a message
+proven to be one of three constants cannot carry arbitrary input. A property needing an
+exception is usually the wrong property.
 
 Fuzz targets assert properties: round-trip, idempotence, totality, boundary.
 Absence of a panic is not enough. One target found a real date-normalisation bug

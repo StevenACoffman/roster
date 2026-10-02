@@ -12,6 +12,7 @@ package telemetry
 import (
 	"context"
 	"fmt"
+	"math"
 
 	otelpyroscope "github.com/grafana/otel-profiling-go"
 
@@ -87,7 +88,9 @@ type Config struct {
 // it is torn down should still be decisions the composition root makes. The
 // returned shutdown must be called or buffered spans are lost.
 //
-// Requires: cfg.SamplePercent in [0, 100]; values outside are clamped.
+// Requires: nothing of cfg.SamplePercent. A value outside [0, 100] is clamped,
+//
+//	and a NaN is read as 100; see rootSampler.
 //
 // Ensures:  on error nothing global has been installed.
 func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error, err error) {
@@ -154,9 +157,24 @@ func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error
 }
 
 // rootSampler maps a percentage onto a sampler for spans with no remote parent.
+//
+// NaN is checked first because it is not orderable: it compares false against
+// every bound, so both guards below would miss it and a ratio sampler would be
+// built from NaN, recording an undefined share of traces with nothing logged to
+// say so. It reaches here from the command line rather than only from a caller
+// in this package, because --otel-sample-percent is a float64 flag and
+// strconv.ParseFloat accepts "NaN".
+//
+// A NaN is read as the flag's own default of 100 rather than as zero. The
+// operator mistyped a number, and sampling everything costs trace volume they
+// will notice, where sampling nothing looks exactly like a healthy deployment
+// that happens to have no traces.
+//
+// Ensures: the result is AlwaysSample, NeverSample, or a ratio sampler over a
+// fraction in (0, 1).
 func rootSampler(percent float64) sdktrace.Sampler {
 	switch {
-	case percent >= fullSamplePercent:
+	case math.IsNaN(percent), percent >= fullSamplePercent:
 		return sdktrace.AlwaysSample()
 	case percent <= 0:
 		return sdktrace.NeverSample()

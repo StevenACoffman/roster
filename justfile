@@ -159,34 +159,46 @@ check: tidy-check buf-lint buf-breaking lint vulncheck test test-web
 test-integration:
     go test -race -tags=integration -count=1 ./...
 
-# Fuzz one target in the pure core, e.g. `just fuzz FuzzParseDate 60s`
-fuzz target="FuzzNewOneRosterInput" duration="30s":
+# Fuzz one target in the pure core, e.g. `just fuzz FuzzRequireMaskIsTotal 60s`
+fuzz target="FuzzCursorRoundTrip" duration="30s":
     #!/usr/bin/env bash
     set -euo pipefail
     # `go test -fuzz` exits 0 when the pattern matches nothing, so a renamed or
     # deleted target would silently "pass". Check it exists first.
-    if ! go test -list '^Fuzz' ./internal/oneroster/ | grep -qx '{{target}}'; then
+    #
+    # The list is captured before matching rather than piped into grep. With
+    # `grep -q` the match closes the pipe, `go test` dies of SIGPIPE, and
+    # `pipefail` reports the whole pipeline as failed — so a target near the top
+    # of the list was rejected as missing while one near the bottom passed.
+    targets=$(go test -list '^Fuzz' ./internal/oneroster/)
+    if ! printf '%s\n' "$targets" | grep -qx '{{target}}'; then
         echo "no such fuzz target: {{target}}" >&2
-        go test -list '^Fuzz' ./internal/oneroster/ | grep '^Fuzz' >&2
+        printf '%s\n' "$targets" | grep '^Fuzz' >&2
         exit 1
     fi
     go test -run='^$' -fuzz='^{{target}}$' -fuzztime={{duration}} ./internal/oneroster/
 
-# Fuzz every target in the core for a short burst each (what CI runs)
+# Fuzz every target for a short burst each (what CI runs)
 fuzz-all duration="20s":
     #!/usr/bin/env bash
     set -euo pipefail
-    # The list is derived from the source rather than hard-coded, so a target added
-    # or removed in fuzz_test.go cannot silently drop out of the sweep.
-    targets=$(go test -list '^Fuzz' ./internal/oneroster/ | grep '^Fuzz')
-    if [ -z "$targets" ]; then
-        echo "no fuzz targets found in ./internal/oneroster/" >&2
+    # Both the package list and the target list are derived rather than written
+    # out, so a target added anywhere under internal/ joins the sweep without
+    # anyone remembering to add it here. `go test -fuzz` takes one package at a
+    # time, which is why this loops rather than passing a pattern.
+    found=0
+    for pkg in $(go list ./internal/... ); do
+        targets=$(go test -list '^Fuzz' "$pkg" | grep '^Fuzz' || true)
+        for target in $targets; do
+            echo "== $pkg $target"
+            found=$((found + 1))
+            go test -run='^$' -fuzz="^${target}$" -fuzztime={{duration}} "$pkg"
+        done
+    done
+    if [ "$found" -eq 0 ]; then
+        echo "no fuzz targets found under ./internal/..." >&2
         exit 1
     fi
-    for target in $targets; do
-        echo "== $target"
-        go test -run='^$' -fuzz="^${target}$" -fuzztime={{duration}} ./internal/oneroster/
-    done
 
 # Benchmarks measure the code every request runs: the conversion layer in
 # internal/oneroster, the resilience interceptors and the logging handler.
