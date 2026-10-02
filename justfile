@@ -188,6 +188,31 @@ fuzz-all duration="20s":
         go test -run='^$' -fuzz="^${target}$" -fuzztime={{duration}} ./internal/oneroster/
     done
 
+# Benchmarks measure the code every request runs: the conversion layer in
+# internal/oneroster, the resilience interceptors and the logging handler.
+# Allocations are the number that matters, because a change there is a change in
+# this code rather than in the machine it ran on.
+#
+# Run the benchmarks and report allocations
+bench packages="./internal/..." benchtime="100ms":
+    go test {{packages}} -run '^$' -bench . -benchtime {{benchtime}} -benchmem -count 1
+
+# Which code no benchmark reaches. A reading list, not a gate: the generated
+# packages under internal/db and internal/onerosterjson will always appear.
+#
+# Report benchmark coverage gaps
+bench-gaps packages="./internal/...":
+    benchgate gaps --packages '{{packages}}'
+
+# The gate CI runs on a pull request, against a base revision. Needs benchgate:
+# `go install github.com/StevenACoffman/benchgate@v0.2.0`
+#
+# Compare benchmarks against a base revision, gating on allocations
+bench-gate base="main":
+    benchgate check --packages './internal/...' \
+        --metric B/op --metric allocs/op --tolerance 0 \
+        --rounds 6 --benchtime 100ms --base {{base}}
+
 # Start PostgreSQL and Pyroscope via docker-compose
 up:
     docker compose up -d postgres pyroscope

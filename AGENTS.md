@@ -125,6 +125,8 @@ package directory.
 | `just test-integration` | `-tags=integration`; needs Docker or `ROSTER_TEST_DATABASE_URL` |
 | `just fuzz-all 20s`     | the pure core's nine property targets                           |
 | `just mutate`           | mutation testing, gated on covered MSI                          |
+| `just bench`            | benchmarks, reporting allocations                               |
+| `just bench-gaps`       | which code no benchmark reaches                                 |
 | `just lint`             | both build configurations                                       |
 | `just vale`             | prose in Markdown and the schema comments                       |
 | `just check`            | the gate CI runs                                                |
@@ -147,6 +149,21 @@ guard from `<=` to `<`, which changes nothing because the empty-token check
 below it already rejects a header that is only the scheme. Recognise that shape before writing
 a test to chase a survivor, because the test you would have to write asserts
 something no caller can observe.
+
+Benchmarks gate on **allocations**, not wall time. B/op and allocs/op barely
+move with machine load, so a change in them is a change in this code; ns/op on a
+shared CI runner is noisy enough that gating it teaches people to re-run the job
+until it passes. The workflow measures ns/op and reports it without blocking.
+
+They cover the code every request runs. That means the conversion layer between
+a database row and a proto message, the cursor codec, the mask merge used by
+updates, the identity resolution on the authentication path, both interceptors,
+and the logging handler. A page of 100 orgs runs `toProtoOrg`
+100 times, so one extra allocation per row is a hundred per request, which is
+invisible in a test and invisible in a profile taken under light load. Use
+`b.Loop` rather than `for range b.N` with a sink variable: it keeps call results
+alive on its own, and an `any`-typed sink would box every assignment and add an
+allocation to the number being compared.
 
 A mutation run also finds dead code, which is how the month and day bounds came
 out of `protoDate`. `time.Time.Date()` cannot report a month outside 1..12 or a

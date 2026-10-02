@@ -118,8 +118,12 @@ just fuzz-all 20s
 # ...or one target for longer
 just fuzz FuzzNewOneRosterInput 60s
 
-# Mutation-test the pure core (fails below 90% MSI)
+# Mutation-test the pure core (fails below 95% covered MSI)
 just mutate
+# Benchmark the request path and report allocations
+just bench
+# Report which code no benchmark reaches
+just bench-gaps
 
 # Mutation-test only the lines changed against a base ref
 just mutate-diff main
