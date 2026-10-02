@@ -123,8 +123,10 @@ package directory.
 | ----------------------- | --------------------------------------------------------------- |
 | `just test`             | unit tests; no Docker needed                                    |
 | `just test-integration` | `-tags=integration`; needs Docker or `ROSTER_TEST_DATABASE_URL` |
-| `just fuzz-all 20s`     | the pure core's nine property targets                           |
+| `just fuzz-all 20s`     | every fuzz target under `internal/`, a burst each               |
 | `just mutate`           | mutation testing, gated on covered MSI                          |
+| `just bench`            | benchmarks, reporting allocations                               |
+| `just bench-gaps`       | which code no benchmark reaches                                 |
 | `just lint`             | both build configurations                                       |
 | `just vale`             | prose in Markdown and the schema comments                       |
 | `just check`            | the gate CI runs                                                |
@@ -148,11 +150,47 @@ below it already rejects a header that is only the scheme. Recognise that shape 
 a test to chase a survivor, because the test you would have to write asserts
 something no caller can observe.
 
+Benchmarks gate on **allocations**, not wall time. B/op and allocs/op barely
+move with machine load, so a change in them is a change in this code; ns/op on a
+shared CI runner is noisy enough that gating it teaches people to re-run the job
+until it passes. The workflow measures ns/op and reports it without blocking.
+
+They cover the code every request runs. That means the conversion layer between
+a database row and a proto message, the cursor codec, the mask merge used by
+updates, the identity resolution on the authentication path, both interceptors,
+and the logging handler. A page of 100 orgs runs `toProtoOrg`
+100 times, so one extra allocation per row is a hundred per request, which is
+invisible in a test and invisible in a profile taken under light load. Use
+`b.Loop` rather than `for range b.N` with a sink variable: it keeps call results
+alive on its own, and an `any`-typed sink would box every assignment and add an
+allocation to the number being compared.
+
 A mutation run also finds dead code, which is how the month and day bounds came
 out of `protoDate`. `time.Time.Date()` cannot report a month outside 1..12 or a
 day outside 1..31, so those checks were unreachable and no test could tell their
 bounds apart. Removing them made `gosec` ask for the bound it had been reading
 from the dead comparison, which is what the `//nolint:gosec` there records.
+
+Fuzz targets live in the package they exercise and drive unexported functions
+directly. That runs against the usual advice on testing unexported code.
+
+The reason is reach. A fuzz target needs a total function and its whole input
+domain, where roster's exported surface is 38 RPCs, each needing a PostgreSQL
+container. A fuzz target behind a container is one nobody runs. The exported API stays covered by `test/`, which goes through the
+generated client and the full interceptor chain.
+
+Seeds matter as much as the target. Only the seeds run under plain `go test`, so
+a target whose seeds skip its own boundaries contributes nothing to CI between
+fuzzing sessions. `FuzzRootSamplerIsAlwaysUsable` seeds NaN for that reason, and
+that seed is what found `--otel-sample-percent=NaN` building a sampler over an
+undefined fraction.
+
+Write the assertion for the property, not for the implementation. One target
+here asserted that an error message never repeats the SQLSTATE back, which the
+fuzzer broke in under a second with the input `a`, a substring of "request
+violates a data constraint". The check was redundant anyway, because a message
+proven to be one of three constants cannot carry arbitrary input. A property needing an
+exception is usually the wrong property.
 
 Fuzz targets assert properties: round-trip, idempotence, totality, boundary.
 Absence of a panic is not enough. One target found a real date-normalisation bug

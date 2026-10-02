@@ -12,6 +12,9 @@ package telemetry
 import (
 	"context"
 	"fmt"
+	"math"
+
+	otelpyroscope "github.com/grafana/otel-profiling-go"
 
 	"connectrpc.com/connect"
 	"connectrpc.com/otelconnect"
@@ -56,6 +59,14 @@ type Config struct {
 	// startup over a telemetry typo.
 	Exporter string
 
+	// ProfileCorrelation annotates every span with the identity of the profile
+	// covering it, so a trace in Grafana links to its own flame graph.
+	//
+	// Worth turning on only where profiles exist to link to. The annotation costs
+	// a little on every span, and with no Pyroscope endpoint configured it would
+	// point at nothing.
+	ProfileCorrelation bool
+
 	// Endpoint is the OTLP collector address. Empty defers to
 	// OTEL_EXPORTER_OTLP_ENDPOINT.
 	Endpoint string
@@ -77,7 +88,10 @@ type Config struct {
 // it is torn down should still be decisions the composition root makes. The
 // returned shutdown must be called or buffered spans are lost.
 //
-// Requires: cfg.SamplePercent in [0, 100]; values outside are clamped.
+// Requires: nothing of cfg.SamplePercent. A value outside [0, 100] is clamped,
+//
+//	and a NaN is read as 100; see rootSampler.
+//
 // Ensures:  on error nothing global has been installed.
 func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error, err error) {
 	res, err := NewResource(ctx, cfg)
@@ -122,7 +136,16 @@ func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error
 
 	// Installed only once everything above has succeeded, so an error leaves no
 	// half-configured global behind.
-	otel.SetTracerProvider(provider)
+	//
+	// What goes in the global may be a wrapper that labels spans with the profile
+	// covering them. The wrapper delegates and holds no resources of its own,
+	// which is why the shutdown returned below is the real provider's: returning
+	// the wrapper's would drop the final flush of buffered spans.
+	if cfg.ProfileCorrelation {
+		otel.SetTracerProvider(otelpyroscope.NewTracerProvider(provider))
+	} else {
+		otel.SetTracerProvider(provider)
+	}
 	// W3C TraceContext and Baggage, so a trace started in the browser continues
 	// through this service, and so k6's baggage reaches the profiler.
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
@@ -134,9 +157,24 @@ func Init(ctx context.Context, cfg Config) (shutdown func(context.Context) error
 }
 
 // rootSampler maps a percentage onto a sampler for spans with no remote parent.
+//
+// NaN is checked first because it is not orderable: it compares false against
+// every bound, so both guards below would miss it and a ratio sampler would be
+// built from NaN, recording an undefined share of traces with nothing logged to
+// say so. It reaches here from the command line rather than only from a caller
+// in this package, because --otel-sample-percent is a float64 flag and
+// strconv.ParseFloat accepts "NaN".
+//
+// A NaN is read as the flag's own default of 100 rather than as zero. The
+// operator mistyped a number, and sampling everything costs trace volume they
+// will notice, where sampling nothing looks exactly like a healthy deployment
+// that happens to have no traces.
+//
+// Ensures: the result is AlwaysSample, NeverSample, or a ratio sampler over a
+// fraction in (0, 1).
 func rootSampler(percent float64) sdktrace.Sampler {
 	switch {
-	case percent >= fullSamplePercent:
+	case math.IsNaN(percent), percent >= fullSamplePercent:
 		return sdktrace.AlwaysSample()
 	case percent <= 0:
 		return sdktrace.NeverSample()

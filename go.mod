@@ -14,6 +14,7 @@ require (
 	github.com/failsafe-go/failsafe-go v0.9.7
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/google/gnostic v0.7.1
+	github.com/grafana/otel-profiling-go v0.6.0
 	github.com/grafana/pyroscope-go v1.4.2
 	github.com/grafana/pyroscope-go/x/k6 v1.0.7
 	github.com/jackc/pgx/v5 v5.11.0

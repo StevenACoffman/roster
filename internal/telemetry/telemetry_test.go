@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -124,6 +125,70 @@ func TestInitShutsDownCleanly(t *testing.T) {
 				t.Fatal("Init returned a nil shutdown")
 			}
 			ok(t, shutdown(context.Background()))
+			ok(t, shutdown(context.Background()))
+		})
+	}
+}
+
+// TestInitWrapsTheProviderOnlyForProfileCorrelation covers both halves of the
+// ProfileCorrelation switch, and the thing that would break silently if the
+// wrapping were done wrong.
+//
+// The wrapper delegates to the real provider and owns nothing, so Init must
+// still hand back the real provider's shutdown. Returning the wrapper's instead
+// would lose the final flush, and nothing about that failure is visible until
+// someone notices spans missing from the end of a run. Asserting the shutdown
+// works, twice, is what pins it.
+//
+//nolint:paralleltest // Init installs the global TracerProvider.
+func TestInitWrapsTheProviderOnlyForProfileCorrelation(t *testing.T) {
+	tests := []struct {
+		name        string
+		correlate   bool
+		wantWrapped bool
+	}{
+		{
+			name:        "off leaves the SDK provider installed directly",
+			correlate:   false,
+			wantWrapped: false,
+		},
+		{
+			name:        "on installs the profile-labelling wrapper",
+			correlate:   true,
+			wantWrapped: true,
+		},
+	}
+
+	//nolint:paralleltest // see the note on this test: the provider is global.
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			shutdown, err := Init(t.Context(), Config{
+				ServiceName:        "roster-test",
+				Exporter:           ExporterNone,
+				SamplePercent:      100,
+				ProfileCorrelation: tt.correlate,
+			})
+			ok(t, err)
+			t.Cleanup(func() { ok(t, shutdown(context.Background())) })
+
+			installed := otel.GetTracerProvider()
+			_, isSDKProvider := installed.(*sdktrace.TracerProvider)
+			if wrapped := !isSDKProvider; wrapped != tt.wantWrapped {
+				t.Errorf("ProfileCorrelation=%v installed a %T, so wrapped=%v, want %v",
+					tt.correlate, installed, wrapped, tt.wantWrapped)
+			}
+
+			// Either way the global has to produce usable spans: a decorator that
+			// failed to delegate would leave every span unrecorded.
+			_, span := otel.GetTracerProvider().Tracer("telemetry_test").Start(
+				t.Context(), "a span")
+			span.End()
+			if !span.SpanContext().IsValid() {
+				t.Error("the installed provider produced a span with no context")
+			}
+
+			// The real provider's shutdown, so the flush still happens, and
+			// tolerant of being called twice during a messy exit.
 			ok(t, shutdown(context.Background()))
 		})
 	}

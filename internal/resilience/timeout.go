@@ -1,4 +1,4 @@
-package serve
+package resilience
 
 import (
 	"context"
@@ -7,7 +7,13 @@ import (
 	"connectrpc.com/connect"
 )
 
-// newTimeoutInterceptor bounds every RPC with a deadline.
+// DefaultRequestTimeout bounds any single RPC.
+//
+// Without one, a slow query holds a pool connection for as long as the client
+// waits, and a client that has already given up never releases it.
+const DefaultRequestTimeout = 30 * time.Second
+
+// NewTimeoutInterceptor bounds every RPC with a deadline.
 //
 // A caller's own deadline wins when it is shorter: the point is to stop a
 // request running unbounded when nobody set one, not to override a client that
@@ -16,7 +22,7 @@ import (
 //
 // A zero or negative timeout disables the interceptor rather than expiring every
 // request immediately, which is the safer reading of a misconfigured flag.
-func newTimeoutInterceptor(timeout time.Duration) connect.UnaryInterceptorFunc {
+func NewTimeoutInterceptor(timeout time.Duration) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 			if timeout <= 0 {

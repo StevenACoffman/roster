@@ -6,6 +6,7 @@
 package onerosterv1p2v1
 
 import (
+	errors "errors"
 	protojsonxgen "github.com/sudorandom/protojsonx/protojsonxgen"
 )
 
@@ -17,8 +18,12 @@ const _ = "protojsonx generated scaffold 0.1.0"
 func (x *GetAllTeachersResponse) ProtoJSONXFastPath() {}
 
 func (x *GetAllTeachersResponse) MarshalProtoJSONX() ([]byte, error) {
+	if x == nil {
+		return nil, errors.New("marshal target must be non-nil pointer")
+	}
 	e := protojsonxgen.NewEncoder()
 	if err := x.marshalProtoJSONXTo(e); err != nil {
+		e.Free()
 		return nil, err
 	}
 	return e.Bytes(), nil
@@ -29,6 +34,9 @@ func (x *GetAllTeachersResponse) UnmarshalProtoJSONX(data []byte) error {
 }
 
 func (x *GetAllTeachersResponse) UnmarshalProtoJSONXWithOptions(data []byte, discardUnknown bool) error {
+	if x == nil {
+		return errors.New("unmarshal target must be non-nil pointer")
+	}
 	d := protojsonxgen.NewDecoder(data)
 	*x = GetAllTeachersResponse{}
 	firstKey, savedOff, savedDepth, _, peekErr := d.PeekObjectFieldName()

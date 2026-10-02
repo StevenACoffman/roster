@@ -1,0 +1,85 @@
+name: Benchmarks
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+# When a new revision is pushed to a PR, cancel all in-progress CI runs for that
+# PR. See https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+# Read-only is enough. The gate clones, installs benchgate, runs benchmarks and
+# appends to $GITHUB_STEP_SUMMARY, which is a file the runner collects rather
+# than an API call needing a scope. Nothing here comments on the pull request or
+# writes to the repository.
+permissions:
+  contents: read
+env:
+  GOTOOLCHAIN: local
+jobs:
+  benchgate:
+    name: Regressions and benchmark coverage
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+        # benchgate measures the base revision in a detached worktree, so it needs real
+        # history. A shallow clone has none.
+        fetch-depth: 0
+    # mise, not setup-go, so this job builds with the same toolchain as every other
+    # one here. .mise.toml pins go 1.27.1 and go.mod requires 1.27.1, which is what
+    # makes GOTOOLCHAIN=local above safe: a setup-go version range could resolve to a
+    # patch below the one go.mod needs, and the failure reads as a benchgate problem.
+    - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+      with:
+        cache: true
+    - uses: StevenACoffman/benchgate@ab2d4a87775c1f3fbd712a529e3d193077823130 # v0.2.0
+      with:
+        # Pinned deliberately: an unpinned gate changes its own verdicts when a new release
+        # lands, and a build that starts failing for that reason looks exactly like a real
+        # regression.
+        version: v0.2.0
+        # internal/ only. ./... would pull in gen/, where a hundred generated protobuf
+        # files would bury the coverage report in functions nobody will ever benchmark,
+        # and cmd/, which is flag wiring. The same reasoning already excludes those paths
+        # from golangci-lint. internal/db and internal/onerosterjson are generated too and
+        # still appear in the gap list below; they need a database and a decoder
+        # respectively, so neither is measurable as a unit.
+        packages: ./internal/...
+        # Allocations are what gets gated, at zero tolerance. B/op and allocs/op barely move
+        # with runner load, so a change in them is a change in this code rather than in the
+        # weather. Every row a read RPC returns passes through toProto*, and every page
+        # through the cursor codec, so a conversion that starts allocating per row will say
+        # so here on the pull request that did it. Wall time is measured and reported in the
+        # job summary but does not block: ns/op on a shared runner is noisy enough that
+        # gating it teaches people to re-run the job until it passes. Add a second job with
+        # `metrics: ns/op` and a loose tolerance once these runners' real variance is known.
+        metrics: B/op allocs/op
+        tolerance: '0'
+        fail-on-regression: 'true'
+        # Six rounds is the minimum that can produce a significant result at the default
+        # alpha, and 100ms keeps a full interleaved run of both revisions inside a couple of
+        # minutes.
+        rounds: '6'
+        benchtime: 100ms
+        # The other half: which code no benchmark reaches. A delta report only speaks about
+        # code that ran, so without this a package could lose all its benchmarks and the gate
+        # would report everything as fine.
+        #
+        # Reporting only, for now. The benchmarks cover the pure core of internal/oneroster,
+        # the resilience interceptors and the logging handler, which is the code on the path
+        # of every request. Measured locally the day this landed, that is 4.8% statement
+        # coverage over ./internal/..., and the number is low because the denominator
+        # includes internal/db and internal/onerosterjson: both generated, both enormous,
+        # neither measurable without a database or a decoder. Eight packages still declare
+        # no benchmark and the report names them every run.
+        #
+        # Set min-bench-coverage somewhere below the real number and flip fail-on-gap once
+        # that number has been watched for a while; a floor guessed in advance is a floor
+        # somebody disables in a hurry.
+        require-benchmark-per-package: 'true'
+        report-unreached: 'true'
+        min-bench-coverage: '0'
+        fail-on-gap: 'false'
+        job-summary: 'true'
