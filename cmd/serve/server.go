@@ -62,7 +62,7 @@ func (cfg *Config) newServerHandler(
 	// sql/queries/rostering.sql.
 	interceptors := []connect.Interceptor{
 		otelInterceptor,
-		newTimeoutInterceptor(cfg.RequestTimeout),
+		resilience.NewTimeoutInterceptor(cfg.RequestTimeout),
 	}
 
 	// Admission control before authentication, not after: authenticating a

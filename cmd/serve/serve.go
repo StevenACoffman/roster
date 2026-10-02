@@ -101,7 +101,7 @@ func New(parent *root.Config) *Config {
 	cfg.Flags.BoolVar(&cfg.TrustProxyHeaders, 0, "trust-proxy-headers",
 		"trust identity headers from an upstream proxy (Google IAP or oauth2-proxy); "+
 			"only safe when clients cannot reach this service except through it")
-	cfg.Flags.DurationVar(&cfg.RequestTimeout, 0, "request-timeout", 30*time.Second,
+	cfg.Flags.DurationVar(&cfg.RequestTimeout, 0, "request-timeout", resilience.DefaultRequestTimeout,
 		"per-request deadline applied to every RPC")
 	cfg.Flags.StringVar(&cfg.TraceSnapshotDir, 0, "trace-snapshot-dir", "",
 		"enable the execution-trace flight recorder and write snapshots here")
